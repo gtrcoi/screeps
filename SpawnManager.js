@@ -1,7 +1,7 @@
 module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
-        const workerLimits = 4;
+        const workerLimits = 2;
         const harvesterLimits = 2;
         const builderLimits = 2;
 
@@ -101,7 +101,8 @@ StructureSpawn.prototype.spawnDrone = function(role) {
         body.push(CARRY);
         body.push(MOVE);
     }
-
-    // Spawn the creep using all of this information
-    this.spawnCreep(body, name, { memory: creepMemory });
+    if (numberOfParts >= 1) {
+        // Spawn the creep using all of this information
+        this.spawnCreep(body, name, { memory: creepMemory });
+    }
 };
