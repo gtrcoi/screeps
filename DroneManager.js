@@ -47,23 +47,41 @@ module.exports = {
                     const construction = creep.pos.findClosestByPath(
                         FIND_CONSTRUCTION_SITES
                     );
-                    const damagedBuildings = creep.pos.findClosestByPath(
+                    const damagedBuildings = creep.room.find(
                         FIND_STRUCTURES, {
                             filter: s =>
-                                s.hits <= s.hitsMax / 2 && s.structureType != STRUCTURE_WALL
+                                s.hits <= s.hitsMax
                         }
                     );
+                    // thPion's percentage loop
+                    var mostDamagedBuilding = undefined;
+
+                    // loop with increasing percentages
+                    for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.0001) {
+                        // find building with less than percentage hits
+                        for (let building of damagedBuildings) {
+                            if (building.hits / building.hitsMax < percentage) {
+                                mostDamagedBuilding = building;
+                                break;
+                            }
+                        }
+                        // if there is a match
+                        if (mostDamagedBuilding != undefined) {
+                            break;
+                        }
+                    }
+
                     // console.log(damagedBuildings);
                     if (creep.build(construction) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(construction);
                     } else if (
                         creep.build(construction) == ERR_INVALID_TARGET &&
-                        creep.repair(damagedBuildings) === ERR_NOT_IN_RANGE
+                        creep.repair(mostDamagedBuilding) === ERR_NOT_IN_RANGE
                     ) {
-                        creep.moveTo(damagedBuildings);
+                        creep.moveTo(mostDamagedBuilding);
                     }
                     // If there's nothing to do
-                    if (construction === null && damagedBuildings === null) {
+                    if (construction === null && mostDamagedBuilding === null) {
                         // Upgrade controller
                         const controller = creep.room.controller;
                         if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
