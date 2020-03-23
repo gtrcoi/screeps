@@ -50,7 +50,7 @@ module.exports = {
                     const damagedBuildings = creep.pos.findClosestByPath(
                         FIND_STRUCTURES, {
                             filter: s =>
-                                s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL
+                                s.hits <= s.hitsMax / 2 && s.structureType != STRUCTURE_WALL
                         }
                     );
                     // console.log(damagedBuildings);
@@ -76,10 +76,32 @@ module.exports = {
                     break;
             }
         } else {
-            // Creep is not working, get energy from source
             const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
+            switch (creep.memory.role) {
+                case "worker":
+                    let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
+                    let droppedSource = creep.pos.findClosestByPath(
+                        FIND_DROPPED_RESOURCES
+                    );
+                    if (creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(droppedSource);
+                    } else if (tombstone != null &&
+                        creep.withdraw(tombstone, RESOURCE_ENERGY) ===
+                        ERR_NOT_IN_RANGE
+                    ) {
+                        creep.moveTo(tombstone);
+                    } else if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source);
+                    }
+                    break;
+
+                default:
+                    // Creep is not working, get energy from source
+
+                    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source);
+                    }
+                    break;
             }
         }
     }
