@@ -28,7 +28,16 @@ module.exports = {
                         creep.moveTo(controller);
                     }
                     break;
+                case "builder":
+                    const construction = creep.pos.findClosestByPath(
+                        FIND_CONSTRUCTION_SITES
+                    );
+                    if (creep.build(construction) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(construction);
+                    }
+                    break;
                 default:
+                    // console.log("Error WorkerManager.runRole: memory role = " = creep.memory.role)
                     break;
             }
         } else {
