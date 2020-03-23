@@ -27,6 +27,14 @@ module.exports = {
                     if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(spawn);
                     }
+                    // If room energy is full
+                    if (spawn === null) {
+                        // Upgrade controller
+                        const controller = creep.room.controller;
+                        if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+                            creep.moveTo(controller);
+                        }
+                    }
                     break;
                 case "worker":
                     // Creep is working, find closest controller and transfer energy
@@ -48,8 +56,19 @@ module.exports = {
                     // console.log(damagedBuildings);
                     if (creep.build(construction) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(construction);
-                    } else if (creep.build(construction) == ERR_INVALID_TARGET && creep.repair(damagedBuildings) === ERR_NOT_IN_RANGE) {
+                    } else if (
+                        creep.build(construction) == ERR_INVALID_TARGET &&
+                        creep.repair(damagedBuildings) === ERR_NOT_IN_RANGE
+                    ) {
                         creep.moveTo(damagedBuildings);
+                    }
+                    // If there's nothing to do
+                    if (construction === null && damagedBuildings === null) {
+                        // Upgrade controller
+                        const controller = creep.room.controller;
+                        if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+                            creep.moveTo(controller);
+                        }
                     }
                     break;
                 default:
