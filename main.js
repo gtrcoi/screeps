@@ -1,6 +1,6 @@
 const droneManager = require('./DroneManager');
-const SpawnManager = require('./SpawnManager');
-
+const spawnManager = require('./SpawnManager');
+const structureManager = require('./StructureManager')
 module.exports.loop = function() {
 
     // Run the drone manager for every creep in the game
@@ -15,14 +15,15 @@ module.exports.loop = function() {
     for (const key in Game.rooms) {
         // Get the current room for this iteration fo the loop
         const room = Game.rooms[key];
-
+        //     const pos = new RoomPosition(16, 23, room]);
+        // console.log(pos.lookFor(LOOK_STRUCTURES));
         // Skip this room if its not your room or has no controller
         if (!room.controller || !room.controller.my) {
             continue;
         }
 
         // Set the spawn limits for this room
-        SpawnManager.setSpawnLimits(room);
+        spawnManager.setSpawnLimits(room);
     }
 
     // Run the spawn next creep for every spawn
