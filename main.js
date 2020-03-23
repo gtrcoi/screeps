@@ -11,7 +11,7 @@ module.exports.loop = function() {
         // Get the current creep for this iteration of the loop
         const creep = Game.creeps[key];
         // Call runRole on the corresponding creep role as defined in the roles variable at the top of the file
-        roles[creep.memory.role].runRole(creep);
+        roles['worker'].runRole(creep);
     }
 
     // set the limits for the creeps
