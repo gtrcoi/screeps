@@ -1,9 +1,9 @@
 module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
-        const workerLimits = 2;
+        const workerLimits = 1;
         const harvesterLimits = 2;
-        const builderLimits = 2;
+        const builderLimits = 3;
 
         // Set the property in memory if it doesn't exist
         if (!room.memory.spawnLimits) {
@@ -89,8 +89,10 @@ StructureSpawn.prototype.spawnDrone = function(role) {
     ).length;
     // Generate the creep body
     var energyAvailable = undefined;
-    if (harvesterCount > 0) {
-        energyAvailable = this.room.energyCapacityAvailable;
+    if (harvesterCount == 1) {
+        energyAvailable = this.room.energyCapacityAvailable / 3;
+    } else if (harvesterCount > 1) {
+        energyAvailable = this.room.energyCapacityAvailable
     } else {
         energyAvailable = this.room.energyAvailable;
     }
