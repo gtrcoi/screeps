@@ -67,7 +67,7 @@ StructureSpawn.prototype.spawnNextCreep = function() {
 // Add a function to spawn objects to spawn a harvester
 StructureSpawn.prototype.spawnDrone = function(role) {
     // Set all basic information about the creep to be spawned
-    const energyCapacityAvailable = this.room.energyCapacityAvailable;
+    const energyAvailable = this.room.energyAvailable;
     // Name is Game.time, which is an integer value of the current tick
     const name = Game.time;
     // Empty body array we will manually fill
@@ -81,9 +81,9 @@ StructureSpawn.prototype.spawnDrone = function(role) {
 
     // Generate the creep body
     // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
-    const numberOfParts = Math.floor(energyCapacityAvailable / 200);
+    const numberOfParts = Math.floor(energyAvailable / 200);
     // The amount of energy we have after we have built as many 3 part sections as we can
-    const leftOverEnergy = energyCapacityAvailable % 200;
+    const leftOverEnergy = energyAvailable % 200;
     // The number of 2 part sections we can build after we have built the 3 part sections
     const numberOfExtraParts = Math.floor(leftOverEnergy / 100);
 
