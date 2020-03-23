@@ -1,5 +1,4 @@
 const roles = {
-    harvester: require('./HarvesterManager'),
     worker: require('./WorkerManager'),
 }
 const SpawnManager = require('./SpawnManager');
