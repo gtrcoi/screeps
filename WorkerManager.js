@@ -16,7 +16,14 @@ module.exports = {
             switch (creep.memory.role) {
                 case "harvester":
                     // Creep is working, find closest spawn and transfer energy
-                    const spawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
+                    const spawn = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                        filter: s =>
+                            (s.structureType == STRUCTURE_EXTENSION &&
+                                s.store[RESOURCE_ENERGY] <
+                                s.store.getCapacity(RESOURCE_ENERGY)) ||
+                            (s.structureType == STRUCTURE_SPAWN &&
+                                s.store[RESOURCE_ENERGY] < s.store.getCapacity(RESOURCE_ENERGY))
+                    });
                     if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(spawn);
                     }
@@ -32,6 +39,13 @@ module.exports = {
                     const construction = creep.pos.findClosestByPath(
                         FIND_CONSTRUCTION_SITES
                     );
+                    const damagedBuildings = creep.pos.findClosestByPath(
+                        FIND_STRUCTURES, {
+                            filter: s =>
+                                s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL
+                        }
+                    );
+                    // console.log(damagedBuildings);
                     if (creep.build(construction) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(construction);
                     }

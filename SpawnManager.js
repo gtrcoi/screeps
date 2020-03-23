@@ -2,7 +2,7 @@ module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
         const workerLimits = 4;
-        const harvesterLimits = 3;
+        const harvesterLimits = 2;
         const builderLimits = 2;
 
         // Set the property in memory if it doesn't exist
