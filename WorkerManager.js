@@ -48,6 +48,8 @@ module.exports = {
                     // console.log(damagedBuildings);
                     if (creep.build(construction) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(construction);
+                    } else if (creep.build(construction) == ERR_INVALID_TARGET && creep.repair(damagedBuildings) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(damagedBuildings);
                     }
                     break;
                 default:
