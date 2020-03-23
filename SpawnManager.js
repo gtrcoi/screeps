@@ -8,7 +8,7 @@ module.exports = {
             let harvesterLimits = 2;
 
             // Set the limits in the room memory
-            const spawnLimits = {
+            let spawnLimits = {
                 worker: workerLimits,
                 harvester: harvesterLimits
             };

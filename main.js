@@ -16,9 +16,9 @@ module.exports.loop = function() {
     for (const key in Game.rooms) {
         const room = Game.rooms[key];
         // Skip if no controller or not owned
-        // if (!room.controller || !room.controller.my) {
-        //     continue;
-        // }
+        if (!room.controller || !room.controller.my) {
+            continue;
+        }
         spawnManager.setSpawnLimits(room);
     }
 
