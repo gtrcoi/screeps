@@ -40,7 +40,11 @@ module.exports = {
                     // Creep is working, find closest controller and transfer energy
                     const controller = creep.room.controller;
                     if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(controller);
+                        creep.moveTo(controller, {
+                            visualizePathStyle: {
+                                opacity: 0.7
+                            }
+                        });
                     }
                     break;
                 case "builder":
@@ -64,7 +68,7 @@ module.exports = {
                     var mostDamagedBuilding = undefined;
 
                     // loop with increasing percentages
-                    for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.0001) {
+                    for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
                         // find building with less than percentage hits
                         for (let building of damagedBuildings) {
                             if (building.hits / building.hitsMax < percentage) {
@@ -133,7 +137,7 @@ module.exports = {
             switch (creep.memory.role) {
                 case "worker":
                     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
-                    let droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+                    //let droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
                     // Move to Dropped Source
                     if (creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(droppedSource, {
