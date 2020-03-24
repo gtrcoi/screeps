@@ -53,6 +53,13 @@ module.exports = {
                                 s.hits <= s.hitsMax
                         }
                     );
+                    const damagedRoads = creep.pos.findClosestByPath(
+                        FIND_STRUCTURES, {
+                            filter: s =>
+                                s.hits < s.hitsMax / 2 && s.structureType === STRUCTURE_ROAD
+                        }
+                    );
+                    // console.log(damagedRoads);
                     // thPion's percentage loop
                     var mostDamagedBuilding = undefined;
 
@@ -70,22 +77,50 @@ module.exports = {
                             break;
                         }
                     }
-
+                    // console.log(damagedRoads)
                     // console.log(damagedBuildings);
                     if (creep.build(construction) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(construction);
+                        creep.moveTo(construction, {
+                            visualizePathStyle: {
+                                stroke: '#00cc00',
+                                opacity: 0.7
+                            }
+                        });
                     } else if (
-                        creep.build(construction) == ERR_INVALID_TARGET &&
+                        construction == null &&
+                        creep.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(damagedRoads, {
+                            visualizePathStyle: {
+                                stroke: '#00cc00',
+                                opacity: 0.7
+                            }
+                        });
+                    } else if (
+                        construction == null &&
+                        damagedRoads == null &&
                         creep.repair(mostDamagedBuilding) === ERR_NOT_IN_RANGE
                     ) {
-                        creep.moveTo(mostDamagedBuilding);
+                        creep.moveTo(mostDamagedBuilding, {
+                            visualizePathStyle: {
+                                stroke: '#00cc00',
+                                opacity: 0.7
+                            }
+                        });
                     }
                     // If there's nothing to do
-                    if (construction === null && mostDamagedBuilding === null) {
+                    else if (
+                        construction == null &&
+                        damagedRoads == null &&
+                        mostDamagedBuilding == undefined
+                    ) {
                         // Upgrade controller
                         const controller = creep.room.controller;
                         if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                            creep.moveTo(controller);
+                            creep.moveTo(controller, {
+                                visualizePathStyle: {
+                                    opacity: 0.7
+                                }
+                            });
                         }
                     }
                     break;
@@ -93,31 +128,50 @@ module.exports = {
                     // console.log("Error WorkerManager.runRole: memory role = " = creep.memory.role)
                     break;
             }
-        } else {
+        } else { // Find Energy
             const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
             switch (creep.memory.role) {
                 case "worker":
                     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
-                    let droppedSource = creep.pos.findClosestByPath(
-                        FIND_DROPPED_RESOURCES
-                    );
+                    let droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+                    // Move to Dropped Source
                     if (creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(droppedSource);
-                    } else if (tombstone != null &&
-                        creep.withdraw(tombstone, RESOURCE_ENERGY) ===
-                        ERR_NOT_IN_RANGE
-                    ) {
-                        creep.moveTo(tombstone);
-                    } else if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source);
+                        creep.moveTo(droppedSource, {
+                            visualizePathStyle: {
+                                stroke: '#ffff66',
+                                opacity: 0.7
+                            }
+                        });
+                    }
+                    // Move to Tombstone 
+                    else if (tombstone != null && creep.withdraw(tombstone, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(tombstone, {
+                            visualizePathStyle: {
+                                stroke: '#ffff66',
+                                opacity: 0.7
+                            }
+                        });
+                    }
+                    // Move to Soure 
+                    else if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source, {
+                            visualizePathStyle: {
+                                stroke: '#ffff66',
+                                opacity: 0.7
+                            }
+                        });
                     }
                     break;
 
                 default:
                     // Creep is not working, get energy from source
-
                     if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source);
+                        creep.moveTo(source, {
+                            visualizePathStyle: {
+                                stroke: '#ffff66',
+                                opacity: 0.7
+                            }
+                        });
                     }
                     break;
             }
