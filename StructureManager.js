@@ -10,9 +10,10 @@ module.exports = {
                 b.structureType === STRUCTURE_STORAGE
         });
 
-        for (building in rampartBuildings) {
-            if (building.pos.lookFor(LOOK_STRUCTURES, { filter: (b) => b.structureType === STRUCTURE_RAMPART }).length == 0) {
-                Game.room[room].createConstructionSite(building.pos, STRUCTURE_RAMPART);
+        for (const key in rampartBuildings) {
+            let building = rampartBuildings[key];
+            if (building.pos.lookFor(LOOK_STRUCTURES, { filter: (b) => b.structureType === STRUCTURE_RAMPART }).length != 0) {
+                room.createConstructionSite(building.pos, STRUCTURE_RAMPART);
             }
         }
     }

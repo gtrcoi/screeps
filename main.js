@@ -32,6 +32,7 @@ module.exports.loop = function() {
 
         // Set the spawn limits for this room
         spawnManager.setSpawnLimits(room);
+        structureManager.buildRamparts(room);
     }
 
     // Run the spawn next creep for every spawn
