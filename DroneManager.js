@@ -137,9 +137,13 @@ module.exports = {
             switch (creep.memory.role) {
                 case "worker":
                     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
-                    //let droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+                    let droppedSource = undefined;
+                    if (creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS) == null) {
+                        droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+                    }
+                    // console.log(droppedSource)
                     // Move to Dropped Source
-                    if (creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
+                    if (droppedSource != undefined && creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(droppedSource, {
                             visualizePathStyle: {
                                 stroke: '#ffff66',
