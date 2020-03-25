@@ -3,7 +3,7 @@ module.exports = {
         // Define the limits for a room
         const workerLimits = 1;
         const harvesterLimits = 2;
-        const builderLimits = 3;
+        const builderLimits = 2;
 
         // Set the property in memory if it doesn't exist
         if (!room.memory.spawnLimits) {
@@ -89,13 +89,14 @@ StructureSpawn.prototype.spawnDrone = function(role) {
     ).length;
     // Generate the creep body
     var energyAvailable = undefined;
-    if (harvesterCount == 1) {
+    if (harvesterCount == 1 && this.room.energyCapacityAvailable >= 900) {
         energyAvailable = this.room.energyCapacityAvailable / 3;
     } else if (harvesterCount > 1) {
         energyAvailable = this.room.energyCapacityAvailable
     } else {
         energyAvailable = this.room.energyAvailable;
     }
+
     // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
     const numberOfParts = Math.floor(energyAvailable / 200);
     // The amount of energy we have after we have built as many 3 part sections as we can
