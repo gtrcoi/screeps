@@ -4,6 +4,10 @@ const structureManager = require('./StructureManager');
 require('./TowerManager');
 
 module.exports.loop = function() {
+    // for (key in Game.flags) {
+    //     let flag = Game.flags[key];
+    //     flag.remove();
+    // }
     // Clean memory
     for (let name in Memory.creeps) {
         // and checking if the creep is still alive
@@ -33,6 +37,7 @@ module.exports.loop = function() {
         // Set the spawn limits for this room
         spawnManager.setSpawnLimits(room);
         structureManager.buildRamparts(room);
+        structureManager.rebuild(room);
     }
 
     // Run the spawn next creep for every spawn
