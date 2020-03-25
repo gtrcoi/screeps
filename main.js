@@ -1,6 +1,8 @@
 const droneManager = require('./DroneManager');
 const spawnManager = require('./SpawnManager');
-const structureManager = require('./StructureManager')
+const structureManager = require('./StructureManager');
+require('./TowerManager');
+
 module.exports.loop = function() {
     // Clean memory
     for (let name in Memory.creeps) {
@@ -22,8 +24,7 @@ module.exports.loop = function() {
     for (const key in Game.rooms) {
         // Get the current room for this iteration fo the loop
         const room = Game.rooms[key];
-        //     const pos = new RoomPosition(16, 23, room]);
-        // console.log(pos.lookFor(LOOK_STRUCTURES));
+
         // Skip this room if its not your room or has no controller
         if (!room.controller || !room.controller.my) {
             continue;
@@ -39,5 +40,12 @@ module.exports.loop = function() {
         const spawn = Game.spawns[key];
         // Call spawn next creep on this spawn object
         spawn.spawnNextCreep();
+    }
+
+    // Tower logic
+    var towers = _.filter(Game.structures, (t) => t.structureType == STRUCTURE_TOWER);
+    for (const key in towers) {
+        let tower = towers[key];
+        tower.defend();
     }
 }
