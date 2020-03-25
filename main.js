@@ -2,7 +2,14 @@ const droneManager = require('./DroneManager');
 const spawnManager = require('./SpawnManager');
 const structureManager = require('./StructureManager')
 module.exports.loop = function() {
-
+    // Clean memory
+    for (let name in Memory.creeps) {
+        // and checking if the creep is still alive
+        if (Game.creeps[name] == undefined) {
+            // if not, delete the memory entry
+            delete Memory.creeps[name];
+        }
+    }
     // Run the drone manager for every creep in the game
     for (const key in Game.creeps) {
         // Get the current creep for this iteration of the loop
