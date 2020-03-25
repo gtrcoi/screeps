@@ -63,6 +63,12 @@ module.exports = {
                                 s.hits < s.hitsMax / 2 && s.structureType === STRUCTURE_ROAD
                         }
                     );
+                    const depletedTower = creep.pos.findClosestByPath(
+                        FIND_STRUCTURES, {
+                            filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
+                        }
+                    );
+                    // console.log(depletedTower)
                     // console.log(damagedRoads);
                     // thPion's percentage loop
                     var mostDamagedBuilding = undefined;
@@ -92,6 +98,17 @@ module.exports = {
                         });
                     } else if (
                         construction == null &&
+                        creep.transfer(depletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
+                    ) {
+                        creep.moveTo(depletedTower, {
+                            visualizePathStyle: {
+                                stroke: '#00cc00',
+                                opacity: 0.7
+                            }
+                        });
+                    } else if (
+                        construction == null &&
+                        depletedTower == null &&
                         creep.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(damagedRoads, {
                             visualizePathStyle: {
@@ -136,12 +153,12 @@ module.exports = {
             const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
             switch (creep.memory.role) {
                 case "worker":
+                    let ruin = creep.pos.findClosestByPath(FIND_RUINS, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
                     let tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
                     let droppedSource = undefined;
                     if (creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS) == null) {
                         droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
                     }
-                    // console.log(droppedSource)
                     // Move to Dropped Source
                     if (droppedSource != undefined && creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(droppedSource, {
@@ -154,6 +171,15 @@ module.exports = {
                     // Move to Tombstone 
                     else if (tombstone != null && creep.withdraw(tombstone, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(tombstone, {
+                            visualizePathStyle: {
+                                stroke: '#ffff66',
+                                opacity: 0.7
+                            }
+                        });
+                    }
+                    // Collect energy from Ruins
+                    else if (ruin != null && creep.withdraw(ruin, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(ruin, {
                             visualizePathStyle: {
                                 stroke: '#ffff66',
                                 opacity: 0.7
