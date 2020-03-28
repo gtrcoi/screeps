@@ -89,7 +89,7 @@ StructureSpawn.prototype.spawnDrone = function(role) {
     ).length;
     // Generate the creep body
     var energyAvailable = undefined;
-    if (harvesterCount > 1) {
+    if (harvesterCount >= 1) {
         energyAvailable = this.room.energyCapacityAvailable;
     } else {
         energyAvailable = this.room.energyAvailable;
