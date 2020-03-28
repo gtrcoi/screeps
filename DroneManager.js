@@ -1,3 +1,5 @@
+require('./DronePrototypes');
+
 module.exports = {
     // Run the role for the Worker creep
     runRole: function(creep) {
@@ -15,201 +17,92 @@ module.exports = {
         if (creep.memory.working) {
             switch (creep.memory.role) {
                 case "harvester":
-                    // Creep is working, find closest spawn and transfer energy
-                    const spawn = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-                        filter: s =>
-                            (s.structureType == STRUCTURE_EXTENSION &&
-                                s.store[RESOURCE_ENERGY] <
-                                s.store.getCapacity(RESOURCE_ENERGY)) ||
-                            (s.structureType == STRUCTURE_SPAWN &&
-                                s.store[RESOURCE_ENERGY] < s.store.getCapacity(RESOURCE_ENERGY))
-                    });
-                    if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(spawn);
-                    }
-                    // If room energy is full
-                    if (spawn === null) {
-                        // Upgrade controller
-                        const controller = creep.room.controller;
-                        if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                            creep.moveTo(controller);
-                        }
-                    }
-                    break;
-                case "worker":
-                    // Creep is working, find closest controller and transfer energy
-                    const controller = creep.room.controller;
-                    if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(controller, {
-                            visualizePathStyle: {
-                                opacity: 0.7
-                            }
-                        });
-                    }
-                    break;
-                case "builder":
-                    const construction = creep.pos.findClosestByPath(
-                        FIND_CONSTRUCTION_SITES
-                    );
-                    const damagedBuildings = creep.room.find(
-                        FIND_MY_STRUCTURES, {
-                            filter: s =>
-                                s.hits <= s.hitsMax
-                        }
-                    );
-                    const damagedRoads = creep.pos.findClosestByPath(
-                        FIND_STRUCTURES, {
-                            filter: s =>
-                                s.hits < s.hitsMax / 2 && s.structureType === STRUCTURE_ROAD
-                        }
-                    );
-                    const depletedTower = creep.pos.findClosestByPath(
-                        FIND_MY_STRUCTURES, {
-                            filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
-                        }
-                    );
-                    // console.log(depletedTower)
-                    // console.log(damagedRoads);
-                    // thPion's percentage loop
-                    var mostDamagedBuilding = undefined;
+                    const harvesterOperations = [
+                        // creep.rechargeTower(),
+                        // creep.repairRoad(),
+                        // creep.construct(),
+                        // creep.repairMostDamaged(),
+                        // creep.chargeController()
+                        creep.chargeSpawn()
+                    ];
 
-                    // loop with increasing percentages
-                    for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
-                        // find building with less than percentage hits
-                        for (let building of damagedBuildings) {
-                            if (building.hits / building.hitsMax < percentage) {
-                                mostDamagedBuilding = building;
-                                break;
-                            }
-                        }
-                        // if there is a match
-                        if (mostDamagedBuilding != undefined) {
+                    for (operation in harvesterOperations) {
+                        if (operation != null) {
                             break;
                         }
                     }
-                    // console.log(damagedRoads)
-                    // console.log(damagedBuildings);
-                    if (
-                        creep.transfer(depletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
-                    ) {
-                        creep.moveTo(depletedTower, {
-                            visualizePathStyle: {
-                                stroke: '#00cc00',
-                                opacity: 0.7
-                            }
-                        });
-                    } else if (
-                        depletedTower == null &&
-                        creep.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(damagedRoads, {
-                            visualizePathStyle: {
-                                stroke: '#00cc00',
-                                opacity: 0.7
-                            }
-                        });
-                    } else if (
-                        damagedRoads == null &&
-                        depletedTower == null &&
-                        creep.build(construction) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(construction, {
-                            visualizePathStyle: {
-                                stroke: '#00cc00',
-                                opacity: 0.7
-                            }
-                        });
-                    } else if (
-                        construction == null &&
-                        damagedRoads == null &&
-                        depletedTower == null &&
-                        creep.repair(mostDamagedBuilding) === ERR_NOT_IN_RANGE
-                    ) {
-                        creep.moveTo(mostDamagedBuilding, {
-                            visualizePathStyle: {
-                                stroke: '#00cc00',
-                                opacity: 0.7
-                            }
-                        });
-                    }
-                    // If there's nothing to do
-                    else if (
-                        construction == null &&
-                        damagedRoads == null &&
-                        mostDamagedBuilding == undefined
-                    ) {
-                        // Upgrade controller
-                        const controller = creep.room.controller;
-                        if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                            creep.moveTo(controller, {
-                                visualizePathStyle: {
-                                    opacity: 0.7
-                                }
-                            });
+                    break;
+
+                case "worker":
+                    const workerOperations = [
+                        // creep.rechargeTower(),
+                        // creep.repairRoad(),
+                        // creep.construct(),
+                        // creep.repairMostDamaged(),
+                        creep.chargeController()
+                    ];
+
+                    for (operation in workerOperations) {
+                        if (operation != null) {
+                            break;
                         }
                     }
                     break;
-                default:
-                    // console.log("Error WorkerManager.runRole: memory role = " = creep.memory.role)
-                    break;
-            }
-        } else { // Find Energy
-            const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            switch (creep.memory.role) {
-                case "worker":
-                    let ruin = creep.pos.findClosestByPath(FIND_RUINS, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
-                    let tombstone = undefined;
-                    let droppedSource = undefined;
-                    if (creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS) == null) {
-                        droppedSource = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
-                        tombstone = creep.pos.findClosestByPath(FIND_TOMBSTONES, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
-                    }
-                    // Move to Dropped Source
-                    if (droppedSource != undefined && creep.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(droppedSource, {
-                            visualizePathStyle: {
-                                stroke: '#ffff66',
-                                opacity: 0.7
-                            }
-                        });
-                    }
-                    // Move to Tombstone 
-                    else if (tombstone != undefined && creep.withdraw(tombstone, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(tombstone, {
-                            visualizePathStyle: {
-                                stroke: '#ffff66',
-                                opacity: 0.7
-                            }
-                        });
-                    }
-                    // Collect energy from Ruins
-                    else if (ruin != null && creep.withdraw(ruin, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(ruin, {
-                            visualizePathStyle: {
-                                stroke: '#ffff66',
-                                opacity: 0.7
-                            }
-                        });
-                    }
-                    // Move to Soure 
-                    else if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, {
-                            visualizePathStyle: {
-                                stroke: '#ffff66',
-                                opacity: 0.7
-                            }
-                        });
+
+                case "builder":
+                    let builderOperations = [
+                        creep.rechargeTower(),
+                        creep.repairRoad(),
+                        creep.construct(),
+                        creep.repairMostDamaged(),
+                        // creep.chargeController()
+                    ];
+
+                    for (operation in builderOperations) {
+                        if (operation != null) {
+                            break;
+                        }
                     }
                     break;
 
                 default:
-                    // Creep is not working, get energy from source
-                    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, {
-                            visualizePathStyle: {
-                                stroke: '#ffff66',
-                                opacity: 0.7
-                            }
-                        });
+                    break;
+            }
+        } else { // Find Energy
+            switch (creep.memory.role) {
+                case "worker":
+                    let workerOperations = [
+                        creep.collectDroppedSource(),
+                        creep.withdrawTombstone(),
+                        creep.collectRuin(),
+                        creep.harvestSource()
+                    ];
+
+                    for (operation in workerOperations) {
+                        if (operation != null) {
+                            break;
+                        }
                     }
+
+                    break;
+
+                case "builder":
+                    let builderOperations = [
+                        creep.collectDroppedSource(),
+                        creep.withdrawTombstone(),
+                        creep.collectRuin(),
+                        creep.harvestSource()
+                    ];
+
+                    for (operation in builderOperations) {
+                        if (operation != null) {
+                            break;
+                        }
+                    }
+                    break;
+
+                default:
+                    creep.harvestSource();
                     break;
             }
         }
