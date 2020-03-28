@@ -52,7 +52,7 @@ module.exports = {
                         FIND_CONSTRUCTION_SITES
                     );
                     const damagedBuildings = creep.room.find(
-                        FIND_STRUCTURES, {
+                        FIND_MY_STRUCTURES, {
                             filter: s =>
                                 s.hits <= s.hitsMax
                         }
@@ -64,7 +64,7 @@ module.exports = {
                         }
                     );
                     const depletedTower = creep.pos.findClosestByPath(
-                        FIND_STRUCTURES, {
+                        FIND_MY_STRUCTURES, {
                             filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
                         }
                     );
@@ -89,7 +89,17 @@ module.exports = {
                     }
                     // console.log(damagedRoads)
                     // console.log(damagedBuildings);
-                    if (creep.build(construction) === ERR_NOT_IN_RANGE) {
+                    if (
+                        creep.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(damagedRoads, {
+                            visualizePathStyle: {
+                                stroke: '#00cc00',
+                                opacity: 0.7
+                            }
+                        });
+                    } else if (
+                        damagedRoads == null &&
+                        creep.build(construction) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(construction, {
                             visualizePathStyle: {
                                 stroke: '#00cc00',
@@ -101,16 +111,6 @@ module.exports = {
                         creep.transfer(depletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
                     ) {
                         creep.moveTo(depletedTower, {
-                            visualizePathStyle: {
-                                stroke: '#00cc00',
-                                opacity: 0.7
-                            }
-                        });
-                    } else if (
-                        construction == null &&
-                        depletedTower == null &&
-                        creep.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(damagedRoads, {
                             visualizePathStyle: {
                                 stroke: '#00cc00',
                                 opacity: 0.7
