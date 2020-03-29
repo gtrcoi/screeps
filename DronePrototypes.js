@@ -156,8 +156,8 @@ Creep.prototype.construct = function() {
 // Repair all
 Creep.prototype.repairMostDamaged = function() {
     const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits <= s.hitsMax });
-
-    if (damagedBuildings != null) {
+    // console.log(damagedBuildings)
+    if (damagedBuildings.length < 0) {
         var mostDamagedBuilding = undefined;
 
         for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
@@ -182,6 +182,7 @@ Creep.prototype.repairMostDamaged = function() {
                             }
                         });
                     }
+                    return OK;
                     break;
             }
         }
@@ -199,7 +200,7 @@ Creep.prototype.repairRoad = function() {
         });
     switch (damagedRoads) {
         case null:
-            return null;
+            return -10;
 
         default:
             if (this.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
@@ -210,7 +211,7 @@ Creep.prototype.repairRoad = function() {
                     }
                 });
             }
-            break;
+            return 0;
     }
 }
 
@@ -222,6 +223,7 @@ Creep.prototype.rechargeTower = function() {
         });
     switch (depletedTower) {
         case null:
+            console.log("Tower return -10")
             return null;
 
         default:
@@ -233,6 +235,7 @@ Creep.prototype.rechargeTower = function() {
                     }
                 });
             }
-            break;
+            console.log("tower Return OK")
+            return OK;
     }
 }
