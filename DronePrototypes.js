@@ -7,7 +7,7 @@ Creep.prototype.harvestSource = function() {
     const activeSource = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
     switch (activeSource) {
         case null:
-            return null;
+            return ERR_NOT_FOUND;
         default:
             if (this.harvest(activeSource) === ERR_NOT_IN_RANGE) {
                 this.moveTo(activeSource, {
@@ -17,7 +17,7 @@ Creep.prototype.harvestSource = function() {
                     }
                 });
             }
-            break;
+            return OK;
     }
 }
 
@@ -28,8 +28,8 @@ Creep.prototype.collectDroppedSource = function() {
         droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType == RESOURCE_ENERGY });
     }
     switch (droppedSource) {
-        case undefined:
-            return null;
+        case null:
+            return ERR_NOT_FOUND;
         default:
             if (this.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
                 this.moveTo(droppedSource, {
@@ -39,7 +39,7 @@ Creep.prototype.collectDroppedSource = function() {
                     }
                 });
             }
-            break;
+            return OK;
     }
 }
 
@@ -50,8 +50,8 @@ Creep.prototype.withdrawTombstone = function() {
         tombstone = this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store[RESOURCE_ENERGY] > 0 });
     }
     switch (tombstone) {
-        case undefined:
-            return null;
+        case null:
+            return ERR_NOT_FOUND;
         default:
             if (this.withdraw(tombstone, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 this.moveTo(tombstone, {
@@ -61,7 +61,7 @@ Creep.prototype.withdrawTombstone = function() {
                     }
                 });
             }
-            break;
+            return OK;
     }
 }
 
@@ -71,7 +71,7 @@ Creep.prototype.collectRuin = function() {
 
     switch (ruin) {
         case null:
-            return null;
+            return ERR_NOT_FOUND;
         default:
             if (this.withdraw(ruin, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 this.moveTo(ruin, {
@@ -81,7 +81,7 @@ Creep.prototype.collectRuin = function() {
                     }
                 });
             }
-            break;
+            return OK;
     }
 }
 
@@ -103,13 +103,13 @@ Creep.prototype.chargeSpawn = function() {
 
     switch (spawn) {
         case null:
-            return null;
+            return ERR_NOT_FOUND;
 
         default:
             if (this.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 this.moveTo(spawn);
             }
-            break;
+            return OK;
     }
 }
 
@@ -118,7 +118,7 @@ Creep.prototype.chargeController = function() {
     const controller = this.room.controller;
     switch (controller.my) {
         case false:
-            return null;
+            return ERR_NOT_OWNER;
 
         default:
             if (this.upgradeController(controller) === ERR_NOT_IN_RANGE) {
@@ -128,7 +128,7 @@ Creep.prototype.chargeController = function() {
                     }
                 });
             }
-            break;
+            return OK;
     }
 }
 
@@ -138,7 +138,7 @@ Creep.prototype.construct = function() {
 
     switch (construction) {
         case null:
-            return null;
+            return ERR_NOT_FOUND;
 
         default:
             if (this.build(construction) === ERR_NOT_IN_RANGE) {
@@ -149,45 +149,46 @@ Creep.prototype.construct = function() {
                     }
                 });
             }
-            break;
+            return OK;
     }
 }
 
 // Repair all
 Creep.prototype.repairMostDamaged = function() {
-    const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits <= s.hitsMax });
-    // console.log(damagedBuildings)
-    if (damagedBuildings.length < 0) {
-        var mostDamagedBuilding = undefined;
+    const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
+    if (damagedBuildings.length > 0) {
+        var mostDamagedBuilding = null;
 
         for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
             // find building with less than percentage hits
             for (let building of damagedBuildings) {
                 if (building.hits / building.hitsMax < percentage) {
                     mostDamagedBuilding = building;
+
                     break;
                 }
             }
-            // if there is a match
-            switch (mostDamagedBuilding) {
-                case undefined:
-                    return null;
-
-                default:
-                    if (this.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
-                        this.moveTo(damagedRoads, {
-                            visualizePathStyle: {
-                                stroke: '#00cc00',
-                                opacity: 0.7
-                            }
-                        });
-                    }
-                    return OK;
-                    break;
-            }
+            if (mostDamagedBuilding != null) { break; }
         }
+        // if there is a match
+        switch (mostDamagedBuilding) {
+            case null:
+                return ERR_NOT_FOUND;
+
+            default:
+                if (this.repair(mostDamagedBuilding) === ERR_NOT_IN_RANGE) {
+                    this.moveTo(mostDamagedBuilding, {
+                        visualizePathStyle: {
+                            stroke: '#00cc00',
+                            opacity: 0.7
+                        }
+                    });
+                }
+                return OK;
+        }
+
     } else {
-        return null;
+        return ERR_NOT_FOUND;
     }
 }
 
@@ -200,7 +201,7 @@ Creep.prototype.repairRoad = function() {
         });
     switch (damagedRoads) {
         case null:
-            return -10;
+            return ERR_NOT_FOUND;
 
         default:
             if (this.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
@@ -211,7 +212,7 @@ Creep.prototype.repairRoad = function() {
                     }
                 });
             }
-            return 0;
+            return OK;
     }
 }
 
@@ -223,8 +224,7 @@ Creep.prototype.rechargeTower = function() {
         });
     switch (depletedTower) {
         case null:
-            console.log("Tower return -10")
-            return null;
+            return ERR_NOT_FOUND;
 
         default:
             if (this.transfer(depletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
@@ -235,7 +235,6 @@ Creep.prototype.rechargeTower = function() {
                     }
                 });
             }
-            console.log("tower Return OK")
             return OK;
     }
 }
