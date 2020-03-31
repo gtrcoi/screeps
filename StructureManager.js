@@ -22,7 +22,7 @@ module.exports = {
 
     // Rebuild base from ruins
     rebuild: function(room) {
-        const ruins = room.find(FIND_RUINS);
+        const ruins = room.find(FIND_RUINS, { filter: r => r.ticksToDecay > 500 });
         const myBuildings = room.find(FIND_MY_STRUCTURES);
         const myFlags = room.find(FIND_FLAGS);
 
