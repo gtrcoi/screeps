@@ -1,7 +1,7 @@
 const droneManager = require('./DroneManager');
 const spawnManager = require('./SpawnManager');
 const structureManager = require('./StructureManager');
-require('./TowerManager');
+const defenseManager = require('./DefenseManager');
 
 module.exports.loop = function() {
 
@@ -11,6 +11,10 @@ module.exports.loop = function() {
             delete Memory.creeps[name];
         }
     }
+
+    // Defenses
+    defenseManager.towerDefense();
+
     // Creep Loop
     for (const key in Game.creeps) {
         const creep = Game.creeps[key];
@@ -40,10 +44,5 @@ module.exports.loop = function() {
         spawn.spawnNextCreep();
     }
 
-    // Tower logic
-    var towers = _.filter(Game.structures, (t) => t.structureType == STRUCTURE_TOWER);
-    for (const key in towers) {
-        let tower = towers[key];
-        tower.defend();
-    }
+
 }
