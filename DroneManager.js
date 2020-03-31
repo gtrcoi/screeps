@@ -1,7 +1,7 @@
 require('./DronePrototypes');
 
 module.exports = {
-    // Run the role for the Worker creep
+    // Run the role for all drones
     runRole: function(creep) {
         const creepCarry = creep.store[RESOURCE_ENERGY];
         const creepCarryCapacity = creep.store.getCapacity();
