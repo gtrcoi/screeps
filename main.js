@@ -35,6 +35,7 @@ module.exports.loop = function() {
         spawnManager.setSpawnLimits(room);
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
+        defenseManager.safeMode(room);
     }
 
     // Spawn Loop
