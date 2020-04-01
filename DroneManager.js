@@ -15,98 +15,145 @@ module.exports = {
 
         // Run the creep
         if (creep.memory.working) {
-            switch (creep.memory.role) {
-                case "harvester":
-                    const harvesterOperations = [
-                        function() { return creep.chargeSpawn() },
-                        function() { return creep.repairRoad() },
-                        function() { return creep.construct() },
-                        function() { return creep.repairMostDamaged() },
-                        function() { return creep.chargeController() }
 
-                    ];
+            // If hostile creep present
+            if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
+                switch (creep.memory.role) {
+                    case "harvester":
+                        const harvesterOperations = [
+                            function() { return creep.chargeSpawn() },
+                            function() { return creep.construct() },
+                            function() { return creep.chargeController() }
 
-                    for (key = 0; key < harvesterOperations.length; key++) {
-                        if (harvesterOperations[key]() == OK) {
-                            break;
+                        ];
+
+                        for (key = 0; key < harvesterOperations.length; key++) {
+                            if (harvesterOperations[key]() == OK) {
+                                break;
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case "worker":
-                    let workerOperations = [
-                        function() { return creep.chargeController() },
-                        function() { return creep.rechargeTower() },
-                        function() { return creep.repairRoad() },
-                        function() { return creep.construct() },
-                        function() { return creep.repairMostDamaged() }
-                    ];
+                    case "worker":
+                        let workerOperations = [
+                            function() { return creep.chargeController() },
+                            function() { return creep.rechargeTower() },
+                            function() { return creep.construct() },
+                        ];
 
-                    for (key = 0; key < workerOperations.length; key++) {
-                        if (workerOperations[key]() == OK) {
-                            break;
+                        for (key = 0; key < workerOperations.length; key++) {
+                            if (workerOperations[key]() == OK) {
+                                break;
+                            }
                         }
-                    }
 
-                    break;
+                        break;
 
-                case "builder":
+                    case "builder":
 
-                    let builderOperations = [
-                        function() { return creep.rechargeTower() },
-                        function() { return creep.repairRoad() },
-                        function() { return creep.construct() },
-                        function() { return creep.repairMostDamaged() },
-                        function() { return creep.chargeController() }
-                    ];
-                    for (key = 0; key < builderOperations.length; key++) {
-                        if (builderOperations[key]() == OK) {
-                            break;
+                        let builderOperations = [
+                            function() { return creep.rechargeTower() },
+                            function() { return creep.construct() },
+                            function() { return creep.chargeController() }
+                        ];
+                        for (key = 0; key < builderOperations.length; key++) {
+                            if (builderOperations[key]() == OK) {
+                                break;
+                            }
                         }
-                    }
 
-                    break;
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
+            } else {
+                switch (creep.memory.role) {
+                    case "harvester":
+                        const harvesterOperations = [
+                            function() { return creep.chargeSpawn() },
+                            function() { return creep.repairRoad() },
+                            function() { return creep.construct() },
+                            function() { return creep.repairMostDamaged() },
+                            function() { return creep.chargeController() }
+
+                        ];
+
+                        for (key = 0; key < harvesterOperations.length; key++) {
+                            if (harvesterOperations[key]() == OK) {
+                                break;
+                            }
+                        }
+                        break;
+
+                    case "worker":
+                        let workerOperations = [
+                            function() { return creep.chargeController() },
+                            function() { return creep.rechargeTower() },
+                            function() { return creep.repairRoad() },
+                            function() { return creep.construct() },
+                            function() { return creep.repairMostDamaged() }
+                        ];
+
+                        for (key = 0; key < workerOperations.length; key++) {
+                            if (workerOperations[key]() == OK) {
+                                break;
+                            }
+                        }
+
+                        break;
+
+                    case "builder":
+
+                        let builderOperations = [
+                            function() { return creep.rechargeTower() },
+                            function() { return creep.repairRoad() },
+                            function() { return creep.construct() },
+                            function() { return creep.repairMostDamaged() },
+                            function() { return creep.chargeController() }
+                        ];
+                        for (key = 0; key < builderOperations.length; key++) {
+                            if (builderOperations[key]() == OK) {
+                                break;
+                            }
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
             }
+
         } else { // Find Energy
-            switch (creep.memory.role) {
-                case "worker":
-                    let workerOperations = [
-                        function() { return creep.collectDroppedSource() },
-                        function() { return creep.withdrawTombstone() },
-                        function() { return creep.collectRuin() },
-                        function() { return creep.harvestSource() }
-                    ];
 
-                    for (key = 0; key < workerOperations.length; key++) {
-                        if (workerOperations[key]() == OK) {
-                            break;
-                        }
+            // If hostile creep present
+            if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
+                let workerOperations = [
+                    function() { return creep.collectRuin() },
+                    function() { return creep.harvestSource() }
+                ];
+
+                for (key = 0; key < workerOperations.length; key++) {
+                    if (workerOperations[key]() == OK) {
+                        break;
                     }
+                }
 
-                    break;
+            } else {
+                let builderOperations = [
+                    function() { return creep.collectDroppedSource() },
+                    function() { return creep.withdrawTombstone() },
+                    function() { return creep.collectRuin() },
+                    function() { return creep.harvestSource() }
+                ];
 
-                case "builder":
-                    let builderOperations = [
-                        function() { return creep.collectDroppedSource() },
-                        function() { return creep.withdrawTombstone() },
-                        function() { return creep.collectRuin() },
-                        function() { return creep.harvestSource() }
-                    ];
+                for (key = 0; key < builderOperations.length; key++) {
 
-                    for (key = 0; key < builderOperations.length; key++) {
-                        if (builderOperations[key]() == OK) {
-                            break;
-                        }
+                    if (builderOperations[key]() == OK) {
+                        break;
                     }
-
-                    break;
-
-                default:
-                    creep.harvestSource();
-                    break;
+                }
             }
         }
     }

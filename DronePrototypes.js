@@ -23,13 +23,12 @@ Creep.prototype.harvestSource = function() {
 
 // Collected dropped Source
 Creep.prototype.collectDroppedSource = function() {
-    var droppedSource = undefined;
-    if (this.room.find(FIND_HOSTILE_CREEPS).length == 0) {
-        droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType == RESOURCE_ENERGY });
-    }
+    const droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType == RESOURCE_ENERGY });
+
     switch (droppedSource) {
         case null:
             return ERR_NOT_FOUND;
+
         default:
             if (this.pickup(droppedSource) === ERR_NOT_IN_RANGE) {
                 this.moveTo(droppedSource, {
@@ -45,13 +44,12 @@ Creep.prototype.collectDroppedSource = function() {
 
 // Collect from Tombstones
 Creep.prototype.withdrawTombstone = function() {
-    var tombstone = undefined;
-    if (this.room.find(FIND_HOSTILE_CREEPS).length == 0) {
-        tombstone = this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store[RESOURCE_ENERGY] > 0 });
-    }
+    const tombstone = this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store[RESOURCE_ENERGY] > 0 });
+
     switch (tombstone) {
         case null:
             return ERR_NOT_FOUND;
+
         default:
             if (this.withdraw(tombstone, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 this.moveTo(tombstone, {
