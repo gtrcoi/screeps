@@ -83,6 +83,38 @@ Creep.prototype.collectRuin = function() {
     }
 }
 
+Creep.prototype.collectStorage = function() {
+    const storage = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: s =>
+            (s.structureType == STRUCTURE_STORAGE &&
+                s.store[RESOURCE_ENERGY] > 0)
+    });
+    switch (storage) {
+        case null:
+            return ERR_NOT_FOUND;
+
+        default:
+            if (this.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(spawn);
+            }
+            return OK;
+    }
+}
+
+Creep.prototype.collectLink = function() {
+    const link = Game.getObjectById(this.room.memory.links.baseLinkID);
+    switch (link) {
+        case null:
+            return ERR_NOT_FOUND;
+
+        default:
+            if (this.transfer(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(link);
+            }
+            return OK;
+    }
+}
+
 // ===========================
 // Energy Delivery methods
 // ===========================
@@ -232,6 +264,26 @@ Creep.prototype.rechargeTower = function() {
                         opacity: 0.7
                     }
                 });
+            }
+            return OK;
+    }
+}
+
+Creep.prototype.chargeStorage = function() {
+    const storage = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: s =>
+            (s.structureType == STRUCTURE_STORAGE &&
+                s.store[RESOURCE_ENERGY] <
+                s.store.getCapacity(RESOURCE_ENERGY) / 2)
+    });
+
+    switch (storage) {
+        case null:
+            return ERR_NOT_FOUND;
+
+        default:
+            if (this.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(storage);
             }
             return OK;
     }

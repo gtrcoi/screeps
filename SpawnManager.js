@@ -1,25 +1,3 @@
-module.exports = {
-    setSpawnLimits: function(room) {
-        // Define the limits for a room
-        const workerLimits = 1;
-        const harvesterLimits = 2;
-        const builderLimits = 2;
-
-        // Set the property in memory if it doesn't exist
-        if (!room.memory.spawnLimits) {
-            room.memory.spawnLimits = {};
-        }
-
-        // Set the limits in the room memory
-        const spawnLimits = {
-            worker: workerLimits,
-            harvester: harvesterLimits,
-            builder: builderLimits
-        };
-        room.memory.spawnLimits = spawnLimits;
-    }
-};
-
 // Add a function to the spawn objects that will spawn the next creep if needed
 StructureSpawn.prototype.spawnNextCreep = function() {
     // The current room the spawn resides in

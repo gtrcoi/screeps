@@ -1,7 +1,8 @@
 const droneManager = require('./DroneManager');
-const spawnManager = require('./SpawnManager');
+require('./SpawnManager');
 const structureManager = require('./StructureManager');
 const defenseManager = require('./DefenseManager');
+const memoryManager = require('./MemoryManager')
 
 module.exports.loop = function() {
 
@@ -32,7 +33,8 @@ module.exports.loop = function() {
         }
 
         // Set the spawn limits for this room
-        spawnManager.setSpawnLimits(room);
+        memoryManager.setSpawnLimits(room);
+        memoryManager.setLinkIDs(room);
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
         defenseManager.safeMode(room);
