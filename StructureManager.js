@@ -30,7 +30,8 @@ module.exports = {
         for (key in ruins) {
             let ruin = ruins[key];
             if (ruin.structure.structureType != STRUCTURE_RAMPART &&
-                ruin.pos.lookFor(LOOK_STRUCTURES, { filter: s => s.structureType == ruin.structure.structureType }.length === 0)
+                ruin.pos.lookFor(LOOK_STRUCTURES, { filter: s => s.structureType === ruin.structure.structureType }.length === 0 &&
+                    ruin.pos.lookFor(LOOK_CONSTRUCTION_SITES, { filter: c => c.structureType === ruin.structure.structureType }).length === 0)
             ) {
                 room.createConstructionSite(ruin.pos, ruin.structure.structureType)
 
