@@ -119,7 +119,9 @@ module.exports = {
                         }
 
                         break;
-
+                    case "crane":
+                        creep.chargeStorage();
+                        break;
                     default:
                         break;
                 }
@@ -129,31 +131,55 @@ module.exports = {
 
             // If hostile creep present
             if (creep.room.find(FIND_HOSTILE_CREEPS).length > 0) {
-                let workerOperations = [
-                    function() { return creep.collectRuin() },
-                    function() { return creep.harvestSource() }
-                ];
+                switch (creep.memory.role) {
+                    case "builder":
+                    case "worker":
+                    case "harvester":
+                        let builderOperations = [
+                            function() { return creep.collectRuin() },
+                            function() { return creep.harvestSource() }
+                        ];
 
-                for (key = 0; key < workerOperations.length; key++) {
-                    if (workerOperations[key]() == OK) {
+                        for (key = 0; key < builderOperations.length; key++) {
+
+                            if (builderOperations[key]() == OK) {
+                                break;
+                            }
+                        }
                         break;
-                    }
+                    case "crane":
+                        creep.collectLink();
+                        break;
+                    default:
+                        break;
                 }
 
             } else {
-                let builderOperations = [
-                    function() { return creep.collectDroppedSource() },
-                    function() { return creep.withdrawTombstone() },
-                    function() { return creep.collectRuin() },
-                    function() { return creep.harvestSource() }
-                ];
+                switch (creep.memory.role) {
+                    case "builder":
+                    case "worker":
+                    case "harvester":
+                        let builderOperations = [
+                            function() { return creep.collectDroppedSource() },
+                            function() { return creep.withdrawTombstone() },
+                            function() { return creep.collectRuin() },
+                            function() { return creep.harvestSource() }
+                        ];
 
-                for (key = 0; key < builderOperations.length; key++) {
+                        for (key = 0; key < builderOperations.length; key++) {
 
-                    if (builderOperations[key]() == OK) {
+                            if (builderOperations[key]() == OK) {
+                                break;
+                            }
+                        }
                         break;
-                    }
+                    case "crane":
+                        creep.collectLink();
+                        break;
+                    default:
+                        break;
                 }
+
             }
         }
     }

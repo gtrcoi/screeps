@@ -20,6 +20,12 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         creep =>
         creep.memory.homeRoom === room.name && creep.memory.role === "builder"
     ).length;
+    // The number of creeps who live in this room AND are considered builders
+    const craneCount = _.filter(
+        Game.creeps,
+        creep =>
+        creep.memory.homeRoom === room.name && creep.memory.role === "crane"
+    ).length;
 
     // The limits we are pulling from memory of harvester and worker
     const harvesterLimits = room.memory.spawnLimits["harvester"];
@@ -39,6 +45,8 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         // Check for builder
         // Spawn a Builder
         this.spawnDrone("builder");
+    } else if (craneCount < 1) {
+        this.spawnCrane();
     }
 };
 
@@ -47,7 +55,7 @@ StructureSpawn.prototype.spawnDrone = function(role) {
     // Set all basic information about the creep to be spawned
 
     // Name is Game.time, which is an integer value of the current tick
-    const name = Game.time;
+    const name = role + Game.time;
     // Empty body array we will manually fill
     const body = [];
     // The memory we are going to save inside the creep
@@ -65,6 +73,7 @@ StructureSpawn.prototype.spawnDrone = function(role) {
         creep =>
         creep.memory.homeRoom === room.name && creep.memory.role === "harvester"
     ).length;
+
     // Generate the creep body
     var energyAvailable = undefined;
     if (harvesterCount >= 1) {
@@ -100,3 +109,51 @@ StructureSpawn.prototype.spawnDrone = function(role) {
         this.spawnCreep(body, name, { memory: creepMemory });
     }
 };
+
+StructureSpawn.prototype.spawnCrane = function() {
+    // Set all basic information about the creep to be spawned
+    const name = "crane" + Game.time;
+    // The memory we are going to save inside the creep
+    const creepMemory = {
+        working: false,
+        role: "crane",
+        homeRoom: this.room.name
+    };
+
+    // Empty body array we will manually fill
+    const body = [];
+
+    // Check if harvesters are on the map
+    const room = this.room;
+    // The number of creeps who live in this room AND are considered harvesters
+    const harvesterCount = _.filter(
+        Game.creeps,
+        creep =>
+        creep.memory.homeRoom === room.name && creep.memory.role === "harvester"
+    ).length;
+
+    // Generate the creep body
+    var energyAvailable = undefined;
+    if (harvesterCount >= 1) {
+        energyAvailable = this.room.energyCapacityAvailable;
+    } else {
+        energyAvailable = this.room.energyAvailable;
+    }
+
+    // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
+    var numberOfParts = Math.floor(energyAvailable / 50) - 1;
+    if (numberOfParts > 15) { numberOfParts = 15 }
+
+
+    // Create the main section'
+    body.push(MOVE);
+    // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
+    for (let i = 0; i < numberOfParts; ++i) {
+        body.push(CARRY);
+    }
+
+    if (numberOfParts >= 1) {
+        // Spawn the creep using all of this information
+        this.spawnCreep(body, name, { memory: creepMemory });
+    }
+}
