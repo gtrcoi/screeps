@@ -14,8 +14,8 @@ StructureTower.prototype.defend = function() {
 // Tower Heal
 StructureTower.prototype.healCreep = function() {
     const target = this.room.find(FIND_MY_CREEPS, { filter: c => c.hits < c.hitsMax });
-    switch (target) {
-        case null:
+    switch (target.length) {
+        case 0:
             return ERR_NOT_FOUND
 
         default:
@@ -29,7 +29,7 @@ StructureTower.prototype.repairRoad = function() {
     const damagedRoads = this.pos.findClosestByRange(
         FIND_STRUCTURES, {
             filter: s =>
-                s.hits < s.hitsMax / 2 && s.structureType === STRUCTURE_ROAD
+                s.hits < s.hitsMax / 1.3 && s.structureType === STRUCTURE_ROAD
         });
     switch (damagedRoads) {
         case null:

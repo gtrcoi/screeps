@@ -9,10 +9,29 @@ module.exports = {
         }
     },
 
-    towerDefense: function() {
+    runTowers: function() {
         const towers = _.filter(Game.structures, (t) => t.structureType == STRUCTURE_TOWER);
         for (tower of towers) {
-            tower.defend();
+            let operations = [];
+            if (tower.store[RESOURCE_ENERGY] > tower.store.getCapacity(RESOURCE_ENERGY) * 0.5) {
+                operations = [
+                    function() { return tower.defend() },
+                    function() { return tower.healCreep() },
+                    function() { return tower.repairRoad() },
+                    function() { return tower.repairMostDamaged() }
+                ];
+            } else {
+                operations = [
+                    function() { return tower.defend() },
+                    function() { return tower.healCreep() }
+                ];
+            }
+            for (key = 0; key < operations.length; key++) {
+                if (operations[key]() == OK) {
+                    console.log(key)
+                    break;
+                }
+            }
         }
     }
 }
