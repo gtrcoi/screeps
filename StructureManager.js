@@ -8,7 +8,10 @@ module.exports = {
                 b.structureType === STRUCTURE_EXTENSION ||
                 b.structureType === STRUCTURE_SPAWN ||
                 b.structureType === STRUCTURE_STORAGE ||
-                b.structureType === STRUCTURE_TOWER
+                b.structureType === STRUCTURE_TOWER ||
+                b.structureType === STRUCTURE_LAB ||
+                b.structureType === STRUCTURE_TERMINAL ||
+                b.structureType === STRUCTURE_FACTORY
         });
 
         for (const key in rampartBuildings) {
