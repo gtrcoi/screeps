@@ -3,8 +3,13 @@
 // ===========================
 
 // Harvest Source nodes
-Creep.prototype.harvestSource = function() {
-    const activeSource = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+Creep.prototype.harvestSource = function(sourceID) {
+    var activeSource = null;
+    if (sourceID === undefined) {
+        activeSource = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    } else {
+        activeSource = Game.getObjectById(sourceID);
+    }
     switch (activeSource) {
         case null:
             return ERR_NOT_FOUND;
@@ -94,21 +99,45 @@ Creep.prototype.collectStorage = function() {
             return ERR_NOT_FOUND;
 
         default:
-            if (this.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(spawn);
+            if (this.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(storage);
             }
             return OK;
     }
 }
 
+// Creep.prototype.collectContainer = function(range) {
+//     let container = null;
+//     if (range === undefined) {
+//         container = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+//             filter: s =>
+//                 (s.structureType == STRUCTURE_CONTAINER &&
+//                     s.store[RESOURCE_ENERGY] > 0)
+//         });
+//     } else {
+//         container = this.pos.findInRange(_.filter(FIND_MY_STRUCTURES, s => s.structureType === STRUCTURE_CONTAINER), range);
+//     }
+//     switch (container) {
+//         case null:
+//             return ERR_NOT_FOUND;
+
+//         default:
+//             if (this.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+//                 this.moveTo(container);
+//             }
+//             return OK;
+//     }
+// }
+
 Creep.prototype.collectLink = function() {
     const link = Game.getObjectById(this.room.memory.links.baseLinkID);
+
     switch (link) {
         case null:
             return ERR_NOT_FOUND;
 
         default:
-            if (this.transfer(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            if (this.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 this.moveTo(link);
             }
             return OK;
@@ -286,5 +315,25 @@ Creep.prototype.chargeStorage = function() {
                 this.moveTo(storage);
             }
             return OK;
+    }
+}
+
+Creep.prototype.chargeLink = function(linkID) {
+    let link = linkID
+    if (linkID === undefined) {
+        link = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+            filter: s =>
+                s.structureType === STRUCTURE_LINK
+        })
+    } else { link = Game.getObjectById(linkID); }
+    switch (link) {
+        case null:
+            return ERR_NOT_FOUND;
+
+        default:
+            if (this.transfer(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(link);
+            }
+            break;
     }
 }
