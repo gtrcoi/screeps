@@ -72,3 +72,21 @@ StructureTower.prototype.repairMostDamaged = function() {
         return ERR_NOT_FOUND;
     }
 }
+
+// Tower Repair containers
+StructureTower.prototype.repairContainer = function() {
+    const damagedContainer = this.pos.findClosestByRange(
+        FIND_STRUCTURES, {
+            filter: s =>
+                s.structureType === STRUCTURE_CONTAINER &&
+                s.hits < s.hitsMax
+        });
+    switch (damagedContainer) {
+        case null:
+            return ERR_NOT_FOUND;
+
+        default:
+            this.repair(damagedContainer);
+            return OK;
+    }
+}
