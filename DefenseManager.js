@@ -29,7 +29,6 @@ module.exports = {
             }
             for (key = 0; key < operations.length; key++) {
                 if (operations[key]() == OK) {
-                    console.log(key)
                     break;
                 }
             }

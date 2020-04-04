@@ -277,17 +277,33 @@ Creep.prototype.repairRoad = function() {
 
 // Recharge Towers
 Creep.prototype.rechargeTower = function() {
-    const depletedTower = this.pos.findClosestByPath(
+    const depletedTowers = this.room.find(
         FIND_MY_STRUCTURES, {
             filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
         });
-    switch (depletedTower) {
+    if (depletedTowers.length > 0) {
+        var mostDepletedTower = null;
+
+        for (let percentage = 0.01; percentage <= 1; percentage = percentage + 0.01) {
+            // find tower with less than percentage hits
+            for (let tower of depletedTowers) {
+                // console.log(tower)
+                if (tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY) < percentage) {
+                    mostDepletedTower = tower;
+
+                    break;
+                }
+            }
+            if (mostDepletedTower != null) { break; }
+        }
+    }
+    switch (mostDepletedTower) {
         case null:
             return ERR_NOT_FOUND;
 
         default:
-            if (this.transfer(depletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(depletedTower, {
+            if (this.transfer(mostDepletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(mostDepletedTower, {
                     visualizePathStyle: {
                         stroke: '#00cc00',
                         opacity: 0.7
