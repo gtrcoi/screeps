@@ -88,6 +88,8 @@ module.exports = {
 
                     case "worker":
                         let workerOperations = [
+                            function() { return creep.chargeSpawn() },
+
                             function() { return creep.chargeController() },
                             function() { return creep.rechargeTower() },
                             function() { return creep.repairRoad() },
@@ -106,6 +108,8 @@ module.exports = {
                     case "builder":
 
                         let builderOperations = [
+                            function() { return creep.chargeSpawn() },
+
                             function() { return creep.rechargeTower() },
                             function() { return creep.repairRoad() },
                             function() { return creep.construct() },
@@ -118,6 +122,9 @@ module.exports = {
                             }
                         }
 
+                        break;
+                    case "digger":
+                        creep.chargeLink(creep.memory.linkID);
                         break;
                     case "crane":
                         creep.chargeStorage();
@@ -160,15 +167,29 @@ module.exports = {
                     case "worker":
                     case "harvester":
                         let builderOperations = [
+                            function() { return creep.collectStorage() },
                             function() { return creep.collectDroppedSource() },
                             function() { return creep.withdrawTombstone() },
-                            function() { return creep.collectRuin() },
-                            function() { return creep.harvestSource() }
+                            function() { return creep.collectRuin() }
+
+                            // function() { return creep.harvestSource() }
                         ];
 
                         for (key = 0; key < builderOperations.length; key++) {
 
                             if (builderOperations[key]() == OK) {
+                                break;
+                            }
+                        }
+                        break;
+                    case "digger":
+                        let diggerOperations = [
+                            function() { return creep.harvestSource(creep.memory.sourceID) },
+                            function() { return creep.collectContainer(1) }
+                        ]
+                        for (key = 0; key < diggerOperations.length; key++) {
+
+                            if (diggerOperations[key]() == OK) {
                                 break;
                             }
                         }

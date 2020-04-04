@@ -4,6 +4,12 @@ module.exports = {
         const workerLimits = 1;
         const harvesterLimits = room.find(FIND_SOURCES).length;
         const builderLimits = 2;
+        const diggerLimits = room.memory.links.sourceLinkIDs.length;
+
+        let craneLimits = undefined
+        if (room.memory.links.baseLinkID) {
+            craneLimits = 1;
+        }
 
         // Set the property in memory if it doesn't exist
         if (!room.memory.spawnLimits) {
@@ -14,8 +20,10 @@ module.exports = {
         // Set the limits in the room memory
         const spawnLimits = {
             worker: workerLimits,
-            harvester: harvesterLimits,
-            builder: builderLimits
+            harvester: harvesterLimits - diggerLimits,
+            builder: builderLimits,
+            digger: diggerLimits,
+            crane: craneLimits
         };
         room.memory.spawnLimits = spawnLimits;
     },
