@@ -32,10 +32,11 @@ module.exports.loop = function() {
         if (!room.controller || !room.controller.my) {
             continue;
         }
-
+        // Set up memory objects for room
+        memoryManager.setLinkIDs(room);
         // Set the spawn limits for this room
         memoryManager.setSpawnLimits(room);
-        memoryManager.setLinkIDs(room);
+
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
         defenseManager.safeMode(room);
