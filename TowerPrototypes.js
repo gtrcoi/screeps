@@ -58,7 +58,7 @@ StructureTower.prototype.repairRoad = function() {
 
 // Repair Most Damaged
 StructureTower.prototype.repairMostDamaged = function() {
-    const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
+    const damagedBuildings = this.room.find(FIND_STRUCTURES, { filter: s => s.hits < s.hitsMax });
     if (damagedBuildings.length > 0) {
         var mostDamagedBuilding = null;
 
