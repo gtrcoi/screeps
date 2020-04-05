@@ -2,11 +2,15 @@ module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
         const workerLimits = 1;
-        const harvesterLimits = room.find(FIND_SOURCES).length;
-        const builderLimits = 2;
         const diggerLimits = room.memory.links.sourceLinkIDs.length;
+        const harvesterLimits = room.find(FIND_SOURCES).length;
 
-        let craneLimits = undefined
+        let builderLimits = 1;
+        if (room.find(FIND_MY_CONSTRUCTION_SITES).length > 10) {
+            builderLimits = 2;
+        }
+
+        let craneLimits = 0
         if (room.memory.links.baseLinkID) {
             craneLimits = 1;
         }
