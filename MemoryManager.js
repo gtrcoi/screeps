@@ -65,5 +65,17 @@ module.exports = {
                 delete Memory.creeps[name];
             }
         }
+    },
+
+    setScanPos: function(room) {
+        if (!room.memory.scanPos) {
+            room.memory.scanPos = { x: 0, y: 0 };
+        }
+    },
+
+    setRoomMemory: function(room) {
+        if (!room.memory.layoutScanComplete) {
+            room.memory.layoutScanComplete = false;
+        }
     }
 }

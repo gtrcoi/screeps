@@ -29,12 +29,15 @@ module.exports.loop = function() {
             continue;
         }
         // Set up memory objects for room
+        memoryManager.setRoomMemory(room);
         memoryManager.setLinkIDs(room);
+        memoryManager.setScanPos(room);
         // Set the spawn limits for this room
         memoryManager.setSpawnLimits(room);
 
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
+        structureManager.scanLayout(room);
         defenseManager.safeMode(room);
 
         let links = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
