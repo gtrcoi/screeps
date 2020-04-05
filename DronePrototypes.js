@@ -276,11 +276,20 @@ Creep.prototype.repairRoad = function() {
 }
 
 // Recharge Towers
-Creep.prototype.rechargeTower = function() {
-    const depletedTowers = this.room.find(
-        FIND_MY_STRUCTURES, {
-            filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
-        });
+Creep.prototype.rechargeTower = function(percent) {
+    let depletedTowers = null;
+    if (percent !== undefined) {
+        const percentRepair = percent / 100;
+        depletedTowers = this.room.find(
+            FIND_MY_STRUCTURES, {
+                filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
+            });
+    } else {
+        depletedTowers = this.room.find(
+            FIND_MY_STRUCTURES, {
+                filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
+            });
+    }
     if (depletedTowers.length > 0) {
         var mostDepletedTower = null;
 
@@ -296,7 +305,7 @@ Creep.prototype.rechargeTower = function() {
             }
             if (mostDepletedTower != null) { break; }
         }
-    }
+    } else { return ERR_NOT_FOUND; }
     switch (mostDepletedTower) {
         case null:
             return ERR_NOT_FOUND;
