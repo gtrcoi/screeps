@@ -35,7 +35,7 @@ module.exports = {
         if (!room.memory.links) {
             room.memory.links = {};
         }
-        const links = { sourceLinkIDs: [] };
+        let links = { sourceLinkIDs: [] };
         const myLinks = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
 
         for (const key in myLinks) {
