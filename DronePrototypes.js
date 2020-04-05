@@ -8,7 +8,10 @@ Creep.prototype.harvestSource = function(sourceID) {
     if (sourceID === undefined) {
         activeSource = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
     } else {
-        activeSource = Game.getObjectById(sourceID);
+        const targetSource = Game.getObjectById(sourceID);
+        if (targetSource.energy > 0) {
+            activeSource = targetSource;
+        }
     }
     switch (activeSource) {
         case null:
@@ -106,28 +109,29 @@ Creep.prototype.collectStorage = function() {
     }
 }
 
-// Creep.prototype.collectContainer = function(range) {
-//     let container = null;
-//     if (range === undefined) {
-//         container = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-//             filter: s =>
-//                 (s.structureType == STRUCTURE_CONTAINER &&
-//                     s.store[RESOURCE_ENERGY] > 0)
-//         });
-//     } else {
-//         container = this.pos.findInRange(_.filter(FIND_MY_STRUCTURES, s => s.structureType === STRUCTURE_CONTAINER), range);
-//     }
-//     switch (container) {
-//         case null:
-//             return ERR_NOT_FOUND;
+Creep.prototype.collectContainer = function(range) {
+    const containers = this.room.find(FIND_STRUCTURES, {
+        filter: s =>
+            (s.structureType == STRUCTURE_CONTAINER &&
+                s.store[RESOURCE_ENERGY] > 0)
+    });
+    let container = null;
+    if (range === undefined) {
+        container = this.pos.findClosestByPath(containers);
+    } else {
+        container = this.pos.findInRange(containers, range);
+    }
+    switch (container.length) {
+        case 0:
+            return ERR_NOT_FOUND;
 
-//         default:
-//             if (this.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-//                 this.moveTo(container);
-//             }
-//             return OK;
-//     }
-// }
+        default:
+            if (this.withdraw(container[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(container[0]);
+            }
+            return OK;
+    }
+}
 
 Creep.prototype.collectLink = function() {
     const link = Game.getObjectById(this.room.memory.links.baseLinkID);
