@@ -188,7 +188,6 @@ module.exports = {
 
                     case "harvester":
                         operations = [
-                            function() { return creep.collectStorage() },
                             function() { return creep.collectDroppedSource() },
                             function() { return creep.withdrawTombstone() },
                             function() { return creep.collectRuin() },
