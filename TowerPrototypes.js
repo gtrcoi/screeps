@@ -13,14 +13,29 @@ StructureTower.prototype.defend = function() {
 
 // Tower Heal
 StructureTower.prototype.healCreep = function() {
-    const target = this.room.find(FIND_MY_CREEPS, { filter: c => c.hits < c.hitsMax });
-    switch (target.length) {
-        case 0:
-            return ERR_NOT_FOUND
+    const targets = this.room.find(FIND_MY_CREEPS, { filter: c => c.hits < c.hitsMax });
+    if (targets.length > 0) {
+        var target = null;
 
-        default:
-            this.heal(target);
-            return OK;
+        for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
+            // find building with less than percentage hits
+            for (let creep of targets) {
+                if (creep.hits / creep.hitsMax < percentage) {
+                    target = creep;
+
+                    break;
+                }
+            }
+            if (target != null) { break; }
+        }
+        switch (target) {
+            case null:
+                return ERR_NOT_FOUND
+
+            default:
+                this.heal(target);
+                return OK;
+        }
     }
 }
 
