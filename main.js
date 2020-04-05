@@ -1,8 +1,8 @@
 const droneManager = require('./DroneManager');
-require('./SpawnManager');
 const structureManager = require('./StructureManager');
 const defenseManager = require('./DefenseManager');
 const memoryManager = require('./MemoryManager');
+require('./SpawnManager');
 
 module.exports.loop = function() {
 
@@ -21,7 +21,6 @@ module.exports.loop = function() {
         const creep = Game.creeps[key];
 
         droneManager.runRole(creep);
-        if (creep.memory.role == "worker") { creep.memory.role = "upgrader" }
     }
 
     // Room Loop
