@@ -7,11 +7,7 @@ require('./SpawnManager');
 module.exports.loop = function() {
 
     // Clean memory
-    for (let name in Memory.creeps) {
-        if (Game.creeps[name] == undefined) {
-            delete Memory.creeps[name];
-        }
-    }
+    memoryManager.cleanMemory();
 
     // Towers
     defenseManager.runTowers();

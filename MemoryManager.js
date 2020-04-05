@@ -56,5 +56,14 @@ module.exports = {
 
         }
         room.memory.links = links;
+    },
+
+    cleanMemory: function() {
+        // Clean Creep memory
+        for (let name in Memory.creeps) {
+            if (Game.creeps[name] == undefined) {
+                delete Memory.creeps[name];
+            }
+        }
     }
 }
