@@ -208,6 +208,9 @@ module.exports = {
                             function() { return creep.harvestSource(creep.memory.sourceID) },
                             function() { return creep.collectContainer(2) }
                         ]
+                        if (creep.memory.containerID !== undefined && !_.isEqual(creep.pos, Game.getObjectById(creep.memory.containerID).pos)) {
+                            operations.unshift(function() { return creep.moveTo(Game.getObjectById(creep.memory.containerID)) })
+                        }
                         for (key = 0; key < operations.length; key++) {
 
                             if (operations[key]() == OK) {

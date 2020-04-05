@@ -161,7 +161,7 @@ StructureSpawn.prototype.spawnCrane = function() {
     }
 }
 
-// Add a function to spawn objects to spawn a harvester
+// Add a function to spawn objects to spawn a digger
 StructureSpawn.prototype.spawnDigger = function() {
     // Set all basic information about the creep to be spawned
     const name = "digger" + Game.time;
@@ -172,27 +172,31 @@ StructureSpawn.prototype.spawnDigger = function() {
         working: false,
         role: "digger",
         homeRoom: this.room.name,
-        linkID: "",
-        sourceID: ""
+        linkID: undefined,
+        sourceID: undefined,
+        containerID: undefined
     };
 
-    let linkAssign = undefined;
-    let sourceLinkIDs = this.room.memory.links.sourceLinkIDs;
-    const diggers = _.filter(Game.creeps, c => c.memory.role === "digger");
-    const diggerIDs = [];
+    const sourceLinkIDs = this.room.memory.links.sourceLinkIDs;
+    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger");
+
+    // Populate list of used Links in digger memory
+    let diggerIDs = [];
     for (const key in diggers) {
         const digger = diggers[key];
         diggerIDs.push(digger.memory.linkID);
     }
 
-    for (link of sourceLinkIDs) {
-        if (_.filter(diggerIDs, element => element === link).length == 0) {
-            linkAssign = link;
+    let linkAssign = undefined;
+    for (linkID of sourceLinkIDs) {
+        if (_.filter(diggerIDs, element => element === linkID).length == 0) {
+            linkAssign = linkID;
             break;
         }
     }
     creepMemory.linkID = linkAssign;
     creepMemory.sourceID = Game.getObjectById(linkAssign).pos.findClosestByPath(FIND_SOURCES).id;
+    creepMemory.containerID = Game.getObjectById(linkAssign).pos.findClosestByPath(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER }).id;
 
     // Generate the creep body
     var energyAvailable = this.room.energyCapacityAvailable;
