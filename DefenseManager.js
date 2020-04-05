@@ -19,6 +19,7 @@ module.exports = {
                     function() { return tower.healCreep() },
                     function() { return tower.repairRoad() },
                     function() { return tower.repairContainer() },
+                    function() { return tower.repairMyMostDamaged(50) },
                     function() { return tower.repairMostDamaged() }
                 ];
             } else {

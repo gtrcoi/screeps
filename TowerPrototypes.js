@@ -56,13 +56,49 @@ StructureTower.prototype.repairRoad = function() {
     }
 }
 
+// Repair My Most Damaged
+StructureTower.prototype.repairMyMostDamaged = function(percent) {
+    let targetPercent = undefined;
+    if (percent === undefined) { targetPercent = 1; } else { targetPercent = percent / 100; }
+    const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
+    if (damagedBuildings.length > 0) {
+        var mostDamagedBuilding = null;
+
+        for (let percentage = 0.0005; percentage <= targetPercent; percentage = percentage + 0.0005) {
+            // find building with less than percentage hits
+            for (let building of damagedBuildings) {
+                if (building.hits / building.hitsMax < percentage) {
+                    mostDamagedBuilding = building;
+
+                    break;
+                }
+            }
+            if (mostDamagedBuilding != null) { break; }
+        }
+        // if there is a match
+        switch (mostDamagedBuilding) {
+            case null:
+                return ERR_NOT_FOUND;
+
+            default:
+                this.repair(mostDamagedBuilding)
+                return OK;
+        }
+
+    } else {
+        return ERR_NOT_FOUND;
+    }
+}
+
 // Repair Most Damaged
-StructureTower.prototype.repairMostDamaged = function() {
+StructureTower.prototype.repairMostDamaged = function(percent) {
+    let targetPercent = undefined;
+    if (percent === undefined) { targetPercent = 1; } else { targetPercent = percent / 100; }
     const damagedBuildings = this.room.find(FIND_STRUCTURES, { filter: s => s.hits < s.hitsMax });
     if (damagedBuildings.length > 0) {
         var mostDamagedBuilding = null;
 
-        for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
+        for (let percentage = 0.0005; percentage <= targetPercent; percentage = percentage + 0.0005) {
             // find building with less than percentage hits
             for (let building of damagedBuildings) {
                 if (building.hits / building.hitsMax < percentage) {
