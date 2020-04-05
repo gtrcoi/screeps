@@ -21,6 +21,7 @@ module.exports.loop = function() {
         const creep = Game.creeps[key];
 
         droneManager.runRole(creep);
+        if (creep.memory.role == "worker") { creep.memory.role = "upgrader" }
     }
 
     // Room Loop

@@ -2,11 +2,11 @@
 StructureSpawn.prototype.spawnNextCreep = function() {
     // The current room the spawn resides in
     const room = this.room;
-    // The number of creeps who live in this room AND are considered workers
-    const workerCount = _.filter(
+    // The number of creeps who live in this room AND are considered upgraders
+    const upgraderCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "worker"
+        creep.memory.homeRoom === room.name && creep.memory.role === "upgrader"
     ).length;
     // The number of creeps who live in this room AND are considered harvesters
     const harvesterCount = _.filter(
@@ -33,9 +33,9 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         creep.memory.homeRoom === room.name && creep.memory.role === "digger"
     ).length;
 
-    // The limits we are pulling from memory of harvester and worker
+    // The limits we are pulling from memory of harvester and upgrader
     const harvesterLimits = room.memory.spawnLimits["harvester"];
-    const workerLimits = room.memory.spawnLimits["worker"];
+    const upgraderLimits = room.memory.spawnLimits["upgrader"];
     const builderLimits = room.memory.spawnLimits["builder"];
     const diggerLimits = room.memory.spawnLimits["digger"];
     const craneLimits = room.memory.spawnLimits["crane"];
@@ -45,10 +45,10 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         this.spawnDrone("harvester");
     } else if (diggerCount < diggerLimits) {
         this.spawnDigger();
-    } else if (craneCount < 1) {
+    } else if (craneCount < craneLimits) {
         this.spawnCrane();
-    } else if (workerCount < workerLimits) {
-        this.spawnDrone("worker");
+    } else if (upgraderCount < upgraderLimits) {
+        this.spawnDrone("upgrader");
     } else if (builderCount < builderLimits) {
         this.spawnDrone("builder");
     }
