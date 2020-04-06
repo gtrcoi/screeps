@@ -67,15 +67,10 @@ module.exports = {
         }
     },
 
-    setScanPos: function(room) {
-        if (!room.memory.scanPos) {
-            room.memory.scanPos = { x: 0, y: 0 };
-        }
-    },
-
     setRoomMemory: function(room) {
-        if (!room.memory.layoutScanComplete) {
-            room.memory.layoutScanComplete = false;
+        if (!room.memory.layoutScan) {
+            room.memory.layoutScan = { pos: { x: 0, y: 0 }, complete: false };
         }
+
     }
 }
