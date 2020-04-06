@@ -2,6 +2,7 @@ const droneManager = require('./DroneManager');
 const structureManager = require('./StructureManager');
 const defenseManager = require('./DefenseManager');
 const memoryManager = require('./MemoryManager');
+const visuals = require('./RoomVisuals');
 require('./SpawnManager');
 
 module.exports.loop = function() {
@@ -31,14 +32,18 @@ module.exports.loop = function() {
         // Set up memory objects for room
         memoryManager.setRoomMemory(room);
         memoryManager.setLinkIDs(room);
-        memoryManager.setScanPos(room);
-        // Set the spawn limits for this room
         memoryManager.setSpawnLimits(room);
 
+        // Manage base building
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
         structureManager.scanLayout(room);
+
+        // Run safe mode protection
         defenseManager.safeMode(room);
+
+        // Paint visuals
+        visuals.paintLayoutScan(room)
 
         let links = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
 
