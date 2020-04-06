@@ -43,10 +43,10 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     // Spawn the appropriate creep, if any
     if (harvesterCount < harvesterLimits) {
         this.spawnDrone("harvester");
-    } else if (diggerCount < diggerLimits) {
-        this.spawnDigger();
     } else if (craneCount < craneLimits) {
         this.spawnCrane();
+    } else if (diggerCount < diggerLimits) {
+        this.spawnDigger();
     } else if (upgraderCount < upgraderLimits) {
         this.spawnDrone("upgrader");
     } else if (builderCount < builderLimits) {
