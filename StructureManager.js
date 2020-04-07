@@ -84,11 +84,11 @@ module.exports = {
                     }
                     continue;
             }
-            if (room.memory.scanPos.x < 49 - 12) {
-                room.memory.scanPos.x++;
+            if (room.memory.layoutScan.pos.x < 49 - 12) {
+                room.memory.layoutScan.pos.x++;
             } else {
-                room.memory.scanPos.y++;
-                room.memory.scanPos.x = 0;
+                room.memory.layoutScan.pos.y++;
+                room.memory.layoutScan.pos.x = 0;
             }
 
             break;
