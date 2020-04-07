@@ -71,7 +71,21 @@ module.exports = {
                     break;
 
                 case "digger":
-                    creep.chargeLink(creep.memory.linkID);
+                    // check is crane is spawning
+                    let craneSpawning;
+                    let spawnArray = creep.room.find(FIND_MY_SPAWNS, { filter: s => s.spawning != null });
+                    for (i = 0; i < spawnArray.length; i++) {
+                        let spawn = spawnArray[i];
+                        if (/crane\w/.test(spawn.spawning.name)) {
+                            craneSpawning = true;
+                        }
+                    }
+                    if (creep.room.find(FIND_MY_CREEPS, { filter: c => c.memory.role === "crane" }).length === 0 &&
+                        !craneSpawning) {
+                        creep.chargeSpawn();
+                    } else {
+                        creep.chargeLink(creep.memory.linkID);
+                    }
                     break;
 
                 case "crane":
@@ -125,7 +139,7 @@ module.exports = {
                         function() { return creep.harvestSource(creep.memory.sourceID) },
                         function() { return creep.collectContainer(2) }
                     ]
-                    if (creep.memory.containerID !== undefined && !_.isEqual(creep.pos, Game.getObjectById(creep.memory.containerID).pos)) {
+                    if (creep.memory.containerID !== undefined && !creep.pos.isEqualTo(Game.getObjectById(creep.memory.containerID).pos)) {
                         operations.unshift(function() { return creep.moveTo(Game.getObjectById(creep.memory.containerID)) })
                     }
                     for (key = 0; key < operations.length; key++) {
