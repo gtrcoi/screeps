@@ -46,7 +46,7 @@ module.exports = {
                         function() { return creep.repairMostDamaged() }
                     ];
 
-                    for (key = 0; key < operations.length; key++) {
+                    for (let key = 0; key < operations.length; key++) {
                         if (operations[key]() == OK) {
                             break;
                         }
@@ -55,8 +55,8 @@ module.exports = {
 
                 case "builder":
                     operations = [
-                        function() { return creep.chargeSpawn() },
                         function() { return creep.rechargeTower(50) },
+                        function() { return creep.chargeSpawn() },
                         function() { return creep.repairRoad() },
                         function() { return creep.construct() },
                         function() { return creep.rechargeTower() },
