@@ -140,7 +140,7 @@ module.exports = {
                 case "digger":
                     operations = [
                         function() { return creep.harvestSource(creep.memory.sourceID) },
-                        function() { return creep.collectContainer(2) }
+                        function() { return creep.collectContainer(creep.memory.containerID) }
                     ]
                     if (creep.memory.containerID !== undefined && !creep.pos.isEqualTo(Game.getObjectById(creep.memory.containerID).pos)) {
                         operations.unshift(function() { return creep.moveTo(Game.getObjectById(creep.memory.containerID)) })

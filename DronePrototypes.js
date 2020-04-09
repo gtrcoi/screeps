@@ -109,17 +109,17 @@ Creep.prototype.collectStorage = function() {
     }
 }
 
-Creep.prototype.collectContainer = function(range) {
+Creep.prototype.collectContainer = function(containerID) {
     const containers = this.room.find(FIND_STRUCTURES, {
         filter: s =>
             (s.structureType == STRUCTURE_CONTAINER &&
                 s.store[RESOURCE_ENERGY] > 0)
     });
     let container = null;
-    if (range === undefined) {
+    if (containerID === undefined) {
         container = this.pos.findClosestByPath(containers);
     } else {
-        container = this.pos.findInRange(containers, range);
+        container = Game.getObjectById(containerID);
     }
     switch (container) {
         case null:
