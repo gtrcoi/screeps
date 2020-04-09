@@ -1,7 +1,7 @@
 module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
-        const upgraderLimits = 1;
+        const upgraderLimits = 2;
         const diggerLimits = room.memory.links.sourceLinkIDs.length;
         const harvesterLimits = room.find(FIND_SOURCES).length;
 
@@ -74,6 +74,11 @@ module.exports = {
         if (!room.memory.build) {
             room.memory.build = false;
         }
+        // else {
+        //   if (room.memory.build = false){
+        // Memory.global.
+        //   }
+        // }
 
     }
 }
