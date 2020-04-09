@@ -187,6 +187,12 @@ module.exports = {
             }
             if (room.memory.layoutScan.pos.x < 49 - 12) {
                 room.memory.layoutScan.pos.x++;
+            }
+            // if scan fails to find space
+            else if (room.memory.layoutScan.pos.y > 49 - 12) {
+                room.memory.layoutScan.pos.x = 99;
+                room.memory.layoutScan.pos.y = 99;
+                room.memory.layoutScan.complete = true;
             } else {
                 room.memory.layoutScan.pos.y++;
                 room.memory.layoutScan.pos.x = 0;
