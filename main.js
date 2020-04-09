@@ -36,7 +36,7 @@ module.exports.loop = function() {
         // Manage base building
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
-        structureManager.scanLayout(room);
+        if (!room.memory.layoutScan.complete) { structureManager.scanLayout(room); }
         if (room.memory.build) { structureManager.build(room); }
 
         // Run safe mode protection
