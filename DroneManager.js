@@ -139,11 +139,17 @@ module.exports = {
 
                 case "digger":
                     operations = [
-                        function() { return creep.harvestSource(creep.memory.sourceID) },
-                        function() { return creep.collectContainer(creep.memory.containerID) }
+                        function() { return creep.harvestSource(creep.memory.sourceID) }
                     ]
                     if (creep.memory.containerID !== undefined && !creep.pos.isEqualTo(Game.getObjectById(creep.memory.containerID).pos)) {
-                        operations.unshift(function() { return creep.moveTo(Game.getObjectById(creep.memory.containerID)) })
+                        operations.unshift(
+                            function() { return creep.moveTo(Game.getObjectById(creep.memory.containerID)) }
+                        )
+                    }
+                    if (creep.memory.containerID !== undefined) {
+                        operations.push(function() { return creep.collectContainer(creep.memory.containerID) })
+                    } else {
+                        operations.push(function() { return creep.collectDroppedSource(1) })
                     }
                     for (key = 0; key < operations.length; key++) {
 
