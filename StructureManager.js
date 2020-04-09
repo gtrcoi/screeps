@@ -175,15 +175,9 @@ module.exports = {
 
             switch (terrain.get(pos.x, pos.y)) {
                 case TERRAIN_MASK_WALL:
-                    room.visual.circle(pos, {
-                        fill: 'red'
-                    });
                     break;
 
                 default:
-                    room.visual.circle(pos, {
-                        fill: 'green'
-                    });
                     // if loop is on last value and succeeds scan is complete
                     if (key == structureLayoutArray.length - 1) {
                         room.memory.layoutScan.complete = true;
