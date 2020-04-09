@@ -155,34 +155,11 @@ module.exports = {
     // Rebuild base from ruins
     rebuild: function(room) {
         const ruins = room.find(FIND_RUINS, { filter: r => r.ticksToDecay > 500 });
-        const myBuildings = room.find(FIND_MY_STRUCTURES);
-        const myFlags = room.find(FIND_FLAGS);
 
         // Construct on ruins
         for (key in ruins) {
             let ruin = ruins[key];
-            if (ruin.structure.structureType != STRUCTURE_RAMPART &&
-                ruin.pos.lookFor(LOOK_STRUCTURES, { filter: s => s.structureType === ruin.structure.structureType }.length === 0 &&
-                    ruin.pos.lookFor(LOOK_CONSTRUCTION_SITES, { filter: c => c.structureType === ruin.structure.structureType }).length === 0)
-            ) {
-                room.createConstructionSite(ruin.pos, ruin.structure.structureType)
-
-                // Place flags where construction impossible
-                if (ruin.pos.lookFor(LOOK_FLAGS).length === 0 &&
-                    ruin.pos.lookFor(LOOK_STRUCTURES, { filter: s => s.structureType == ruin.structure.structureType }).length === 0 &&
-                    room.createConstructionSite(ruin.pos, ruin.structure.structureType != OK)) {
-                    room.createFlag(ruin.pos, (ruin.structure.structureType + Game.time));
-                };
-            };
-        };
-
-        // Clean up placeholder flags
-        for (key in myBuildings) {
-            let building = myBuildings[key];
-            let placeholderFlag = building.pos.lookFor(LOOK_FLAGS);
-            if (placeholderFlag.length > 0) {
-                placeholderFlag[0].remove();
-            }
+            room.createConstructionSite(ruin.pos, ruin.structure.structureType)
         }
     },
 
