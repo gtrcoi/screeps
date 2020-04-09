@@ -30,9 +30,13 @@ Creep.prototype.harvestSource = function(sourceID) {
 }
 
 // Collected dropped Source
-Creep.prototype.collectDroppedSource = function() {
-    const droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType == RESOURCE_ENERGY });
-
+Creep.prototype.collectDroppedSource = function(range) {
+    let droppedSource;
+    if (range === undefined) {
+        droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType == RESOURCE_ENERGY });
+    } else {
+        droppedSource = this.pos.findInRange(FIND_DROPPED_RESOURCES, range, { filter: r => r.resourceType == RESOURCE_ENERGY })[0];
+    }
     switch (droppedSource) {
         case null:
             return ERR_NOT_FOUND;
