@@ -71,6 +71,9 @@ module.exports = {
         if (!room.memory.layoutScan) {
             room.memory.layoutScan = { pos: { x: 0, y: 0 }, complete: false };
         }
+        if (!room.memory.build) {
+            room.memory.build = false;
+        }
 
     }
 }
