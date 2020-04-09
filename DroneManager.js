@@ -108,7 +108,9 @@ module.exports = {
                         function() { return creep.collectStorage() }
                     ];
                     if (creep.room.memory.spawnLimits.digger === 0) {
-                        operations.push(function() { return creep.harvestSource() })
+                        operations.push(
+                            function() { return creep.collectContainer() },
+                            function() { return creep.harvestSource() })
                     }
                     for (key = 0; key < operations.length; key++) {
 
@@ -123,6 +125,7 @@ module.exports = {
                         function() { return creep.collectDroppedSource() },
                         function() { return creep.withdrawTombstone() },
                         function() { return creep.collectRuin() },
+                        function() { return creep.collectContainer() },
                         function() { return creep.harvestSource() }
                     ];
 
