@@ -74,6 +74,36 @@ module.exports = {
         if (!room.memory.build) {
             room.memory.build = false;
         }
+        // Add resource IDs to memory
+        if (!room.memory.resources) {
+            room.memory.resources = {}
+                // Add sources
+            let sources = room.find(FIND_SOURCES);
+            if (sources.length > 0) {
+                room.memory.resources.sources = []
+                for (let source of sources) {
+                    room.memory.resources.sources.push(source.id)
+                }
+            }
+            // Add minerals
+            let minerals = room.find(FIND_MINERALS);
+            if (minerals.length > 0) {
+                room.memory.resources.minerals = []
+            }
+            for (let mineral of minerals) {
+                room.memory.resources.minerals.push(mineral.id)
+            }
+        }
+        // Add deposits
+        let deposits = room.find(FIND_DEPOSITS);
+        if (deposits.length > 0) {
+            room.memory.resources.deposits = []
+        }
+        for (let deposit of deposits) {
+            room.memory.resources.deposits.push(deposit.id)
+        }
+
+
         // else {
         //   if (room.memory.build = false){
         // Memory.global.
