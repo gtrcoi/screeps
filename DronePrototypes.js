@@ -121,13 +121,13 @@ Creep.prototype.collectContainer = function(range) {
     } else {
         container = this.pos.findInRange(containers, range);
     }
-    switch (container.length) {
-        case 0:
+    switch (container) {
+        case null:
             return ERR_NOT_FOUND;
 
         default:
-            if (this.withdraw(container[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(container[0]);
+            if (this.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                this.moveTo(container);
             }
             return OK;
     }
