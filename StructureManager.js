@@ -99,6 +99,7 @@ module.exports = {
         if (room.controller.level > 7) {
             buildList.push(
                 structureLayout['sixEight'], // Spawn
+                structureLayout['tenSix'], // Power Spawn
                 structureLayout['oneSix'], // Nuker
                 structureLayout['zeroSix'], // Observer
                 structureLayout['fourEight'], // 3 Towers
