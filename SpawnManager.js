@@ -55,7 +55,7 @@ StructureSpawn.prototype.spawnNextCreep = function() {
 };
 
 // Add a function to spawn objects to spawn a harvester
-StructureSpawn.prototype.spawnDrone = function(role) {
+StructureSpawn.prototype.spawnDrone = function(role, homeRoom = this.room.name) {
     // Set all basic information about the creep to be spawned
 
     // Name is Game.time, which is an integer value of the current tick
@@ -66,7 +66,7 @@ StructureSpawn.prototype.spawnDrone = function(role) {
     const creepMemory = {
         working: false,
         role: role,
-        homeRoom: this.room.name
+        homeRoom: homeRoom
     };
 
     // Check if harvesters are on the map
