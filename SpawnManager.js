@@ -118,7 +118,6 @@ StructureSpawn.prototype.spawnCrane = function() {
     const name = "crane" + Game.time;
     // The memory we are going to save inside the creep
     const creepMemory = {
-        working: false,
         role: "crane",
         homeRoom: this.room.name
     };
