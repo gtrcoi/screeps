@@ -1,8 +1,7 @@
 module.exports = {
 
     build: function(room) {
-        const layouts = require('./layouts');
-        const structureLayout = layouts.structureLayout(room);
+        const structureLayout = require('./layouts').structureLayout(room);
 
         // let buildList = [];
         // if (room.controller.level > 0) {
