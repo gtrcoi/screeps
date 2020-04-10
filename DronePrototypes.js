@@ -137,9 +137,11 @@ Creep.prototype.collectContainer = function(containerID) {
     }
 }
 
-Creep.prototype.collectLink = function() {
-    const link = Game.getObjectById(this.room.memory.links.baseLinkID);
-
+Creep.prototype.collectLink = function(linkID) {
+    let link = null;
+    if (linkID === undefined) {
+        link = Game.getObjectById(this.room.memory.links.baseLinkID);
+    } else { link = Game.getObjectById(linkID) }
     switch (link) {
         case null:
             return ERR_NOT_FOUND;
@@ -352,7 +354,7 @@ Creep.prototype.chargeStorage = function() {
 }
 
 Creep.prototype.chargeLink = function(linkID) {
-    let link = linkID
+    let link = null
     if (linkID === undefined) {
         link = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
             filter: s =>
