@@ -24,10 +24,6 @@ module.exports.loop = function() {
     for (const key in Game.rooms) {
         const room = Game.rooms[key];
 
-        // Skip this room if its not your room or has no controller
-        if (!room.controller || !room.controller.my) {
-            continue;
-        }
         // Set up memory objects for room
         memoryManager.setRoomMemory(room);
         memoryManager.setLinkIDs(room);
