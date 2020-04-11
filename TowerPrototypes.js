@@ -1,6 +1,27 @@
 // Tower Defend
 StructureTower.prototype.defend = function() {
-    const target = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    // Find targets
+    const targets = this.room.find(FIND_HOSTILE_CREEPS);
+
+    // Sort targets by most heal parts
+    let targetArray = []
+    let target = null
+
+    for (let creep of targets) {
+        let healParts = 0
+        for (let part of creep.body) {
+            if (part.type === HEAL) {
+                healParts++
+            }
+        }
+        targetArray.push({ creep: creep, healParts: healParts })
+    }
+
+    targetArray.sort((a, b) => (a.healParts > b.healParts) ? -1 : 1)
+    if (targetArray.length > 0) {
+        target = targetArray[0].creep
+    }
+
     switch (target) {
         case null:
             return ERR_NOT_FOUND
