@@ -170,8 +170,16 @@ module.exports = {
                 break;
 
             case "crane":
-                creep.collectLink(creep.room.memory.links.baseLinkID);
-                creep.chargeStorage();
+                operations = [
+                    function() { return creep.collectLink(creep.room.memory.links.baseLinkID) },
+                    function() { return creep.chargeStorage() }
+                ]
+                for (key = 0; key < operations.length; key++) {
+
+                    if (operations[key]() == OK) {
+                        break;
+                    }
+                }
                 break;
 
             default:
