@@ -41,7 +41,6 @@ module.exports = {
         for (const key in myLinks) {
             const link = myLinks[key];
 
-            // console.log(room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_STORAGE })[0].pos)
             if (link.pos.inRangeTo(room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_STORAGE })[0].pos, 2)) {
                 links.baseLinkID = link.id;
             } else {
@@ -71,8 +70,8 @@ module.exports = {
         if (!room.memory.layoutScan) {
             room.memory.layoutScan = { pos: { x: 0, y: 0 }, complete: false };
         }
-        if (!room.memory.build) {
-            room.memory.build = false;
+        if (!room.memory.base) {
+            room.memory.base = false;
         }
         // Add resource IDs to memory
         if (!room.memory.resources) {
@@ -103,12 +102,38 @@ module.exports = {
             room.memory.resources.deposits.push(deposit.id)
         }
 
-
-        // else {
-        //   if (room.memory.build = false){
-        // Memory.global.
-        //   }
+        // Add exits
+        if (!room.memory.remoteResources) {
+            room.memory.remoteResources = { sources: [], minerals: [], deposits: [], power: [] }
+        }
+        // for (let exit in room.memory.exits) {
+        //     let iRoom = room.memory.exits[exit];
+        //     let testRoom = Game.rooms['W2N1']
+        //         //     // Add sources
+        //         //     let sources = room.find(FIND_SOURCES);
+        //         //     if (sources.length > 0) {
+        //         //         room.memory.resources.sources = []
+        //         //         for (let source of sources) {
+        //         //             room.memory.resources.sources.push(source.id)
+        //         //         }
+        //         //     }
+        //         //     // Add minerals
+        //         //     let minerals = room.find(FIND_MINERALS);
+        //         //     if (minerals.length > 0) {
+        //         //         room.memory.resources.minerals = []
+        //         //     }
+        //         //     for (let mineral of minerals) {
+        //         //         room.memory.resources.minerals.push(mineral.id)
+        //         //     }
+        //         // }
+        //         // // Add deposits
+        //         // let deposits = room.find(FIND_DEPOSITS);
+        //         // if (deposits.length > 0) {
+        //         //     room.memory.resources.deposits = []
+        //         // }
+        //         // for (let deposit of deposits) {
+        //         //     room.memory.resources.deposits.push(deposit.id)
+        //         // }
         // }
-
     }
 }
