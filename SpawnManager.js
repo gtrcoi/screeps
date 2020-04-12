@@ -6,31 +6,31 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     const upgraderCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "upgrader"
+        creep.memory.homeRoom === room.name && creep.memory.role === "upgrader" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
     // The number of creeps who live in this room AND are considered harvesters
     const harvesterCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "harvester"
+        creep.memory.homeRoom === room.name && creep.memory.role === "harvester" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
     // The number of creeps who live in this room AND are considered builders
     const builderCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "builder"
+        creep.memory.homeRoom === room.name && creep.memory.role === "builder" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
     // The number of creeps who live in this room AND are considered cranes
     const craneCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "crane"
+        creep.memory.homeRoom === room.name && creep.memory.role === "crane" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
     // The number of creeps who live in this room AND are considered cranes
     const diggerCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "digger"
+        creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 60 || creep.spawning)
     ).length;
 
     // The limits we are pulling from memory of harvester and upgrader
@@ -177,7 +177,7 @@ StructureSpawn.prototype.spawnDigger = function() {
     };
 
     const sourceLinkIDs = this.room.memory.links.sourceLinkIDs;
-    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger");
+    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger" && c.ticksToLive > 60);
 
     // Populate list of used Links in digger memory
     let diggerIDs = [];
