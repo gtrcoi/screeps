@@ -147,10 +147,12 @@ Creep.prototype.collectLink = function(linkID) {
             return ERR_NOT_FOUND;
 
         default:
-            if (this.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(link);
-            }
-            return OK;
+            if (link.store[RESOURCE_ENERGY] > 0) {
+                if (this.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    this.moveTo(link);
+                    return OK
+                }
+            } else { return ERR_NOT_ENOUGH_ENERGY }
     }
 }
 
