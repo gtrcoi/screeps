@@ -20,6 +20,7 @@ module.exports = {
 
             if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
                 room.createConstructionSite(x, y, STRUCTURE_ROAD)
+                room.createConstructionSite(x, y, STRUCTURE_RAMPART)
             }
         }
 
@@ -38,6 +39,8 @@ module.exports = {
                 b.structureType === STRUCTURE_TOWER ||
                 b.structureType === STRUCTURE_LAB ||
                 b.structureType === STRUCTURE_TERMINAL ||
+                b.structureType === STRUCTURE_OBSERVER ||
+                b.structureType === STRUCTURE_NUKER ||
                 b.structureType === STRUCTURE_FACTORY
         });
         let neutralBuildings = room.find(FIND_STRUCTURES, {
