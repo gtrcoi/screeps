@@ -195,8 +195,11 @@ StructureSpawn.prototype.spawnDigger = function() {
     }
     creepMemory.linkID = linkAssign;
     creepMemory.sourceID = Game.getObjectById(linkAssign).pos.findClosestByPath(FIND_SOURCES).id;
-    creepMemory.containerID = Game.getObjectById(linkAssign).pos.findClosestByPath(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_CONTAINER }).id;
 
+    const containers = Game.getObjectById(linkAssign).pos.findInRange(FIND_STRUCTURES, 1, { filter: s => s.structureType === STRUCTURE_CONTAINER });
+    if (containers.length > 0) {
+        creepMemory.containerID = containers[0].id
+    }
     // Generate the creep body
     var energyAvailable = this.room.energyCapacityAvailable;
 
