@@ -17,11 +17,15 @@ module.exports = {
         const startX = room.memory.layoutScan.pos.x;
         const startY = room.memory.layoutScan.pos.y;
         const roadLayout = require('./layouts').bunkerRoadLayout(startX, startY);
+        const terrain = new Room.Terrain(room.name);
 
         for (let key in roadLayout) {
             const x = roadLayout[key].x;
             const y = roadLayout[key].y;
-            room.createConstructionSite(x, y, STRUCTURE_ROAD)
+
+            if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
+                room.createConstructionSite(x, y, STRUCTURE_ROAD)
+            }
         }
     },
 
