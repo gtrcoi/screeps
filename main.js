@@ -35,7 +35,6 @@ module.exports.loop = function() {
         if (!room.memory.layoutScan.complete) { structureManager.scanLayout(room); }
         if (room.memory.base && Game.time % 100 == 0) {
             structureManager.buildBunker(room);
-            structureManager.buildBunkerRoads(room)
         }
 
         // Run safe mode protection

@@ -4,6 +4,8 @@ module.exports = {
         const startX = room.memory.layoutScan.pos.x;
         const startY = room.memory.layoutScan.pos.y;
         const structureLayout = require('./layouts').bunkerLayout(startX, startY);
+        const roadLayout = require('./layouts').bunkerRoadLayout(startX, startY);
+        const terrain = new Room.Terrain(room.name);
 
         for (let key in structureLayout) {
             const x = structureLayout[key].pos.x;
@@ -11,13 +13,6 @@ module.exports = {
             const s = structureLayout[key].structureType;
             room.createConstructionSite(x, y, s)
         }
-    },
-
-    buildBunkerRoads: function(room) {
-        const startX = room.memory.layoutScan.pos.x;
-        const startY = room.memory.layoutScan.pos.y;
-        const roadLayout = require('./layouts').bunkerRoadLayout(startX, startY);
-        const terrain = new Room.Terrain(room.name);
 
         for (let key in roadLayout) {
             const x = roadLayout[key].x;
