@@ -1,6 +1,6 @@
 module.exports = {
-    structureLayout: function(room) {
-        const startPos = new RoomPosition(room.memory.layoutScan.pos.x, room.memory.layoutScan.pos.y, room.name);
+    structureLayout: function(room, x, y) {
+        const startPos = new RoomPosition(x, y, room.name);
         const structureLayout = {
             // Row 1
             zeroSix: { pos: { x: startPos.x + 6, y: startPos.y }, structureType: STRUCTURE_OBSERVER },
@@ -25,6 +25,7 @@ module.exports = {
             // Row 4
             threeOne: { pos: { x: startPos.x + 1, y: startPos.y + 3 }, structureType: STRUCTURE_LAB },
             threeTwo: { pos: { x: startPos.x + 2, y: startPos.y + 3 }, structureType: STRUCTURE_LAB },
+            threeFive: { pos: { x: startPos.x + 5, y: startPos.y + 3 }, structureType: STRUCTURE_TERMINAL },
             threeSeven: { pos: { x: startPos.x + 7, y: startPos.y + 3 }, structureType: STRUCTURE_EXTENSION },
             threeEight: { pos: { x: startPos.x + 8, y: startPos.y + 3 }, structureType: STRUCTURE_EXTENSION },
             threeNine: { pos: { x: startPos.x + 9, y: startPos.y + 3 }, structureType: STRUCTURE_EXTENSION },
@@ -33,7 +34,7 @@ module.exports = {
             // Row 5
             fourOne: { pos: { x: startPos.x + 1, y: startPos.y + 4 }, structureType: STRUCTURE_LAB },
             fourTwo: { pos: { x: startPos.x + 2, y: startPos.y + 4 }, structureType: STRUCTURE_LAB },
-            fourFour: { pos: { x: startPos.x + 4, y: startPos.y + 4 }, structureType: STRUCTURE_TERMINAL },
+            fourFour: { pos: { x: startPos.x + 4, y: startPos.y + 4 }, structureType: STRUCTURE_TOWER },
             fourSix: { pos: { x: startPos.x + 6, y: startPos.y + 4 }, structureType: STRUCTURE_SPAWN },
             fourEight: { pos: { x: startPos.x + 8, y: startPos.y + 4 }, structureType: STRUCTURE_TOWER },
             fourNine: { pos: { x: startPos.x + 9, y: startPos.y + 4 }, structureType: STRUCTURE_EXTENSION },
@@ -49,7 +50,6 @@ module.exports = {
             sixTwo: { pos: { x: startPos.x + 2, y: startPos.y + 6 }, structureType: STRUCTURE_EXTENSION },
             sixFour: { pos: { x: startPos.x + 4, y: startPos.y + 6 }, structureType: STRUCTURE_LINK },
             sixSix: { pos: { x: startPos.x + 6, y: startPos.y + 6 }, structureType: STRUCTURE_STORAGE },
-            sixSeven: { pos: { x: startPos.x + 7, y: startPos.y + 6 }, structureType: STRUCTURE_TOWER },
             sixEight: { pos: { x: startPos.x + 8, y: startPos.y + 6 }, structureType: STRUCTURE_SPAWN },
             sixTen: { pos: { x: startPos.x + 10, y: startPos.y + 6 }, structureType: STRUCTURE_EXTENSION },
             sixEleven: { pos: { x: startPos.x + 11, y: startPos.y + 6 }, structureType: STRUCTURE_EXTENSION },
