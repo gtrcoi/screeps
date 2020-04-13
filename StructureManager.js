@@ -22,6 +22,10 @@ module.exports = {
                 room.createConstructionSite(x, y, STRUCTURE_ROAD)
             }
         }
+
+        if (room.controller.level === 8) {
+            room.memory.base = false;
+        }
     },
 
     buildRamparts: function(room) {
