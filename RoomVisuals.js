@@ -3,7 +3,6 @@ module.exports = {
         const x = room.memory.layoutScan.pos.x;
         const y = room.memory.layoutScan.pos.y;
 
-        room.visual.circle(x, y)
         for (let i = 0; i <= 13; i++) {
             room.visual.line(x + i - 0.5, y - 0.5, x + i - 0.5, y + 13 - 0.5, {
                 opacity: 0.1
