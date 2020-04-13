@@ -103,5 +103,99 @@ module.exports = {
             twelveNine: { pos: { x: startPos.x + 9, y: startPos.y + 12 }, structureType: STRUCTURE_EXTENSION }
         }
         return structureLayout;
+    },
+
+    bunkerRoadLayout: function(x, y) {
+        const startPos = { x: x, y: y };
+        const bunkerRoadLayout = [
+            // Row 1
+            { x: startPos.x + 2, y: startPos.y },
+            { x: startPos.x + 3, y: startPos.y },
+            { x: startPos.x + 4, y: startPos.y },
+            { x: startPos.x + 10, y: startPos.y },
+            { x: startPos.x + 11, y: startPos.y },
+            // Row 2
+            { x: startPos.x + 1, y: startPos.y + 1 },
+            { x: startPos.x + 5, y: startPos.y + 1 },
+            { x: startPos.x + 8, y: startPos.y + 1 },
+            { x: startPos.x + 9, y: startPos.y + 1 },
+            { x: startPos.x + 12, y: startPos.y + 1 },
+            // Row 3
+            { x: startPos.x, y: startPos.y + 2 },
+            { x: startPos.x + 2, y: startPos.y + 2 },
+            { x: startPos.x + 5, y: startPos.y + 2 },
+            { x: startPos.x + 7, y: startPos.y + 2 },
+            { x: startPos.x + 10, y: startPos.y + 2 },
+            { x: startPos.x + 12, y: startPos.y + 2 },
+            // Row 4
+            { x: startPos.x, y: startPos.y + 3 },
+            { x: startPos.x + 3, y: startPos.y + 3 },
+            { x: startPos.x + 4, y: startPos.y + 3 },
+            { x: startPos.x + 6, y: startPos.y + 3 },
+            { x: startPos.x + 11, y: startPos.y + 3 },
+            // Row 5
+            { x: startPos.x, y: startPos.y + 4 },
+            { x: startPos.x + 3, y: startPos.y + 4 },
+            { x: startPos.x + 5, y: startPos.y + 4 },
+            { x: startPos.x + 7, y: startPos.y + 4 },
+            { x: startPos.x + 11, y: startPos.y + 4 },
+            // Row 6
+            { x: startPos.x + 1, y: startPos.y + 5 },
+            { x: startPos.x + 2, y: startPos.y + 5 },
+            { x: startPos.x + 4, y: startPos.y + 5 },
+            { x: startPos.x + 5, y: startPos.y + 5 },
+            { x: startPos.x + 7, y: startPos.y + 5 },
+            { x: startPos.x + 8, y: startPos.y + 5 },
+            { x: startPos.x + 10, y: startPos.y + 5 },
+            { x: startPos.x + 12, y: startPos.y + 5 },
+            // Row 7
+            { x: startPos.x, y: startPos.y + 6 },
+            { x: startPos.x + 3, y: startPos.y + 6 },
+            { x: startPos.x + 5, y: startPos.y + 6 },
+            { x: startPos.x + 7 y: startPos.y + 6 },
+            { x: startPos.x + 9, y: startPos.y + 6 },
+            { x: startPos.x + 12, y: startPos.y + 6 },
+            // Row 8
+            { x: startPos.x, y: startPos.y + 7 },
+            { x: startPos.x + 2, y: startPos.y + 7 },
+            { x: startPos.x + 4, y: startPos.y + 7 },
+            { x: startPos.x + 5, y: startPos.y + 7 },
+            { x: startPos.x + 7, y: startPos.y + 7 },
+            { x: startPos.x + 8, y: startPos.y + 7 },
+            { x: startPos.x + 10, y: startPos.y + 7 },
+            { x: startPos.x + 12, y: startPos.y + 7 },
+            // Row 9
+            { x: startPos.x + 1, y: startPos.y + 8 },
+            { x: startPos.x + 5, y: startPos.y + 8 },
+            { x: startPos.x + 7, y: startPos.y + 8 },
+            { x: startPos.x + 11, y: startPos.y + 8 },
+            // Row 10
+            { x: startPos.x + 1, y: startPos.y + 9 },
+            { x: startPos.x + 6, y: startPos.y + 9 },
+            { x: startPos.x + 11, y: startPos.y + 9 },
+            // Row 11
+            { x: startPos.x, y: startPos.y + 10 },
+            { x: startPos.x + 2, y: startPos.y + 10 },
+            { x: startPos.x + 5, y: startPos.y + 10 },
+            { x: startPos.x + 7, y: startPos.y + 10 },
+            { x: startPos.x + 10, y: startPos.y + 10 },
+            { x: startPos.x + 12, y: startPos.y + 10 },
+            // Row 12
+            { x: startPos.x, y: startPos.y + 11 },
+            { x: startPos.x + 3, y: startPos.y + 11 },
+            { x: startPos.x + 4, y: startPos.y + 11 },
+            { x: startPos.x + 8, y: startPos.y + 11 },
+            { x: startPos.x + 9, y: startPos.y + 11 },
+            { x: startPos.x + 12, y: startPos.y + 11 },
+            // Row 13
+            { x: startPos.x + 1, y: startPos.y + 12 },
+            { x: startPos.x + 2, y: startPos.y + 12 },
+            { x: startPos.x + 5, y: startPos.y + 12 },
+            { x: startPos.x + 6, y: startPos.y + 12 },
+            { x: startPos.x + 7, y: startPos.y + 12 },
+            { x: startPos.x + 10, y: startPos.y + 12 },
+            { x: startPos.x + 11, y: startPos.y + 12 }
+        ]
+        return bunkerRoadLayout;
     }
 }
