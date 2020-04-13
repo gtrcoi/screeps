@@ -152,7 +152,7 @@ module.exports = {
             { x: startPos.x, y: startPos.y + 6 },
             { x: startPos.x + 3, y: startPos.y + 6 },
             { x: startPos.x + 5, y: startPos.y + 6 },
-            { x: startPos.x + 7 y: startPos.y + 6 },
+            { x: startPos.x + 7, y: startPos.y + 6 },
             { x: startPos.x + 9, y: startPos.y + 6 },
             { x: startPos.x + 12, y: startPos.y + 6 },
             // Row 8
