@@ -1,7 +1,9 @@
 module.exports = {
 
     build: function(room) {
-        const structureLayout = require('./layouts').structureLayout(room);
+        const startX = room.memory.layoutScan.pos.x;
+        const startY = room.memory.layoutScan.pos.y;
+        const structureLayout = require('./layouts').structureLayout(room, startX, startY);
 
         // let buildList = [];
         // if (room.controller.level > 0) {
@@ -166,38 +168,48 @@ module.exports = {
     scanLayout: function(room) {
         const layouts = require('./layouts');
         const terrain = new Room.Terrain(room.name)
-        const structureLayout = layouts.structureLayout(room);
+        let x = 0;
+        let y = 0;
 
-        let = structureLayoutArray = Object.values(structureLayout);
+        while (room.memory.layoutScan.complete === false) {
+            const structureLayout = layouts.structureLayout(room, x, y);
+            let = structureLayoutArray = Object.values(structureLayout);
 
-        for (let key in structureLayoutArray) {
-            const pos = structureLayoutArray[key].pos;
+            for (let key in structureLayoutArray) {
+                const pos = structureLayoutArray[key].pos;
+                switch (terrain.get(pos.x, pos.y)) {
+                    case TERRAIN_MASK_WALL:
+                        break;
 
-            switch (terrain.get(pos.x, pos.y)) {
-                case TERRAIN_MASK_WALL:
-                    break;
-
-                default:
-                    // if loop is on last value and succeeds scan is complete
-                    if (key == structureLayoutArray.length - 1) {
-                        room.memory.layoutScan.complete = true;
+                    default:
+                        // if loop is on last value and succeeds scan is complete
+                        if (key == structureLayoutArray.length - 1) {
+                            room.memory.layoutScan.complete = true;
+                            console.log(`${x} ${y}`);
+                            break;
+                        }
+                        continue;
+                }
+                if (x < 49 - 12) {
+                    if (!room.memory.layoutScan.complete) {
+                        x++;
                     }
+                }
+                // if scan fails to find space
+                else if (y > 49 - 12) {
+                    room.memory.layoutScan.pos.x = 99;
+                    room.memory.layoutScan.pos.y = 99;
+                    room.memory.layoutScan.complete = true;
+                } else {
+                    y++;
+                    x = 0;
                     continue;
-            }
-            if (room.memory.layoutScan.pos.x < 49 - 12) {
-                room.memory.layoutScan.pos.x++;
-            }
-            // if scan fails to find space
-            else if (room.memory.layoutScan.pos.y > 49 - 12) {
-                room.memory.layoutScan.pos.x = 99;
-                room.memory.layoutScan.pos.y = 99;
-                room.memory.layoutScan.complete = true;
-            } else {
-                room.memory.layoutScan.pos.y++;
-                room.memory.layoutScan.pos.x = 0;
-            }
+                }
 
-            break;
+                break;
+            }
+            room.memory.layoutScan.pos.x = x
+            room.memory.layoutScan.pos.y = y
         }
     }
 }
