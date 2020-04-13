@@ -177,7 +177,7 @@ StructureSpawn.prototype.spawnDigger = function() {
     };
 
     const sourceLinkIDs = this.room.memory.links.sourceLinkIDs;
-    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger" && c.ticksToLive > 60);
+    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger" && (c.ticksToLive > 60 || c.spawning));
 
     // Populate list of used Links in digger memory
     let diggerIDs = [];
