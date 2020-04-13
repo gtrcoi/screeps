@@ -1,5 +1,5 @@
 module.exports = {
-    structureLayout: function(room, x, y) {
+    bunkerLayout: function(room, x, y) {
         const startPos = new RoomPosition(x, y, room.name);
         const structureLayout = {
             // Row 1

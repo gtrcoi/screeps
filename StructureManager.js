@@ -1,9 +1,9 @@
 module.exports = {
 
-    build: function(room) {
+    buildBunker: function(room) {
         const startX = room.memory.layoutScan.pos.x;
         const startY = room.memory.layoutScan.pos.y;
-        const structureLayout = require('./layouts').structureLayout(room, startX, startY);
+        const structureLayout = require('./layouts').bunkerLayout(room, startX, startY);
 
         for (let key in structureLayout) {
             const x = structureLayout[key].pos.x;
@@ -55,7 +55,7 @@ module.exports = {
         let y = 0;
 
         while (room.memory.layoutScan.complete === false) {
-            const structureLayout = layouts.structureLayout(room, x, y);
+            const structureLayout = layouts.bunkerLayout(room, x, y);
             let = structureLayoutArray = Object.values(structureLayout);
 
             for (let key in structureLayoutArray) {
