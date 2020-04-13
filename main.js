@@ -33,7 +33,10 @@ module.exports.loop = function() {
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
         if (!room.memory.layoutScan.complete) { structureManager.scanLayout(room); }
-        if (room.memory.base && Game.time % 100 == 0) { structureManager.buildBunker(room); }
+        if (room.memory.base && Game.time % 100 == 0) {
+            structureManager.buildBunker(room);
+            structureManager.buildBunkerRoads(room)
+        }
 
         // Run safe mode protection
         defenseManager.safeMode(room);

@@ -1,6 +1,6 @@
 module.exports = {
-    bunkerLayout: function(room, x, y) {
-        const startPos = new RoomPosition(x, y, room.name);
+    bunkerLayout: function(x, y) {
+        const startPos = { x: x, y: y };
         const structureLayout = {
             // Row 1
             zeroSix: { pos: { x: startPos.x + 6, y: startPos.y }, structureType: STRUCTURE_OBSERVER },
