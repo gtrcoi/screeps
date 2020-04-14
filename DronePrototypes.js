@@ -96,20 +96,15 @@ Creep.prototype.collectRuin = function() {
 }
 
 Creep.prototype.collectStorage = function() {
-    const storage = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: s =>
-            (s.structureType == STRUCTURE_STORAGE &&
-                s.store[RESOURCE_ENERGY] > 0)
-    });
-    switch (storage) {
-        case null:
-            return ERR_NOT_FOUND;
+    const storage = this.room.storage;
 
-        default:
-            if (this.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(storage);
-            }
-            return OK;
+    if (storage.store[RESOURCE_ENERGY] > 0) {
+        if (this.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            this.moveTo(storage);
+        }
+        return OK;
+    } else {
+        return ERR_NOT_FOUND;
     }
 }
 
@@ -336,22 +331,15 @@ Creep.prototype.rechargeTower = function(percent) {
 }
 
 Creep.prototype.chargeStorage = function() {
-    const storage = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: s =>
-            (s.structureType == STRUCTURE_STORAGE &&
-                s.store[RESOURCE_ENERGY] <
-                s.store.getCapacity(RESOURCE_ENERGY) / 2)
-    });
+    const storage = this.room.storage;
 
-    switch (storage) {
-        case null:
-            return ERR_NOT_FOUND;
-
-        default:
-            if (this.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(storage);
-            }
-            return OK;
+    if (storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() / 2) {
+        if (this.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            this.moveTo(storage);
+        }
+        return OK;
+    } else {
+        return ERR_NOT_FOUND;
     }
 }
 

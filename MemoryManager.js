@@ -1,12 +1,12 @@
 module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
-        const upgraderLimits = 2;
+        const upgraderLimits = 1;
         const diggerLimits = room.memory.links.sourceLinkIDs.length;
         const harvesterLimits = room.find(FIND_SOURCES).length;
 
         let builderLimits = 1;
-        if (room.find(FIND_MY_CONSTRUCTION_SITES).length > 10) {
+        if (room.find(FIND_MY_CONSTRUCTION_SITES).length >= 10) {
             builderLimits = 2;
         }
 
@@ -41,7 +41,7 @@ module.exports = {
         for (const key in myLinks) {
             const link = myLinks[key];
 
-            if (link.pos.inRangeTo(room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_STORAGE })[0].pos, 2)) {
+            if (link.pos.inRangeTo(room.storage.pos, 2)) {
                 links.baseLinkID = link.id;
             } else {
                 const sources = room.find(FIND_SOURCES);
@@ -135,5 +135,9 @@ module.exports = {
         //         //     room.memory.resources.deposits.push(deposit.id)
         //         // }
         // }
+    },
+
+    viewSatellites: function(room) {
+
     }
 }
