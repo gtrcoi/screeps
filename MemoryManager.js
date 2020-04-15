@@ -58,13 +58,31 @@ module.exports = {
         }
         structures.links = linksMemoryObject;
 
-        // Set up observer
-        const observer = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_OBSERVER });
-        let observerID = undefined;
-        if (observer.length > 0) { observerID = observer[0].id }
-        structures.observer = { id: observerID, view: false, satellites: [] }
+        // Set up factory
+        const factory = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_FACTORY });
+        let factoryID = undefined;
+        if (factory.length > 0) { factoryID = factory[0].id }
+        structures.factory = factoryID
 
-        // Set up nuker
+        if (room.controller.level === 8) {
+            // Set up observer
+            const observer = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_OBSERVER });
+            let observerID = undefined;
+            if (observer.length > 0) { observerID = observer[0].id }
+            structures.observer = { id: observerID, view: false, satellites: [] }
+
+            // Set up powerSpawn
+            const powerSpawn = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_POWER_SPAWN });
+            let powerSpawnID = undefined;
+            if (powerSpawn.length > 0) { powerSpawnID = powerSpawn[0].id }
+            structures.powerSpawn = powerSpawnID
+
+            // Set up nuker
+            const nuker = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_NUKER });
+            let nukerID = undefined;
+            if (nuker.length > 0) { nukerID = nuker[0].id }
+            structures.nuker.id = nukerID
+        }
     },
 
     cleanMemory: function() {
