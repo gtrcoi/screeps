@@ -18,10 +18,14 @@ module.exports = {
                     function() { return tower.defend() },
                     function() { return tower.healCreep() },
                     function() { return tower.repairRoad() },
-                    function() { return tower.repairContainer() },
-                    function() { return tower.repairMyMostDamaged(50) },
-                    function() { return tower.repairMostDamaged() }
+                    function() { return tower.repairContainer() }
                 ];
+                if (Game.time % 5 === 0) {
+                    operations.push(
+                        function() { return tower.repairMyMostDamaged(50) },
+                        function() { return tower.repairMostDamaged() }
+                    )
+                }
             } else {
                 operations = [
                     function() { return tower.defend() },
