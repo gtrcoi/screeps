@@ -30,7 +30,7 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     const diggerCount = _.filter(
         Game.creeps,
         creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 60 || creep.spawning)
+        creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 100 || creep.spawning)
     ).length;
 
     // The limits we are pulling from memory of harvester and upgrader
@@ -177,7 +177,7 @@ StructureSpawn.prototype.spawnDigger = function() {
     };
 
     const sourceLinkIDs = this.room.memory.structures.links.sourceLinkIDs;
-    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger" && (c.ticksToLive > 60 || c.spawning));
+    const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger" && (c.ticksToLive > 100 || c.spawning));
 
     // Populate list of used Links in digger memory
     let diggerIDs = [];
