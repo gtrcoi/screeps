@@ -283,20 +283,33 @@ Creep.prototype.repairRoad = function() {
 }
 
 // Recharge Towers
-Creep.prototype.rechargeTower = function(percent) {
+Creep.prototype.rechargeTower = function(opts) {
+
+    opts = opts || {};
+
+    if (_.isUndefined(opts.percent) || !_.isNumber(opts.percent)) {
+        opts.percent = 100
+    }
+    const percentRepair = opts.percent / 100;
+
     let depletedTowers = null;
-    if (percent !== undefined) {
-        const percentRepair = percent / 100;
+
+    if (_.isUndefined(opts.range) || !_.isNumber(opts.range)) {
         depletedTowers = this.room.find(
             FIND_MY_STRUCTURES, {
-                filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
+                filter: t =>
+                    t.structureType == STRUCTURE_TOWER &&
+                    t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
             });
-    } else {
-        depletedTowers = this.room.find(
-            FIND_MY_STRUCTURES, {
-                filter: t => t.structureType == STRUCTURE_TOWER && t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY)
+    } else if (_.isNumber(opts.range)) {
+        depletedTowers = this.pos.findInRange(
+            FIND_MY_STRUCTURES, opts.range, {
+                filter: t =>
+                    t.structureType == STRUCTURE_TOWER &&
+                    t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
             });
     }
+
     if (depletedTowers.length > 0) {
         var mostDepletedTower = null;
 
@@ -313,6 +326,7 @@ Creep.prototype.rechargeTower = function(percent) {
             if (mostDepletedTower != null) { break; }
         }
     } else { return ERR_NOT_FOUND; }
+
     switch (mostDepletedTower) {
         case null:
             return ERR_NOT_FOUND;

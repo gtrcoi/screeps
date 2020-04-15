@@ -62,7 +62,7 @@ module.exports = {
 
                         case "builder":
                             operations = [
-                                function() { return creep.rechargeTower(50) },
+                                function() { return creep.rechargeTower({ percent: 50 }) },
                                 function() { return creep.chargeSpawn() },
                                 function() { return creep.repairRoad() },
                                 function() { return creep.construct() },
