@@ -2,7 +2,7 @@ module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
         const upgraderLimits = 1;
-        const diggerLimits = room.memory.links.sourceLinkIDs.length;
+        const diggerLimits = room.memory.structures.links.sourceLinkIDs.length;
         const harvesterLimits = room.find(FIND_SOURCES).length;
 
         let builderLimits = 1;
@@ -11,7 +11,7 @@ module.exports = {
         }
 
         let craneLimits = 0
-        if (room.memory.links.baseLinkID) {
+        if (room.memory.structures.links.baseLinkID) {
             craneLimits = 1;
         }
 
@@ -31,30 +31,40 @@ module.exports = {
         room.memory.spawnLimits = spawnLimits;
     },
 
-    setLinkIDs: function(room) {
-        if (!room.memory.links) {
-            room.memory.links = {};
+    setStructures: function(room) {
+        if (!room.memory.structures) {
+            room.memory.structures = { links: {}, observer: {}, powerSpawn: "", factory: "", nuker: { id: "", target: "" } };
         }
-        let links = { sourceLinkIDs: [] };
+        const structures = room.memory.structures;
+
+        // Set up links
+        let linksMemoryObject = { sourceLinkIDs: [] };
         const myLinks = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
 
         for (const key in myLinks) {
             const link = myLinks[key];
 
             if (link.pos.inRangeTo(room.storage.pos, 2)) {
-                links.baseLinkID = link.id;
+                linksMemoryObject.baseLinkID = link.id;
             } else {
                 const sources = room.find(FIND_SOURCES);
                 for (const key in sources) {
                     const source = sources[key];
                     if (link.pos.inRangeTo(source.pos, 2)) {
-                        links.sourceLinkIDs.push(link.id);
+                        linksMemoryObject.sourceLinkIDs.push(link.id);
                     }
                 }
             }
-
         }
-        room.memory.links = links;
+        structures.links = linksMemoryObject;
+
+        // Set up observer
+        const observer = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_OBSERVER });
+        let observerID = undefined;
+        if (observer.length > 0) { observerID = observer[0].id }
+        structures.observer = { id: observerID, view: false, satellites: [] }
+
+        // Set up nuker
     },
 
     cleanMemory: function() {
@@ -106,38 +116,23 @@ module.exports = {
         if (!room.memory.remoteResources) {
             room.memory.remoteResources = { sources: [], minerals: [], deposits: [], power: [] }
         }
-        // for (let exit in room.memory.exits) {
-        //     let iRoom = room.memory.exits[exit];
-        //     let testRoom = Game.rooms['W2N1']
-        //         //     // Add sources
-        //         //     let sources = room.find(FIND_SOURCES);
-        //         //     if (sources.length > 0) {
-        //         //         room.memory.resources.sources = []
-        //         //         for (let source of sources) {
-        //         //             room.memory.resources.sources.push(source.id)
-        //         //         }
-        //         //     }
-        //         //     // Add minerals
-        //         //     let minerals = room.find(FIND_MINERALS);
-        //         //     if (minerals.length > 0) {
-        //         //         room.memory.resources.minerals = []
-        //         //     }
-        //         //     for (let mineral of minerals) {
-        //         //         room.memory.resources.minerals.push(mineral.id)
-        //         //     }
-        //         // }
-        //         // // Add deposits
-        //         // let deposits = room.find(FIND_DEPOSITS);
-        //         // if (deposits.length > 0) {
-        //         //     room.memory.resources.deposits = []
-        //         // }
-        //         // for (let deposit of deposits) {
-        //         //     room.memory.resources.deposits.push(deposit.id)
-        //         // }
-        // }
     },
 
     viewSatellites: function(room) {
+        room.memory.observer = undefined
+        let satellites = room.memory.structures.observer.satellites
+        let observerArray = []
 
+        // Add exits to checklist
+        const exits = Object.values(Game.map.describeExits(room.name));
+        for (exit of exits) {
+            observerArray.push(exit);
+        }
+
+        // add rooms further out until path is no longer feasible
+        let xCord;
+        let yCord;
+
+        room.memory.structures.observer.view = false;
     }
 }

@@ -26,16 +26,16 @@ module.exports.loop = function() {
 
         // Set up memory objects for room
         memoryManager.setRoomMemory(room);
-        memoryManager.setLinkIDs(room);
+        memoryManager.setStructures(room);
         memoryManager.setSpawnLimits(room);
+        memoryManager.viewSatellites(room);
+
 
         // Manage base building
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
         if (!room.memory.layoutScan.complete) { structureManager.scanLayout(room); }
-        if (room.memory.base && Game.time % 100 == 0) {
-            structureManager.buildBunker(room);
-        }
+        if (room.memory.base && Game.time % 100 == 0) { structureManager.buildBunker(room); }
 
         // Run safe mode protection
         defenseManager.safeMode(room);
@@ -43,12 +43,14 @@ module.exports.loop = function() {
         // Paint visuals
         if (room.memory.layoutScan.pos.x < 99) { visuals.paintLayoutScan(room); }
 
+        // Push energy through links
         let links = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
+        const baseLink = Game.getObjectById(room.memory.structures.links.baseLinkID);
 
         for (const key in links) {
             const link = links[key];
-            const baseLink = Game.getObjectById(room.memory.links.baseLinkID);
-            if (link.id != room.memory.links.baseLinkID && link.store[RESOURCE_ENERGY] > link.store.getCapacity()) {
+
+            if (link.id != baseLink.id && link.store[RESOURCE_ENERGY] > link.store.getCapacity()) {
                 link.transferEnergy(baseLink);
             }
         }

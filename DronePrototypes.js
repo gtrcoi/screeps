@@ -135,7 +135,7 @@ Creep.prototype.collectContainer = function(containerID) {
 Creep.prototype.collectLink = function(linkID) {
     let link = null;
     if (linkID === undefined) {
-        link = Game.getObjectById(this.room.memory.links.baseLinkID);
+        link = Game.getObjectById(this.room.memory.structures.links.baseLinkID);
     } else { link = Game.getObjectById(linkID) }
     switch (link) {
         case null:

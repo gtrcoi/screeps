@@ -171,7 +171,7 @@ module.exports = {
 
             case "crane":
                 operations = [
-                    function() { return creep.collectLink(creep.room.memory.links.baseLinkID) },
+                    function() { return creep.collectLink(creep.room.memory.structures.links.baseLinkID) },
                     function() { return creep.chargeStorage() }
                 ]
                 for (key = 0; key < operations.length; key++) {
