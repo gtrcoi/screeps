@@ -33,13 +33,22 @@ module.exports = {
 
     setStructures: function(room) {
         if (!room.memory.structures) {
-            room.memory.structures = { links: {}, observer: {}, powerSpawn: "", factory: "", nuker: { id: "", target: "" } };
+            room.memory.structures = { spawns: [], links: {}, observer: {}, powerSpawn: "", factory: "", nuker: { id: "", target: "" } };
         }
-        const structures = room.memory.structures;
+        const structuresMemory = room.memory.structures;
+        const structures = room.find(FIND_MY_STRUCTURES);
+
+        // Set up spawns
+        const spawns = _.filter(structures, s => s.structureType === STRUCTURE_SPAWN);
+        for (let spawn of spawns) {
+            if (room.memory.structures.spawns.indexOf(spawn.id) == -1) {
+                room.memory.structures.spawns.push(spawn.id);
+            }
+        }
 
         // Set up links
         let linksMemoryObject = { sourceLinkIDs: [] };
-        const myLinks = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
+        const myLinks = _.filter(structures, s => s.structureType === STRUCTURE_LINK);
 
         for (const key in myLinks) {
             const link = myLinks[key];
@@ -56,32 +65,32 @@ module.exports = {
                 }
             }
         }
-        structures.links = linksMemoryObject;
+        structuresMemory.links = linksMemoryObject;
 
         // Set up factory
-        const factory = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_FACTORY });
+        const factory = _.filter(structures, s => s.structureType === STRUCTURE_FACTORY);
         let factoryID = undefined;
         if (factory.length > 0) { factoryID = factory[0].id }
-        structures.factory = factoryID
+        structuresMemory.factory = factoryID
 
         if (room.controller.level === 8) {
             // Set up observer
-            const observer = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_OBSERVER });
+            const observer = _.filter(structures, s => s.structureType === STRUCTURE_OBSERVER);
             let observerID = undefined;
             if (observer.length > 0) { observerID = observer[0].id }
-            structures.observer = { id: observerID, view: false, satellites: [] }
+            structuresMemory.observer = { id: observerID, view: false, satellites: [] }
 
             // Set up powerSpawn
-            const powerSpawn = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_POWER_SPAWN });
+            const powerSpawn = _.filter(structures, s => s.structureType === STRUCTURE_POWER_SPAWN);
             let powerSpawnID = undefined;
             if (powerSpawn.length > 0) { powerSpawnID = powerSpawn[0].id }
-            structures.powerSpawn = powerSpawnID
+            structuresMemory.powerSpawn = powerSpawnID
 
             // Set up nuker
-            const nuker = room.find(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_NUKER });
+            const nuker = _.filter(structures, s => s.structureType === STRUCTURE_NUKER);
             let nukerID = undefined;
             if (nuker.length > 0) { nukerID = nuker[0].id }
-            structures.nuker.id = nukerID
+            structuresMemory.nuker.id = nukerID
         }
     },
 
