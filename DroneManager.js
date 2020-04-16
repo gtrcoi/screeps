@@ -174,6 +174,12 @@ module.exports = {
                     function() { return creep.collectLink(creep.room.memory.structures.links.baseLinkID) },
                     function() { return creep.chargeStorage() }
                 ]
+                const pos = new RoomPosition(creep.room.memory.layoutScan.pos.x + 5, creep.room.memory.layoutScan.pos.y + 6, creep.room.name)
+                if (!creep.pos.isEqualTo(pos) && pos.lookFor(LOOK_CREEPS).length === 0) {
+                    operations.unshift(
+                        function() { return creep.moveTo(pos, pos) }
+                    )
+                }
                 for (key = 0; key < operations.length; key++) {
 
                     if (operations[key]() == OK) {
