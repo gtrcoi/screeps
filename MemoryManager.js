@@ -55,6 +55,8 @@ module.exports = {
 
             if (link.pos.inRangeTo(room.storage.pos, 2)) {
                 linksMemoryObject.baseLinkID = link.id;
+            } else if (link.pos.inRangeTo(room.controller.pos, 2)) {
+                linksMemoryObject.controllerLinkID = link.id;
             } else {
                 const sources = room.find(FIND_SOURCES);
                 for (const key in sources) {
@@ -139,9 +141,33 @@ module.exports = {
             room.memory.resources.deposits.push(deposit.id)
         }
 
-        // Add exits
+        // Add remote resources
         if (!room.memory.remoteResources) {
             room.memory.remoteResources = { sources: [], minerals: [], deposits: [], power: [] }
+        }
+
+        if (room.memory.layoutScan.complete) {
+            // Add costMatrix
+            if (!room.memory.costMatrix) {
+                const bunkerLayout = Object.values(require('./layouts').bunkerLayout(room.memory.layoutScan.pos.x, room.memory.layoutScan.pos.y));
+                const bunkerRoads = require('./layouts').bunkerRoadLayout(room.memory.layoutScan.pos.x, room.memory.layoutScan.pos.y);
+                const terrain = new Room.Terrain(room.name);
+
+                let costs = new PathFinder.CostMatrix;
+                for (let entry of bunkerLayout) {
+                    costs.set(entry.pos.x, entry.pos.y, 8)
+                }
+                for (let road of bunkerRoads) {
+                    if (terrain.get(road.x, road.y) !== TERRAIN_MASK_WALL) {
+                        costs.set(road.x, road.y, 1);
+                    }
+                }
+                const walls = room.find(FIND_STRUCTURES, { filter: s => s.structureType === STRUCTURE_WALL })
+                for (let wall of walls) {
+                    costs.set(wall.pos.x, wall.pos.y, 8)
+                }
+                room.memory.costMatrix = costs.serialize();
+            }
         }
     },
 
