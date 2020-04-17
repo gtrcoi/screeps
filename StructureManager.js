@@ -29,6 +29,67 @@ module.exports = {
         }
     },
 
+    buildLocal: function(room) {
+        const costs = PathFinder.CostMatrix.deserialize(room.memory.costMatrix)
+
+        // find path from spawn1
+        const startPos = Game.getObjectById(room.memory.structures.spawns[0]).pos;
+
+        // build controller roads and link
+        const controllerPath = room.findPath(startPos, room.controller.pos, { range: 1, ignoreCreeps: true, costCallback: function() { return costs; } });
+
+        for (let pos of controllerPath) {
+            if (controllerPath.indexOf(pos) === controllerPath.length - 1) {
+                room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
+            };
+            room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
+        }
+
+        // Paths to sources
+        let sourcePaths = [];
+        for (let sourceID of room.memory.resources.sources) {
+            const source = Game.getObjectById(sourceID);
+            sourcePaths.push(
+                room.findPath(startPos, source.pos, { range: 1, ignoreCreeps: true, costCallback: function() { return costs; } })
+            )
+        }
+
+        // build roads, containers, and links for sources
+        for (let path of sourcePaths) {
+            for (let pos of path) {
+                switch (path.indexOf(pos)) {
+                    case path.length - 1:
+                        room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+                        break;
+                    case path.length - 2:
+                        room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
+                    default:
+                        break;
+                }
+                room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
+            }
+        }
+
+        // Path to mineral
+        let mineralPaths = []
+        for (let mineralID of room.memory.resources.minerals) {
+            const mineral = Game.getObjectById(mineralID);
+            mineralPaths.push(
+                room.findPath(startPos, mineral.pos, { range: 1, ignoreCreeps: true, costCallback: function() { return costs; } })
+            )
+        }
+
+        // build road and container for minerals
+        for (let path of mineralPaths) {
+            for (let pos of path) {
+                if (path.indexOf(pos) === path.length - 1) {
+                    room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+                }
+                room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
+            }
+        }
+    },
+
     buildRamparts: function(room) {
         let myBuildings = room.find(FIND_MY_STRUCTURES, {
             filter: (b) =>

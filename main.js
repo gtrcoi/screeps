@@ -34,8 +34,12 @@ module.exports.loop = function() {
         // Manage base building
         structureManager.buildRamparts(room);
         structureManager.rebuild(room);
-        if (!room.memory.layoutScan.complete) { structureManager.scanLayout(room); }
-        if (room.memory.base && Game.time % 100 == 0) { structureManager.buildBunker(room); }
+        if (!room.memory.layoutScan.complete) {
+            structureManager.scanLayout(room);
+        } else if (Game.time % 1000 === 0) {
+            structureManager.buildLocal(room);
+        }
+        if (room.memory.base && Game.time % 100 === 0) { structureManager.buildBunker(room); }
 
         // Run safe mode protection
         defenseManager.safeMode(room);
