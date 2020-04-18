@@ -41,8 +41,9 @@ module.exports = {
         for (let pos of controllerPath) {
             if (controllerPath.indexOf(pos) === controllerPath.length - 1) {
                 room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
-            };
-            room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
+            } else {
+                room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
+            }
         }
 
         // Paths to sources
