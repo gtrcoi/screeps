@@ -107,7 +107,7 @@ module.exports = {
 
     setRoomMemory: function(room) {
         if (!room.memory.layoutScan) {
-            room.memory.layoutScan = { pos: { x: 0, y: 0 }, complete: false };
+            room.memory.layoutScan = { pos: {} };
         }
         if (!room.memory.base) {
             room.memory.base = false;
