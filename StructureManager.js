@@ -146,7 +146,6 @@ module.exports = {
                         // if loop is on last value and succeeds scan is complete
                         if (key == structureLayoutArray.length - 1) {
                             room.memory.layoutScan.complete = true;
-                            console.log(`${x} ${y}`);
                             break;
                         }
                         continue;
@@ -161,6 +160,7 @@ module.exports = {
                     x = 99;
                     y = 99;
                     room.memory.layoutScan.complete = true;
+                    room.memory.layoutScan.fail = true;
                 } else {
                     y++;
                     x = 0;
