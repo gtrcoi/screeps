@@ -45,13 +45,16 @@ module.exports = {
 
                         case "upgrader":
                             operations = [
-                                function() { return creep.chargeSpawn() },
                                 function() { return creep.chargeController() },
                                 function() { return creep.rechargeTower() },
                                 function() { return creep.repairRoad() },
                                 function() { return creep.construct() },
                                 function() { return creep.repairMostDamaged() }
                             ];
+
+                            if (creep.room.memory.creepCount.builder === 0 && creep.room.memory.creepCount.harvester === 0) {
+                                operations.unshift(function() { return creep.chargeSpawn() })
+                            }
 
                             for (let key = 0; key < operations.length; key++) {
                                 if (operations[key]() == OK) {
@@ -103,7 +106,6 @@ module.exports = {
                 } else { // Find Energy
                     switch (creep.memory.role) {
                         case "builder":
-                        case "upgrader":
                             operations = [
                                 function() { return creep.collectDroppedSource() },
                                 function() { return creep.withdrawTombstone() },
@@ -115,6 +117,32 @@ module.exports = {
                                     function() { return creep.collectContainer() },
                                     function() { return creep.harvestSource() })
                             }
+                            for (key = 0; key < operations.length; key++) {
+
+                                if (operations[key]() == OK) {
+                                    break;
+                                }
+                            }
+                            break;
+
+                        case "upgrader":
+                            operations = [
+                                function() { return creep.collectDroppedSource() },
+                                function() { return creep.withdrawTombstone() },
+                                function() { return creep.collectRuin() },
+                                function() { return creep.collectStorage() }
+                            ];
+
+                            if (creep.room.memory.spawnLimits.digger === 0) {
+                                operations.push(
+                                    function() { return creep.collectContainer() },
+                                    function() { return creep.harvestSource() })
+                            }
+
+                            if (creep.room.memory.structures.links.controllerLinkID) {
+                                operations.unshift(function() { return creep.collectLink(creep.room.memory.structures.links.controllerLinkID) })
+                            }
+
                             for (key = 0; key < operations.length; key++) {
 
                                 if (operations[key]() == OK) {
@@ -170,16 +198,20 @@ module.exports = {
                 break;
 
             case "crane":
+                const baseLink = Game.getObjectById(creep.room.memory.structures.links.baseLinkID);
+                const pos = new RoomPosition(creep.room.memory.layoutScan.pos.x + 5, creep.room.memory.layoutScan.pos.y + 6, creep.room.name)
+
                 operations = [
-                    function() { return creep.collectLink(creep.room.memory.structures.links.baseLinkID) },
                     function() { return creep.chargeStorage() }
                 ]
-                const pos = new RoomPosition(creep.room.memory.layoutScan.pos.x + 5, creep.room.memory.layoutScan.pos.y + 6, creep.room.name)
-                if (!creep.pos.isEqualTo(pos) && pos.lookFor(LOOK_CREEPS).length === 0) {
-                    operations.unshift(
-                        function() { return creep.moveTo(pos, pos) }
-                    )
+
+                if (baseLink.store[RESOURCE_ENERGY] > baseLink.store.getCapacity(RESOURCE_ENERGY) / 2) {
+                    operations.unshift(function() { return creep.collectLink(creep.room.memory.structures.links.baseLinkID) })
                 }
+                if (!creep.pos.isEqualTo(pos) && pos.lookFor(LOOK_CREEPS).length === 0) {
+                    operations.unshift(function() { return creep.moveTo(pos, pos) })
+                }
+
                 for (key = 0; key < operations.length; key++) {
 
                     if (operations[key]() == OK) {

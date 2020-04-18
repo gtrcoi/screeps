@@ -33,6 +33,13 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 100 || creep.spawning)
     ).length;
 
+    // Save to memory
+    this.room.memory.creepCount.harvester = harvesterCount;
+    this.room.memory.creepCount.upgrader = upgraderCount;
+    this.room.memory.creepCount.builder = builderCount;
+    this.room.memory.creepCount.digger = diggerCount;
+    this.room.memory.creepCount.crane = craneCount;
+
     // The limits we are pulling from memory of harvester and upgrader
     const harvesterLimits = room.memory.spawnLimits["harvester"];
     const upgraderLimits = room.memory.spawnLimits["upgrader"];
@@ -47,10 +54,14 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         this.spawnCrane();
     } else if (diggerCount < diggerLimits) {
         this.spawnDigger();
-    } else if (upgraderCount < upgraderLimits) {
-        this.spawnDrone("upgrader");
     } else if (builderCount < builderLimits) {
         this.spawnDrone("builder");
+    } else if (upgraderCount < upgraderLimits) {
+        if (room.memory.structures.links.controllerLinkID) {
+            this.spawnUpgrader();
+        } else {
+            this.spawnDrone("upgrader");
+        }
     }
 };
 
@@ -220,4 +231,40 @@ StructureSpawn.prototype.spawnDigger = function() {
         // Spawn the creep using all of this information
         this.spawnCreep(body, name, { memory: creepMemory });
     }
+}
+
+StructureSpawn.prototype.spawnUpgrader = function() {
+    // Set all basic information about the creep to be spawned
+    const name = "upgrader" + Game.time;
+    // Empty body array we will manually fill
+    const body = [];
+    // The memory we are going to save inside the creep
+    const creepMemory = {
+        working: false,
+        role: "upgrader",
+        homeRoom: this.room.name,
+    };
+
+    // Generate the creep body
+    var energyAvailable = this.room.energyCapacityAvailable;
+
+    // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
+    var numberOfParts = Math.floor(energyAvailable / 350);
+    if (numberOfParts > 7) { numberOfParts = 7 }
+
+    // Create the main section'
+    // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
+    for (let i = 0; i < numberOfParts; ++i) {
+        body.push(WORK);
+        body.push(WORK);
+        body.push(CARRY);
+        body.push(MOVE);
+        body.push(MOVE);
+    }
+
+    if (numberOfParts >= 1) {
+        // Spawn the creep using all of this information
+        this.spawnCreep(body, name, { memory: creepMemory });
+    }
+
 };

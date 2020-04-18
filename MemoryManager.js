@@ -1,9 +1,13 @@
 module.exports = {
     setSpawnLimits: function(room) {
         // Define the limits for a room
-        const upgraderLimits = 1;
         const diggerLimits = room.memory.structures.links.sourceLinkIDs.length;
         const harvesterLimits = room.find(FIND_SOURCES).length;
+
+        let upgraderLimits = 2;
+        if (room.memory.structures.links.controllerLinkID) {
+            upgraderLimits = 1
+        }
 
         let builderLimits = 1;
         if (room.find(FIND_MY_CONSTRUCTION_SITES).length >= 10) {
@@ -108,6 +112,9 @@ module.exports = {
     setRoomMemory: function(room) {
         if (!room.memory.layoutScan) {
             room.memory.layoutScan = { pos: {} };
+        }
+        if (!room.memory.creepCount) {
+            room.memory.creepCount = {};
         }
         if (!room.memory.base) {
             room.memory.base = false;

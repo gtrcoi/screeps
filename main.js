@@ -50,12 +50,15 @@ module.exports.loop = function() {
         // Push energy through links
         let links = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);
         const baseLink = Game.getObjectById(room.memory.structures.links.baseLinkID);
+        const controllerLink = Game.getObjectById(room.memory.structures.links.controllerLinkID);
 
         for (const key in links) {
             const link = links[key];
 
-            if (link.id != baseLink.id && link.store[RESOURCE_ENERGY] > link.store.getCapacity()) {
+            if ((link.id != baseLink.id && link.id != controllerLink.id) && link.store[RESOURCE_ENERGY] > link.store.getCapacity()) {
                 link.transferEnergy(baseLink);
+            } else if (link.id == baseLink.id && baseLink.store[RESOURCE_ENERGY] > 0 && controllerLink.store[RESOURCE_ENERGY] < 700) {
+                link.transferEnergy(controllerLink);
             }
         }
     }
