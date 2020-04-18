@@ -10,16 +10,6 @@ module.exports.loop = function() {
     // Clean memory
     memoryManager.cleanMemory();
 
-    // Towers
-    defenseManager.runTowers();
-
-    // Creep Loop
-    for (const key in Game.creeps) {
-        const creep = Game.creeps[key];
-
-        droneManager.runRole(creep);
-    }
-
     // Room Loop
     for (const key in Game.rooms) {
         const room = Game.rooms[key];
@@ -70,5 +60,14 @@ module.exports.loop = function() {
         spawn.spawnNextCreep();
     }
 
+    // Towers
+    defenseManager.runTowers();
+
+    // Creep Loop
+    for (const key in Game.creeps) {
+        const creep = Game.creeps[key];
+
+        droneManager.runRole(creep);
+    }
 
 }
