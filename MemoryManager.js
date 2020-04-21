@@ -153,7 +153,7 @@ module.exports = {
             room.memory.remoteResources = { sources: [], minerals: [], deposits: [], power: [] }
         }
 
-        if (room.memory.layoutScan.complete) {
+        if (room.memory.layoutScan.complete && room.memory.base) {
             // Add costMatrix
             if (!room.memory.costMatrix) {
                 const bunkerLayout = Object.values(require('./layouts').bunkerLayout(room.memory.layoutScan.pos.x, room.memory.layoutScan.pos.y));
@@ -162,7 +162,7 @@ module.exports = {
 
                 let costs = new PathFinder.CostMatrix;
                 for (let entry of bunkerLayout) {
-                    costs.set(entry.pos.x, entry.pos.y, 8)
+                    costs.set(entry.pos.x, entry.pos.y, 255)
                 }
                 for (let road of bunkerRoads) {
                     if (terrain.get(road.x, road.y) !== TERRAIN_MASK_WALL) {
