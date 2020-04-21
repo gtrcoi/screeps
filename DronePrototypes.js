@@ -98,7 +98,7 @@ Creep.prototype.collectRuin = function() {
 Creep.prototype.collectStorage = function() {
     const storage = this.room.storage;
 
-    if (storage.store[RESOURCE_ENERGY] > 0) {
+    if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] > 0) {
         if (this.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             this.moveTo(storage);
         }
@@ -347,7 +347,7 @@ Creep.prototype.rechargeTower = function(opts) {
 Creep.prototype.chargeStorage = function() {
     const storage = this.room.storage;
 
-    if (storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() / 2) {
+    if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() / 2) {
         if (this.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             this.moveTo(storage);
         }
