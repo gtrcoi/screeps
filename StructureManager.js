@@ -133,7 +133,7 @@ module.exports = {
         let x = 0;
         let y = 0;
 
-        while (room.memory.layoutScan.complete === false) {
+        while (!room.memory.layoutScan.complete) {
             const structureLayout = layouts.bunkerLayout(x, y);
             let = structureLayoutArray = Object.values(structureLayout);
 
