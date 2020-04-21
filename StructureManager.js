@@ -40,7 +40,9 @@ module.exports = {
 
         for (let pos of controllerPath) {
             if (controllerPath.indexOf(pos) === controllerPath.length - 1) {
-                room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
+                if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_LINK }).length > 0) {
+                    room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
+                }
             } else {
                 room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
             }
@@ -60,10 +62,14 @@ module.exports = {
             for (let pos of path) {
                 switch (path.indexOf(pos)) {
                     case path.length - 1:
-                        room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+                        if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_CONTAINER }).length > 0) {
+                            room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+                        }
                         break;
                     case path.length - 2:
-                        room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
+                        if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_LINK }).length > 0) {
+                            room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
+                        }
                     default:
                         break;
                 }
@@ -84,7 +90,9 @@ module.exports = {
         for (let path of mineralPaths) {
             for (let pos of path) {
                 if (path.indexOf(pos) === path.length - 1) {
-                    room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+                    if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_CONTAINER }).length > 0) {
+                        room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+                    }
                 }
                 room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
             }
