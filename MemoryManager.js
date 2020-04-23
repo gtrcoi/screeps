@@ -194,5 +194,116 @@ module.exports = {
         let yCord;
 
         room.memory.structures.observer.view = false;
+    },
+
+    findRepairs: function(room) {
+        if (!room.memory.structures.repairs) {
+            room.memory.structures.repairs = { mostDamagedStructure: {}, mostDamagedWall: {}, mostDamagedRoad: {}, mostDamagedContainer: {} }
+        }
+
+        function repairIterator(objectArray) {
+            if (!_.isArray(objectArray)) { return ERR_INVALID_ARGS; }
+
+            const objects = objectArray
+                // console.log();
+            if (objects.length > 0) {
+                let returnObject = { id: null, percent: 0 }
+                    // find object with less than hits than percentage
+                for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.0001) {
+
+                    for (let element of objects) {
+                        if (element.hits / element.hitsMax < percentage) {
+                            returnObject.id = element.id;
+                            returnObject.percent = percentage;
+                            return returnObject;
+                        }
+                    }
+                }
+            } else { return ERR_NOT_FOUND; }
+        }
+
+        // Owned Structure repairs
+        const mostDamagedStructureMemory = room.memory.structures.repairs.mostDamagedStructure;
+        const mostDamagedStructureLT = Game.getObjectById(mostDamagedStructureMemory.id);
+
+        // Check if new target is required
+        if (_.isNull(mostDamagedStructureLT) || mostDamagedStructureLT.hits / mostDamagedStructureLT.hitsMax > mostDamagedStructureMemory.percent) {
+            const damagedStructures = room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
+            const mostDamagedStructure = repairIterator(damagedStructures);
+
+            switch (mostDamagedStructure) {
+                case ERR_NOT_FOUND:
+                    mostDamagedStructureMemory.id = undefined;
+                    mostDamagedStructureMemory.percent = undefined;
+
+                default:
+                    mostDamagedStructureMemory.id = mostDamagedStructure.id;
+                    mostDamagedStructureMemory.percent = mostDamagedStructure.percent;
+            }
+        }
+
+        // Neutral structure repairs
+        const damagedStructures = room.find(FIND_STRUCTURES, { filter: s => s.hits < s.hitsMax });
+
+        // Wall Repairs
+        const mostDamagedWallMemory = room.memory.structures.repairs.mostDamagedWall;
+        const mostDamagedWallLT = Game.getObjectById(mostDamagedWallMemory.id);
+        // Check if new target is required
+        if (_.isNull(mostDamagedWallLT) || mostDamagedWallLT.hits / mostDamagedWallLT.hitsMax > mostDamagedWallMemory.percent) {
+            const damagedWalls = _.filter(damagedStructures, s => s.structureType === STRUCTURE_WALL)
+            const mostDamagedWall = repairIterator(damagedWalls)
+
+            switch (mostDamagedWall) {
+                case ERR_NOT_FOUND:
+                    mostDamagedWallMemory.id = undefined;
+                    mostDamagedWallMemory.percent = undefined;
+
+                default:
+                    mostDamagedWallMemory.id = mostDamagedWall.id;
+                    mostDamagedWallMemory.percent = mostDamagedWall.percent
+            }
+
+        }
+
+        // Road Repairs
+        const mostDamagedRoadMemory = room.memory.structures.repairs.mostDamagedRoad;
+        const mostDamagedRoadLT = Game.getObjectById(mostDamagedRoadMemory.id);
+        // Check if new target is required
+        if (_.isNull(mostDamagedRoadLT) || mostDamagedRoadLT.hits / mostDamagedRoadLT.hitsMax > mostDamagedRoadMemory.percent) {
+            const damagedRoads = _.filter(damagedStructures, s => s.structureType === STRUCTURE_ROAD)
+            const mostDamagedRoad = repairIterator(damagedRoads)
+            switch (mostDamagedRoad) {
+                case ERR_NOT_FOUND:
+                    mostDamagedRoadMemory.id = undefined;
+                    mostDamagedRoadMemory.percent = undefined;
+
+                default:
+                    mostDamagedRoadMemory.id = mostDamagedRoad.id;
+                    mostDamagedRoadMemory.percent = mostDamagedRoad.percent
+            }
+        }
+
+        // Container Repairs
+        const mostDamagedContainerMemory = room.memory.structures.repairs.mostDamagedContainer;
+        const mostDamagedContainerLT = Game.getObjectById(mostDamagedContainerMemory.id);
+        // Check if new target is required
+        if (_.isNull(mostDamagedContainerLT) || mostDamagedContainerLT.hits / mostDamagedContainerLT.hitsMax > mostDamagedContainerMemory.percent) {
+            const damagedContainers = _.filter(damagedStructures, s => s.structureType === STRUCTURE_CONTAINER)
+            const mostDamagedContainer = repairIterator(damagedContainers)
+            switch (mostDamagedContainer) {
+                case ERR_NOT_FOUND:
+                    mostDamagedContainerMemory.id = undefined;
+                    mostDamagedContainerMemory.percent = undefined;
+
+                default:
+                    mostDamagedContainerMemory.id = mostDamagedContainer.id;
+                    mostDamagedContainerMemory.percent = mostDamagedContainer.percent
+            }
+        }
+
     }
+
+
+
+
 }

@@ -19,12 +19,13 @@ module.exports.loop = function() {
         memoryManager.setStructures(room);
         memoryManager.setSpawnLimits(room);
         memoryManager.viewSatellites(room);
+        memoryManager.findRepairs(room);
 
 
         // Manage base building
         if (!room.memory.layoutScan.complete) {
             structureManager.scanLayout(room);
-        } else if (Game.time % 1000 === 0) {
+        } else if (Game.time % 100 === 0) {
             structureManager.buildLocal(room);
             structureManager.buildRamparts(room);
             structureManager.rebuild(room);
