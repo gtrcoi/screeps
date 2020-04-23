@@ -39,8 +39,9 @@ module.exports = {
         const controllerPath = room.findPath(startPos, room.controller.pos, { range: 1, swampCost: 2, ignoreCreeps: true, costCallback: function() { return costs; } });
 
         for (let pos of controllerPath) {
+            const posObject = new RoomPosition(pos.x, pos.y, room.name);
             if (controllerPath.indexOf(pos) === controllerPath.length - 1) {
-                if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_LINK }).length === 0) {
+                if (posObject.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_LINK }).length === 0) {
                     room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
                 }
             } else {
@@ -60,14 +61,15 @@ module.exports = {
         // build roads, containers, and links for sources
         for (let path of sourcePaths) {
             for (let pos of path) {
+                const posObject = new RoomPosition(pos.x, pos.y, room.name);
                 switch (path.indexOf(pos)) {
                     case path.length - 1:
-                        if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_CONTAINER }).length === 0) {
+                        if (posObject.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_CONTAINER }).length === 0) {
                             room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
                         }
                         break;
                     case path.length - 2:
-                        if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_LINK }).length === 0) {
+                        if (posObject.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_LINK }).length === 0) {
                             room.createConstructionSite(pos.x, pos.y, STRUCTURE_LINK)
                         }
                     default:
@@ -89,8 +91,9 @@ module.exports = {
         // build road and container for minerals
         for (let path of mineralPaths) {
             for (let pos of path) {
+                const posObject = new RoomPosition(pos.x, pos.y, room.name);
                 if (path.indexOf(pos) === path.length - 1) {
-                    if (pos.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_CONTAINER }).length === 0) {
+                    if (posObject.findInRange(FIND_STRUCTURES, 2, { filter: s => s.structureType === STRUCTURE_CONTAINER }).length === 0) {
                         room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
                     }
                 }
