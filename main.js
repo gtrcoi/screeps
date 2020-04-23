@@ -38,6 +38,7 @@ module.exports.loop = function() {
 
         // Paint visuals
         if (room.memory.layoutScan.pos.x < 99) { visuals.paintLayoutScan(room); }
+        visuals.paintMisc(room);
 
         // Push energy through links
         let links = _.filter(room.find(FIND_MY_STRUCTURES), s => s.structureType === STRUCTURE_LINK);

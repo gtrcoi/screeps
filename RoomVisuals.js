@@ -21,5 +21,18 @@ module.exports = {
                 })
             }
         }
+    },
+
+    paintMisc: function(room) {
+        if (room.memory.structures.repairs) {
+            Object.values(room.memory.structures.repairs).forEach(element => {
+                if (!_.isUndefined(element.id)) {
+                    let pos = Game.getObjectById(element.id).pos
+                    room.visual.circle(pos, { fill: 'transparent', radius: 0.5, stroke: 'red' })
+                }
+            });
+
+            // 
+        }
     }
 }
