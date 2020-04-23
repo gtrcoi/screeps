@@ -46,9 +46,9 @@ module.exports.loop = function() {
             const link = links[key];
 
             if ((link.id != baseLink.id && link.id != controllerLink.id) && link.store[RESOURCE_ENERGY] > link.store.getCapacity()) {
-                link.transferEnergy(baseLink);
+                link.transferEnergy(baseLink, baseLink.store.getCapacity(RESOURCE_ENERGY) - baseLink.store[RESOURCE_ENERGY]);
             } else if (link.id == baseLink.id && baseLink.store[RESOURCE_ENERGY] > 0 && controllerLink.store[RESOURCE_ENERGY] < 700) {
-                link.transferEnergy(controllerLink);
+                link.transferEnergy(controllerLink, controllerLink.store.getCapacity(RESOURCE_ENERGY) - controllerLink.store[RESOURCE_ENERGY]);
             }
         }
     }
