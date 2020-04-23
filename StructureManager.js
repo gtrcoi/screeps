@@ -36,8 +36,7 @@ module.exports = {
         const startPos = Game.getObjectById(room.memory.structures.spawns[0]).pos;
 
         // build controller roads and link
-        const controllerPath = room.findPath(startPos, room.controller.pos, { range: 1, swampCost: 2, ignoreCreeps: true, costCallback: function() { return costs; } });
-
+        const controllerPath = room.findPath(startPos, room.controller.pos, { range: 1, swampCost: 2, plainCost: 1, ignoreCreeps: true, ignoreRoads: true, costCallback: function() { return costs; } });
         for (let pos of controllerPath) {
             const posObject = new RoomPosition(pos.x, pos.y, room.name);
             if (controllerPath.indexOf(pos) === controllerPath.length - 1) {
@@ -54,7 +53,7 @@ module.exports = {
         for (let sourceID of room.memory.resources.sources) {
             const source = Game.getObjectById(sourceID);
             sourcePaths.push(
-                room.findPath(startPos, source.pos, { range: 1, swampCost: 2, ignoreCreeps: true, costCallback: function() { return costs; } })
+                room.findPath(startPos, source.pos, { range: 1, swampCost: 2, plainCost: 1, ignoreCreeps: true, ignoreRoads: true, costCallback: function() { return costs; } })
             )
         }
 
@@ -84,7 +83,7 @@ module.exports = {
         for (let mineralID of room.memory.resources.minerals) {
             const mineral = Game.getObjectById(mineralID);
             mineralPaths.push(
-                room.findPath(startPos, mineral.pos, { range: 1, swampCost: 2, ignoreCreeps: true, costCallback: function() { return costs; } })
+                room.findPath(startPos, mineral.pos, { range: 1, swampCost: 2, plainCost: 1, ignoreCreeps: true, ignoreRoads: true, costCallback: function() { return costs; } })
             )
         }
 
