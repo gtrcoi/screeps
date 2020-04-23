@@ -28,6 +28,7 @@ module.exports.loop = function() {
             structureManager.buildLocal(room);
             structureManager.buildRamparts(room);
             structureManager.rebuild(room);
+            structureManager.wallExits(room);
         }
         if (room.memory.base && Game.time % 100 === 0) { structureManager.buildBunker(room); }
 

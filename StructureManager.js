@@ -181,5 +181,36 @@ module.exports = {
             room.memory.layoutScan.pos.x = x
             room.memory.layoutScan.pos.y = y
         }
+    },
+
+    wallExits: function(room) {
+        // Generate list of room coordinates around edge
+        let edges = []
+        for (i = 2; i <= 47; i++) {
+            // top 
+            edges.push([i, 2])
+                // bottom
+            edges.push([i, 47])
+                // left
+            edges.push([2, i])
+                // right
+            edges.push([47, i])
+        }
+
+        let exitEdges = []
+        for (let i of edges) {
+            let pos = new RoomPosition(i[0], i[1], room.name)
+            if (pos.findInRange(FIND_EXIT, 2).length != 0) {
+                exitEdges.push(pos)
+            }
+        }
+
+        for (let i of exitEdges) {
+            if (((i.x === 2 || i.x === 47) && i.y % 2 === 0) || ((i.y === 2 || i.y === 47) && i.x % 2 === 0)) {
+                room.createConstructionSite(i, STRUCTURE_WALL);
+            } else {
+                room.createConstructionSite(i, STRUCTURE_RAMPART);
+            }
+        }
     }
 }
