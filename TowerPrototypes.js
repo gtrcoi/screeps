@@ -61,104 +61,74 @@ StructureTower.prototype.healCreep = function() {
 }
 
 // Tower Repair Roads
-StructureTower.prototype.repairRoad = function() {
-    const damagedRoads = this.pos.findClosestByRange(
-        FIND_STRUCTURES, {
-            filter: s =>
-                s.hits < s.hitsMax / 1.3 && s.structureType === STRUCTURE_ROAD
-        });
-    switch (damagedRoads) {
-        case null:
-            return ERR_NOT_FOUND;
+StructureTower.prototype.repairRoad = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
 
-        default:
-            this.repair(damagedRoads);
-            return OK;
+    const targetID = this.room.memory.structures.repairs.mostDamagedRoad.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedRoad.percent;
+    const target = Game.getObjectById(targetID);
+
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+        this.repair(target);
+        return OK;
+    } else {
+        return ERR_NOT_FOUND
     }
 }
 
 // Repair My Most Damaged
-StructureTower.prototype.repairMyMostDamaged = function(percent) {
-    let targetPercent = undefined;
-    if (percent === undefined) { targetPercent = 1; } else { targetPercent = percent / 100; }
-    const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
-    if (damagedBuildings.length > 0) {
-        var mostDamagedBuilding = null;
+StructureTower.prototype.repairMyMostDamaged = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
+    const targetID = this.room.memory.structures.repairs.mostDamagedStructure.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedStructure.percent;
+    const target = Game.getObjectById(targetID);
 
-        for (let percentage = 0.0005; percentage <= targetPercent; percentage = percentage + 0.0005) {
-            // find building with less than percentage hits
-            for (let building of damagedBuildings) {
-                if (building.hits / building.hitsMax < percentage) {
-                    mostDamagedBuilding = building;
-
-                    break;
-                }
-            }
-            if (mostDamagedBuilding != null) { break; }
-        }
-        // if there is a match
-        switch (mostDamagedBuilding) {
-            case null:
-                return ERR_NOT_FOUND;
-
-            default:
-                this.repair(mostDamagedBuilding)
-                return OK;
-        }
-
+    if (!_.isNull(target) && targetPercent < percent / 100) {
+        this.repair(target);
+        return OK;
     } else {
-        return ERR_NOT_FOUND;
+        return ERR_NOT_FOUND
     }
 }
 
 // Repair Most Damaged
-StructureTower.prototype.repairMostDamaged = function(percent) {
-    let targetPercent = undefined;
-    if (percent === undefined) { targetPercent = 1; } else { targetPercent = percent / 100; }
-    const damagedBuildings = this.room.find(FIND_STRUCTURES, { filter: s => s.hits < s.hitsMax });
-    if (damagedBuildings.length > 0) {
-        var mostDamagedBuilding = null;
+StructureTower.prototype.repairWall = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
+    const targetID = this.room.memory.structures.repairs.mostDamagedWall.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedWall.percent;
+    const target = Game.getObjectById(targetID);
 
-        for (let percentage = 0.0005; percentage <= targetPercent; percentage = percentage + 0.0005) {
-            // find building with less than percentage hits
-            for (let building of damagedBuildings) {
-                if (building.hits / building.hitsMax < percentage) {
-                    mostDamagedBuilding = building;
-
-                    break;
-                }
-            }
-            if (mostDamagedBuilding != null) { break; }
-        }
-        // if there is a match
-        switch (mostDamagedBuilding) {
-            case null:
-                return ERR_NOT_FOUND;
-
-            default:
-                this.repair(mostDamagedBuilding)
-                return OK;
-        }
-
+    if (!_.isNull(target) && targetPercent < percent / 100) {
+        this.repair(target);
+        return OK;
     } else {
-        return ERR_NOT_FOUND;
+        return ERR_NOT_FOUND
     }
 }
 
 // Tower Repair containers
-StructureTower.prototype.repairContainer = function() {
-    const damagedContainer = this.pos.findClosestByRange(
-        FIND_STRUCTURES, {
-            filter: s =>
-                s.structureType === STRUCTURE_CONTAINER &&
-                s.hits < s.hitsMax
-        });
-    switch (damagedContainer) {
-        case null:
-            return ERR_NOT_FOUND;
+StructureTower.prototype.repairContainer = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
+    const targetID = this.room.memory.structures.repairs.mostDamagedContainer.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedContainer.percent;
+    const target = Game.getObjectById(targetID);
 
-        default:
-            this.repair(damagedContainer);
-            return OK;
+    if (!_.isNull(target) && targetPercent < percent / 100) {
+        this.repair(target);
+        return OK;
+    } else {
+        return ERR_NOT_FOUND
     }
 }

@@ -6,7 +6,6 @@ const visuals = require('./RoomVisuals');
 require('./SpawnManager');
 
 module.exports.loop = function() {
-
     // Clean memory
     memoryManager.cleanMemory();
 

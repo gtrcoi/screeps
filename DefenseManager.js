@@ -22,8 +22,8 @@ module.exports = {
                 ];
                 if (Game.time % 5 === 0) {
                     operations.push(
-                        function() { return tower.repairMyMostDamaged(50) },
-                        function() { return tower.repairMostDamaged() }
+                        function() { return tower.repairMyMostDamaged({ percent: 50 }) },
+                        function() { return tower.repairWall() }
                     )
                 }
             } else {
