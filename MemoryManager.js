@@ -244,10 +244,11 @@ module.exports = {
             }
 
             const objects = objectArray
-                // console.log();
+
             if (objects.length > 0) {
                 let returnObject = { id: null, percent: 0 }
-                    // find object with less than hits than percentage
+
+                // find object with less than hits than percentage
                 for (let percentage = opts.percentage; percentage <= 1; percentage = percentage + opts.percentage) {
 
                     for (let element of objects) {
@@ -268,7 +269,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedStructureLT) || mostDamagedStructureLT.hits / mostDamagedStructureLT.hitsMax > mostDamagedStructureMemory.percent) {
             const damagedStructures = room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
-            const mostDamagedStructure = repairIterator(damagedStructures, { percentage: 0.0005 });
+            const mostDamagedStructure = repairIterator(damagedStructures, { percentage: 0.001 });
 
             switch (mostDamagedStructure) {
                 case ERR_NOT_FOUND:
@@ -328,7 +329,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedContainerLT) || mostDamagedContainerLT.hits / mostDamagedContainerLT.hitsMax > mostDamagedContainerMemory.percent) {
             const damagedContainers = _.filter(damagedStructures, s => s.structureType === STRUCTURE_CONTAINER)
-            const mostDamagedContainer = repairIterator(damagedContainers, { percentage: 0.005 })
+            const mostDamagedContainer = repairIterator(damagedContainers, { percentage: 0.01 })
             switch (mostDamagedContainer) {
                 case ERR_NOT_FOUND:
                     mostDamagedContainerMemory.id = undefined;
