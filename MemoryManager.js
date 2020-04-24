@@ -122,30 +122,65 @@ module.exports = {
         // Add resource IDs to memory
         if (!room.memory.resources) {
             room.memory.resources = {}
-                // Add sources
+
+            const terrain = new Room.Terrain(room.name);
+
+            // Add sources
             let sources = room.find(FIND_SOURCES);
             if (sources.length > 0) {
-                room.memory.resources.sources = []
+                room.memory.resources.sources = {}
                 for (let source of sources) {
-                    room.memory.resources.sources.push(source.id)
+                    room.memory.resources.sources[source.id] = {}
+                    room.memory.resources.sources[source.id].space = 0
+                    let checkPos = [
+                        [source.pos.x - 1, source.pos.y - 1],
+                        [source.pos.x, source.pos.y - 1],
+                        [source.pos.x + 1, source.pos.y - 1],
+                        [source.pos.x - 1, source.pos.y],
+                        [source.pos.x + 1, source.pos.y],
+                        [source.pos.x - 1, source.pos.y + 1],
+                        [source.pos.x, source.pos.y + 1],
+                        [source.pos.x + 1, source.pos.y + 1],
+                    ]
+                    for (let pos of checkPos) {
+                        if (terrain.get(pos[0], pos[1]) === 0) {
+                            room.memory.resources.sources[source.id].space++
+                        }
+                    }
                 }
             }
             // Add minerals
             let minerals = room.find(FIND_MINERALS);
             if (minerals.length > 0) {
-                room.memory.resources.minerals = []
+                room.memory.resources.minerals = {}
             }
             for (let mineral of minerals) {
-                room.memory.resources.minerals.push(mineral.id)
+                room.memory.resources.minerals[mineral.id] = {}
+                room.memory.resources.minerals[mineral.id].space = 0
+                let checkPos = [
+                    [mineral.pos.x - 1, mineral.pos.y - 1],
+                    [mineral.pos.x, mineral.pos.y - 1],
+                    [mineral.pos.x + 1, mineral.pos.y - 1],
+                    [mineral.pos.x - 1, mineral.pos.y],
+                    [mineral.pos.x + 1, mineral.pos.y],
+                    [mineral.pos.x - 1, mineral.pos.y + 1],
+                    [mineral.pos.x, mineral.pos.y + 1],
+                    [mineral.pos.x + 1, mineral.pos.y + 1],
+                ]
+                for (let pos of checkPos) {
+                    if (terrain.get(pos[0], pos[1]) === 0) {
+                        room.memory.resources.minerals[mineral.id].space++
+                    }
+                }
             }
         }
         // Add deposits
         let deposits = room.find(FIND_DEPOSITS);
         if (deposits.length > 0) {
-            room.memory.resources.deposits = []
+            room.memory.resources.deposits = {}
         }
         for (let deposit of deposits) {
-            room.memory.resources.deposits.push(deposit.id)
+            room.memory.resources.deposits[deposit.id] = {}
         }
 
         // Add remote resources

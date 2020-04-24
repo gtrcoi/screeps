@@ -50,7 +50,7 @@ module.exports = {
 
         // Paths to sources
         let sourcePaths = [];
-        for (let sourceID of room.memory.resources.sources) {
+        for (let sourceID of Object.keys(room.memory.resources.sources)) {
             const source = Game.getObjectById(sourceID);
             sourcePaths.push(
                 room.findPath(startPos, source.pos, { range: 1, swampCost: 2, plainCost: 1, ignoreCreeps: true, ignoreRoads: true, costCallback: function() { return costs; } })
@@ -80,7 +80,7 @@ module.exports = {
 
         // Path to mineral
         let mineralPaths = []
-        for (let mineralID of room.memory.resources.minerals) {
+        for (let mineralID of Object.keys(room.memory.resources.minerals)) {
             const mineral = Game.getObjectById(mineralID);
             mineralPaths.push(
                 room.findPath(startPos, mineral.pos, { range: 1, swampCost: 2, plainCost: 1, ignoreCreeps: true, ignoreRoads: true, costCallback: function() { return costs; } })
