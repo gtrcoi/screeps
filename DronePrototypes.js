@@ -229,7 +229,7 @@ Creep.prototype.repairMostDamaged = function(opts) {
     const targetPercent = this.room.memory.structures.repairs.mostDamagedStructure.percent;
     const target = Game.getObjectById(targetID);
 
-    if (!_.isNull(target) && targetPercent < percent / 100) {
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         if (this.repair(target) === ERR_NOT_IN_RANGE) {
             this.moveTo(target, {
                 visualizePathStyle: {
