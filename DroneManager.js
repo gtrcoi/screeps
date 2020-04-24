@@ -30,7 +30,7 @@ module.exports = {
                                 function() { return creep.chargeSpawn() },
                                 function() { return creep.chargeStorage() },
                                 function() { return creep.repairRoad({ percent: 50 }) },
-                                // function() { return creep.construct() },
+                                function() { return creep.repairContainer() },
                                 function() { return creep.repairMostDamaged() }
 
                             ];
