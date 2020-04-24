@@ -236,15 +236,19 @@ module.exports = {
             room.memory.structures.repairs = { mostDamagedStructure: {}, mostDamagedWall: {}, mostDamagedRoad: {}, mostDamagedContainer: {} }
         }
 
-        function repairIterator(objectArray) {
+        function repairIterator(objectArray, opts) {
             if (!_.isArray(objectArray)) { return ERR_INVALID_ARGS; }
+            opts = opts || {}
+            if (_.isUndefined(opts.percentage)) {
+                opts.percentage = 0.0001
+            }
 
             const objects = objectArray
                 // console.log();
             if (objects.length > 0) {
                 let returnObject = { id: null, percent: 0 }
                     // find object with less than hits than percentage
-                for (let percentage = 0.0001; percentage <= 1; percentage = percentage + 0.0001) {
+                for (let percentage = opts.percentage; percentage <= 1; percentage = percentage + opts.percentage) {
 
                     for (let element of objects) {
                         if (element.hits / element.hitsMax < percentage) {
@@ -264,7 +268,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedStructureLT) || mostDamagedStructureLT.hits / mostDamagedStructureLT.hitsMax > mostDamagedStructureMemory.percent) {
             const damagedStructures = room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
-            const mostDamagedStructure = repairIterator(damagedStructures);
+            const mostDamagedStructure = repairIterator(damagedStructures, { percentage: 0.0005 });
 
             switch (mostDamagedStructure) {
                 case ERR_NOT_FOUND:
@@ -306,7 +310,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedRoadLT) || mostDamagedRoadLT.hits / mostDamagedRoadLT.hitsMax > mostDamagedRoadMemory.percent) {
             const damagedRoads = _.filter(damagedStructures, s => s.structureType === STRUCTURE_ROAD)
-            const mostDamagedRoad = repairIterator(damagedRoads)
+            const mostDamagedRoad = repairIterator(damagedRoads, { percentage: 0.005 })
             switch (mostDamagedRoad) {
                 case ERR_NOT_FOUND:
                     mostDamagedRoadMemory.id = undefined;
@@ -324,7 +328,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedContainerLT) || mostDamagedContainerLT.hits / mostDamagedContainerLT.hitsMax > mostDamagedContainerMemory.percent) {
             const damagedContainers = _.filter(damagedStructures, s => s.structureType === STRUCTURE_CONTAINER)
-            const mostDamagedContainer = repairIterator(damagedContainers)
+            const mostDamagedContainer = repairIterator(damagedContainers, { percentage: 0.005 })
             switch (mostDamagedContainer) {
                 case ERR_NOT_FOUND:
                     mostDamagedContainerMemory.id = undefined;
