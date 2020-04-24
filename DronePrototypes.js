@@ -364,3 +364,28 @@ Creep.prototype.chargeLink = function(linkID) {
             break;
     }
 }
+
+// Repair containers
+Creep.prototype.repairContainer = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
+    const targetID = this.room.memory.structures.repairs.mostDamagedContainer.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedContainer.percent;
+    const target = Game.getObjectById(targetID);
+
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+        if (this.repair(target) === ERR_NOT_IN_RANGE) {
+            this.moveTo(target, {
+                visualizePathStyle: {
+                    stroke: '#00cc00',
+                    opacity: 0.7
+                }
+            });
+        }
+        return OK;
+    } else {
+        return ERR_NOT_FOUND
+    }
+}
