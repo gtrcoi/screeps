@@ -199,14 +199,21 @@ module.exports = {
 
             case "crane":
                 const baseLink = Game.getObjectById(creep.room.memory.structures.links.baseLinkID);
+                const controllerLink = Game.getObjectById(creep.room.memory.structures.links.controllerLinkID);
                 const pos = new RoomPosition(creep.room.memory.layoutScan.pos.x + 5, creep.room.memory.layoutScan.pos.y + 6, creep.room.name)
 
                 operations = [
                     function() { return creep.chargeStorage() }
                 ]
 
-                if (baseLink.store[RESOURCE_ENERGY] > baseLink.store.getCapacity(RESOURCE_ENERGY) / 2) {
+                if (baseLink.store[RESOURCE_ENERGY] > 0) {
                     operations.unshift(function() { return creep.collectLink(creep.room.memory.structures.links.baseLinkID) })
+                }
+                if (!_.isNull(controllerLink) && controllerLink.store[RESOURCE_ENERGY] < controllerLink.store.getCapacity(RESOURCE_ENERGY)) {
+                    operations = {
+                        function() { return creep.collectStorage() },
+                        function() { return creep.chargeLink(controllerLink.id) }
+                    }
                 }
                 if (!creep.pos.isEqualTo(pos) && pos.lookFor(LOOK_CREEPS).length === 0) {
                     operations.unshift(function() { return creep.moveTo(pos, pos) })
