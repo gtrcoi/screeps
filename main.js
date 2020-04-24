@@ -29,6 +29,7 @@ module.exports.loop = function() {
             structureManager.buildLocal(room);
             structureManager.buildRamparts(room);
             structureManager.rebuild(room);
+        } else if (Game.time % 1000 === 0) {
             structureManager.wallExits(room);
         }
 
