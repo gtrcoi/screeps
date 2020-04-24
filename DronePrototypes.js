@@ -220,65 +220,53 @@ Creep.prototype.construct = function() {
 }
 
 // Repair all
-Creep.prototype.repairMostDamaged = function() {
-    const damagedBuildings = this.room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
-    if (damagedBuildings.length > 0) {
-        var mostDamagedBuilding = null;
+Creep.prototype.repairMostDamaged = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
+    const targetID = this.room.memory.structures.repairs.mostDamagedStructure.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedStructure.percent;
+    const target = Game.getObjectById(targetID);
 
-        for (let percentage = 0.0005; percentage <= 1; percentage = percentage + 0.0005) {
-            // find building with less than percentage hits
-            for (let building of damagedBuildings) {
-                if (building.hits / building.hitsMax < percentage) {
-                    mostDamagedBuilding = building;
-
-                    break;
+    if (!_.isNull(target) && targetPercent < percent / 100) {
+        if (this.repair(target) === ERR_NOT_IN_RANGE) {
+            this.moveTo(target, {
+                visualizePathStyle: {
+                    stroke: '#00cc00',
+                    opacity: 0.7
                 }
-            }
-            if (mostDamagedBuilding != null) { break; }
+            });
         }
-        // if there is a match
-        switch (mostDamagedBuilding) {
-            case null:
-                return ERR_NOT_FOUND;
-
-            default:
-                if (this.repair(mostDamagedBuilding) === ERR_NOT_IN_RANGE) {
-                    this.moveTo(mostDamagedBuilding, {
-                        visualizePathStyle: {
-                            stroke: '#00cc00',
-                            opacity: 0.7
-                        }
-                    });
-                }
-                return OK;
-        }
-
+        return OK;;
     } else {
-        return ERR_NOT_FOUND;
+        return ERR_NOT_FOUND
     }
 }
 
 // Repair Roads
-Creep.prototype.repairRoad = function() {
-    const damagedRoads = this.pos.findClosestByPath(
-        FIND_STRUCTURES, {
-            filter: s =>
-                s.hits < s.hitsMax / 2 && s.structureType === STRUCTURE_ROAD
-        });
-    switch (damagedRoads) {
-        case null:
-            return ERR_NOT_FOUND;
+Creep.prototype.repairRoad = function(opts) {
+    opts = opts || {};
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
 
-        default:
-            if (this.repair(damagedRoads) === ERR_NOT_IN_RANGE) {
-                this.moveTo(damagedRoads, {
-                    visualizePathStyle: {
-                        stroke: '#00cc00',
-                        opacity: 0.7
-                    }
-                });
-            }
-            return OK;
+    const targetID = this.room.memory.structures.repairs.mostDamagedRoad.id;
+    const targetPercent = this.room.memory.structures.repairs.mostDamagedRoad.percent;
+    const target = Game.getObjectById(targetID);
+
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+        if (this.repair(target) === ERR_NOT_IN_RANGE) {
+            this.moveTo(target, {
+                visualizePathStyle: {
+                    stroke: '#00cc00',
+                    opacity: 0.7
+                }
+            });
+        }
+        return OK;
+    } else {
+        return ERR_NOT_FOUND
     }
 }
 

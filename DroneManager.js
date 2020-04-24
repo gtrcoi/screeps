@@ -47,7 +47,7 @@ module.exports = {
                             operations = [
                                 function() { return creep.chargeController() },
                                 function() { return creep.rechargeTower() },
-                                function() { return creep.repairRoad() },
+                                function() { return creep.repairRoad({ percent: 50 }) },
                                 function() { return creep.construct() },
                                 function() { return creep.repairMostDamaged() }
                             ];
@@ -67,7 +67,7 @@ module.exports = {
                             operations = [
                                 function() { return creep.rechargeTower({ percent: 50 }) },
                                 function() { return creep.chargeSpawn() },
-                                function() { return creep.repairRoad() },
+                                function() { return creep.repairRoad({ percent: 50 }) },
                                 function() { return creep.construct() },
                                 function() { return creep.rechargeTower() },
                                 function() { return creep.repairMostDamaged() },
