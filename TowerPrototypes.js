@@ -33,7 +33,11 @@ StructureTower.prototype.defend = function() {
 };
 
 // Tower Heal
-StructureTower.prototype.healCreep = function() {
+StructureTower.prototype.healCreep = function(opts) {
+    opts = opts || {}
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
     const targets = this.room.find(FIND_MY_CREEPS, { filter: c => c.hits < c.hitsMax });
     if (targets.length > 0) {
         var target = null;
@@ -89,7 +93,7 @@ StructureTower.prototype.repairMyMostDamaged = function(opts) {
     const targetPercent = this.room.memory.structures.repairs.mostDamagedStructure.percent;
     const target = Game.getObjectById(targetID);
 
-    if (!_.isNull(target) && targetPercent < percent / 100) {
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
         return OK;
     } else {
@@ -107,7 +111,7 @@ StructureTower.prototype.repairWall = function(opts) {
     const targetPercent = this.room.memory.structures.repairs.mostDamagedWall.percent;
     const target = Game.getObjectById(targetID);
 
-    if (!_.isNull(target) && targetPercent < percent / 100) {
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
         return OK;
     } else {
@@ -125,7 +129,7 @@ StructureTower.prototype.repairContainer = function(opts) {
     const targetPercent = this.room.memory.structures.repairs.mostDamagedContainer.percent;
     const target = Game.getObjectById(targetID);
 
-    if (!_.isNull(target) && targetPercent < percent / 100) {
+    if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
         return OK;
     } else {
