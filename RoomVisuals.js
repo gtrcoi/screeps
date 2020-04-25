@@ -25,10 +25,18 @@ module.exports = {
 
     paintMisc: function(room) {
         if (room.memory.structures.repairs) {
+            let yPos = 1;
+            let xPos = 6;
+
             Object.values(room.memory.structures.repairs).forEach(element => {
                 if (!_.isUndefined(element.id)) {
-                    let pos = Game.getObjectById(element.id).pos
-                    room.visual.circle(pos, { fill: 'transparent', radius: 0.5, stroke: 'red' })
+                    const structure = Game.getObjectById(element.id)
+                    room.visual.text(`${structure.structureType}: `, xPos, yPos, { align: 'right', opacity: 0.5 })
+                    room.visual.text(` ${structure.hits} hp    ${(structure.hits / structure.hitsMax).toFixed(4)}%`, xPos + 9, yPos, { font: 0.5, align: 'right', opacity: 0.5 })
+                    room.visual.line(xPos + 10, yPos + 0.1, structure.pos.x, structure.pos.y, { width: 0.05 })
+                    room.visual.line(xPos - 0.29, yPos + 0.1, xPos + 10, yPos + 0.1, { width: 0.05 })
+                    yPos++
+                    room.visual.circle(structure.pos, { fill: 'transparent', radius: 0.5, stroke: 'red' })
                 }
             });
 
