@@ -17,15 +17,11 @@ module.exports = {
                 operations = [
                     function() { return tower.defend() },
                     function() { return tower.healCreep() },
-                    function() { return tower.repairRoad() },
-                    function() { return tower.repairContainer() }
+                    function() { return tower.repairRoad({ percent: 75 }) },
+                    function() { return tower.repairContainer({ percent: 90 }) },
+                    function() { return tower.repairMyMostDamaged({ percent: 50 }) },
+                    function() { return tower.repairWall() }
                 ];
-                if (Game.time % 5 === 0) {
-                    operations.push(
-                        function() { return tower.repairMyMostDamaged({ percent: 50 }) },
-                        function() { return tower.repairWall() }
-                    )
-                }
             } else {
                 operations = [
                     function() { return tower.defend() },
