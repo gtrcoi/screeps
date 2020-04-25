@@ -239,6 +239,7 @@ module.exports = {
         function repairIterator(objectArray, opts) {
             if (!_.isArray(objectArray)) { return ERR_INVALID_ARGS; }
             opts = opts || {}
+
             if (_.isUndefined(opts.percentage)) {
                 opts.percentage = 0.0001
             }
@@ -271,14 +272,12 @@ module.exports = {
             const damagedStructures = room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
             const mostDamagedStructure = repairIterator(damagedStructures, { percentage: 0.001 });
 
-            switch (mostDamagedStructure) {
-                case ERR_NOT_FOUND:
-                    mostDamagedStructureMemory.id = undefined;
-                    mostDamagedStructureMemory.percent = undefined;
-
-                default:
-                    mostDamagedStructureMemory.id = mostDamagedStructure.id;
-                    mostDamagedStructureMemory.percent = mostDamagedStructure.percent;
+            if (!_.isObject(mostDamagedStructure)) {
+                mostDamagedStructureMemory.id = undefined;
+                mostDamagedStructureMemory.percent = undefined;
+            } else {
+                mostDamagedStructureMemory.id = mostDamagedStructure.id;
+                mostDamagedStructureMemory.percent = mostDamagedStructure.percent;
             }
         }
 
@@ -293,14 +292,12 @@ module.exports = {
             const damagedWalls = _.filter(damagedStructures, s => s.structureType === STRUCTURE_WALL)
             const mostDamagedWall = repairIterator(damagedWalls)
 
-            switch (mostDamagedWall) {
-                case ERR_NOT_FOUND:
-                    mostDamagedWallMemory.id = undefined;
-                    mostDamagedWallMemory.percent = undefined;
-
-                default:
-                    mostDamagedWallMemory.id = mostDamagedWall.id;
-                    mostDamagedWallMemory.percent = mostDamagedWall.percent
+            if (!_.isObject(mostDamagedWall)) {
+                mostDamagedWallMemory.id = undefined;
+                mostDamagedWallMemory.percent = undefined;
+            } else {
+                mostDamagedWallMemory.id = mostDamagedWall.id;
+                mostDamagedWallMemory.percent = mostDamagedWall.percent
             }
 
         }
@@ -312,14 +309,12 @@ module.exports = {
         if (_.isNull(mostDamagedRoadLT) || mostDamagedRoadLT.hits / mostDamagedRoadLT.hitsMax > mostDamagedRoadMemory.percent) {
             const damagedRoads = _.filter(damagedStructures, s => s.structureType === STRUCTURE_ROAD)
             const mostDamagedRoad = repairIterator(damagedRoads, { percentage: 0.005 })
-            switch (mostDamagedRoad) {
-                case ERR_NOT_FOUND:
-                    mostDamagedRoadMemory.id = undefined;
-                    mostDamagedRoadMemory.percent = undefined;
-
-                default:
-                    mostDamagedRoadMemory.id = mostDamagedRoad.id;
-                    mostDamagedRoadMemory.percent = mostDamagedRoad.percent
+            if (!_.isObject(mostDamagedRoad)) {
+                mostDamagedRoadMemory.id = undefined;
+                mostDamagedRoadMemory.percent = undefined;
+            } else {
+                mostDamagedRoadMemory.id = mostDamagedRoad.id;
+                mostDamagedRoadMemory.percent = mostDamagedRoad.percent
             }
         }
 
@@ -330,20 +325,13 @@ module.exports = {
         if (_.isNull(mostDamagedContainerLT) || mostDamagedContainerLT.hits / mostDamagedContainerLT.hitsMax > mostDamagedContainerMemory.percent) {
             const damagedContainers = _.filter(damagedStructures, s => s.structureType === STRUCTURE_CONTAINER)
             const mostDamagedContainer = repairIterator(damagedContainers, { percentage: 0.01 })
-            switch (mostDamagedContainer) {
-                case ERR_NOT_FOUND:
-                    mostDamagedContainerMemory.id = undefined;
-                    mostDamagedContainerMemory.percent = undefined;
-
-                default:
-                    mostDamagedContainerMemory.id = mostDamagedContainer.id;
-                    mostDamagedContainerMemory.percent = mostDamagedContainer.percent
+            if (!_.isObject(mostDamagedContainer)) {
+                mostDamagedContainerMemory.id = undefined;
+                mostDamagedContainerMemory.percent = undefined;
+            } else {
+                mostDamagedContainerMemory.id = mostDamagedContainer.id;
+                mostDamagedContainerMemory.percent = mostDamagedContainer.percent
             }
         }
-
     }
-
-
-
-
 }
