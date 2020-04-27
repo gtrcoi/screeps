@@ -112,7 +112,7 @@ module.exports = {
                                 function() { return creep.collectStorage() }
                             ];
                             if (creep.room.memory.spawnLimits.digger === 0) {
-                                operations.push(
+                                operations.unshift(
                                     function() { return creep.collectContainer() },
                                     function() { return creep.harvestSource() })
                             }
@@ -133,7 +133,7 @@ module.exports = {
                             ];
 
                             if (creep.room.memory.spawnLimits.digger === 0) {
-                                operations.push(
+                                operations.unshift(
                                     function() { return creep.collectContainer() },
                                     function() { return creep.harvestSource() })
                             }
@@ -208,18 +208,16 @@ module.exports = {
                 if (baseLink.store[RESOURCE_ENERGY] > 0) {
                     operations.unshift(function() { return creep.collectLink(creep.room.memory.structures.links.baseLinkID) })
                 }
-                if (!_.isNull(controllerLink) && controllerLink.store[RESOURCE_ENERGY] < controllerLink.store.getCapacity(RESOURCE_ENERGY)) {
-                    operations = {
+                if (!_.isNull(controllerLink) && controllerLink.store[RESOURCE_ENERGY] < controllerLink.store.getCapacity(RESOURCE_ENERGY) - 100) {
+                    operations = [
                         function() { return creep.collectStorage() },
-                        function() { return creep.chargeLink(controllerLink.id) }
-                    }
+                        function() { return creep.chargeLink(baseLink.id) }
+                    ]
                 }
                 if (!creep.pos.isEqualTo(pos) && pos.lookFor(LOOK_CREEPS).length === 0) {
                     operations.unshift(function() { return creep.moveTo(pos, pos) })
                 }
-
                 for (key = 0; key < operations.length; key++) {
-
                     if (operations[key]() == OK) {
                         break;
                     }
