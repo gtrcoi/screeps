@@ -4,6 +4,9 @@
 
 // Harvest Source nodes
 Creep.prototype.harvestSource = function(sourceID) {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     var activeSource = null;
     if (sourceID === undefined) {
         activeSource = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
@@ -31,6 +34,9 @@ Creep.prototype.harvestSource = function(sourceID) {
 
 // Collected dropped Source
 Creep.prototype.collectDroppedSource = function(range) {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     let droppedSource;
     if (range === undefined) {
         droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType == RESOURCE_ENERGY });
@@ -56,6 +62,9 @@ Creep.prototype.collectDroppedSource = function(range) {
 
 // Collect from Tombstones
 Creep.prototype.withdrawTombstone = function() {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     const tombstone = this.pos.findClosestByPath(FIND_TOMBSTONES, { filter: t => t.store[RESOURCE_ENERGY] > 0 });
 
     switch (tombstone) {
@@ -77,6 +86,9 @@ Creep.prototype.withdrawTombstone = function() {
 
 // Collect from Ruins
 Creep.prototype.collectRuin = function() {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     const ruin = this.pos.findClosestByPath(FIND_RUINS, { filter: (t) => t.store[RESOURCE_ENERGY] > 0 });
 
     switch (ruin) {
@@ -96,6 +108,9 @@ Creep.prototype.collectRuin = function() {
 }
 
 Creep.prototype.collectStorage = function() {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     const storage = this.room.storage;
 
     if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] > 0) {
@@ -109,6 +124,9 @@ Creep.prototype.collectStorage = function() {
 }
 
 Creep.prototype.collectContainer = function(containerID) {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     const containers = this.room.find(FIND_STRUCTURES, {
         filter: s =>
             (s.structureType == STRUCTURE_CONTAINER &&
@@ -133,6 +151,9 @@ Creep.prototype.collectContainer = function(containerID) {
 }
 
 Creep.prototype.collectLink = function(linkID) {
+    if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
+        return ERR_FULL;
+    }
     let link = null;
     if (linkID === undefined) {
         link = Game.getObjectById(this.room.memory.structures.links.baseLinkID);
