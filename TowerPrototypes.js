@@ -72,8 +72,8 @@ StructureTower.prototype.repairRoad = function(opts) {
     }
 
     const targetID = this.room.memory.structures.repairs.mostDamagedRoad.id;
-    const targetPercent = this.room.memory.structures.repairs.mostDamagedRoad.percent;
     const target = Game.getObjectById(targetID);
+    const targetPercent = target.hits / target.hitsMax
 
     if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
@@ -90,8 +90,8 @@ StructureTower.prototype.repairMyMostDamaged = function(opts) {
         opts.percent = 100
     }
     const targetID = this.room.memory.structures.repairs.mostDamagedStructure.id;
-    const targetPercent = this.room.memory.structures.repairs.mostDamagedStructure.percent;
     const target = Game.getObjectById(targetID);
+    const targetPercent = target.hits / target.hitsMax
 
     if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
@@ -108,8 +108,8 @@ StructureTower.prototype.repairWall = function(opts) {
         opts.percent = 100
     }
     const targetID = this.room.memory.structures.repairs.mostDamagedWall.id;
-    const targetPercent = this.room.memory.structures.repairs.mostDamagedWall.percent;
     const target = Game.getObjectById(targetID);
+    const targetPercent = target.hits / target.hitsMax
 
     if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
@@ -126,8 +126,8 @@ StructureTower.prototype.repairContainer = function(opts) {
         opts.percent = 100
     }
     const targetID = this.room.memory.structures.repairs.mostDamagedContainer.id;
-    const targetPercent = this.room.memory.structures.repairs.mostDamagedContainer.percent;
     const target = Game.getObjectById(targetID);
+    const targetPercent = target.hits / target.hitsMax
 
     if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
