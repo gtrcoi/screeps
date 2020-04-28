@@ -308,14 +308,14 @@ Creep.prototype.rechargeTower = function(opts) {
             FIND_MY_STRUCTURES, {
                 filter: t =>
                     t.structureType == STRUCTURE_TOWER &&
-                    t.store[RESOURCE_ENERGY] <= t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
+                    t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
             });
     } else if (_.isNumber(opts.range)) {
         depletedTowers = this.pos.findInRange(
             FIND_MY_STRUCTURES, opts.range, {
                 filter: t =>
                     t.structureType == STRUCTURE_TOWER &&
-                    t.store[RESOURCE_ENERGY] <= t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
+                    t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
             });
     }
 
