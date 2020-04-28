@@ -270,7 +270,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedStructureLT) || mostDamagedStructureLT.hits / mostDamagedStructureLT.hitsMax > mostDamagedStructureMemory.percent) {
             const damagedStructures = room.find(FIND_MY_STRUCTURES, { filter: s => s.hits < s.hitsMax });
-            const mostDamagedStructure = repairIterator(damagedStructures, { percentage: 0.001 });
+            const mostDamagedStructure = repairIterator(damagedStructures, { percentage: 0.0001 });
 
             if (!_.isObject(mostDamagedStructure)) {
                 mostDamagedStructureMemory.id = undefined;
