@@ -308,14 +308,14 @@ Creep.prototype.rechargeTower = function(opts) {
             FIND_MY_STRUCTURES, {
                 filter: t =>
                     t.structureType == STRUCTURE_TOWER &&
-                    t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
+                    t.store[RESOURCE_ENERGY] <= t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
             });
     } else if (_.isNumber(opts.range)) {
         depletedTowers = this.pos.findInRange(
             FIND_MY_STRUCTURES, opts.range, {
                 filter: t =>
                     t.structureType == STRUCTURE_TOWER &&
-                    t.store[RESOURCE_ENERGY] < t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
+                    t.store[RESOURCE_ENERGY] <= t.store.getCapacity(RESOURCE_ENERGY) * percentRepair
             });
     }
 
@@ -353,10 +353,15 @@ Creep.prototype.rechargeTower = function(opts) {
     }
 }
 
-Creep.prototype.chargeStorage = function() {
+Creep.prototype.chargeStorage = function(opts) {
+    opts = opts || {}
+    if (_.isUndefined(opts.percent)) {
+        opts.percent = 100
+    }
+
     const storage = this.room.storage;
 
-    if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() / 2) {
+    if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() * opts.percent / 100) {
         if (this.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             this.moveTo(storage);
         }
