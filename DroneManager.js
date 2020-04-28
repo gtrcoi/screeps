@@ -139,7 +139,7 @@ module.exports = {
                             }
 
                             if (creep.room.memory.structures.links.controllerLinkID) {
-                                operations.unshift(function() { return creep.collectLink(creep.room.memory.structures.links.controllerLinkID) })
+                                operations = [function() { return creep.collectLink(creep.room.memory.structures.links.controllerLinkID) }]
                             }
 
                             for (key = 0; key < operations.length; key++) {
