@@ -32,7 +32,7 @@ module.exports = {
                 if (!_.isUndefined(element.id)) {
                     const structure = Game.getObjectById(element.id)
                     room.visual.text(`${structure.structureType}: `, xPos, yPos, { align: 'right', opacity: 0.5 })
-                    room.visual.text(` ${structure.hits} hp    ${(structure.hits / structure.hitsMax).toFixed(4)}%`, xPos + 9, yPos, { font: 0.5, align: 'right', opacity: 0.5 })
+                    room.visual.text(` ${structure.hits} hp    ${(structure.hits / structure.hitsMax *100).toFixed(2)}%`, xPos + 9, yPos, { font: 0.5, align: 'right', opacity: 0.5 })
                     room.visual.line(xPos + 13 - i, yPos + 0.1, structure.pos.x, structure.pos.y, { width: 0.05 })
                     room.visual.line(xPos - 0.29, yPos + 0.1, xPos + 13 - i, yPos + 0.1, { width: 0.05 })
                     yPos++
