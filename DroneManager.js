@@ -89,8 +89,7 @@ module.exports = {
                                     craneSpawning = true;
                                 }
                             }
-                            if (creep.room.find(FIND_MY_CREEPS, { filter: c => c.memory.role === "crane" }).length === 0 &&
-                                !craneSpawning) {
+                            if (creep.room.memory.creepCount.crane === 0 && !craneSpawning) {
                                 creep.chargeSpawn();
                             } else {
                                 creep.chargeLink(creep.memory.linkID);
@@ -111,7 +110,7 @@ module.exports = {
                                 function() { return creep.collectRuin() },
                                 function() { return creep.collectStorage() }
                             ];
-                            if (creep.room.memory.spawnLimits.digger === 0) {
+                            if (Object.keys(creep.room.memory.resources.sources).length > creep.room.memory.creepCount.digger) {
                                 operations.unshift(
                                     function() { return creep.collectContainer() },
                                     function() { return creep.harvestSource() })
