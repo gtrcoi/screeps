@@ -67,6 +67,7 @@ module.exports = {
                     const source = sources[key];
                     if (link.pos.inRangeTo(source.pos, 2)) {
                         linksMemoryObject.sourceLinkIDs.push(link.id);
+                        break;
                     }
                 }
             }
