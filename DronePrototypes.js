@@ -115,7 +115,12 @@ Creep.prototype.collectStorage = function() {
 
     if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] > 0) {
         if (this.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            this.moveTo(storage);
+            this.moveTo(storage, {
+                visualizePathStyle: {
+                    stroke: '#ffff66',
+                    opacity: 0.7
+                }
+            });
         }
         return OK;
     } else {
@@ -144,7 +149,12 @@ Creep.prototype.collectContainer = function(containerID) {
 
         default:
             if (this.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(container);
+                this.moveTo(container, {
+                    visualizePathStyle: {
+                        stroke: '#ffff66',
+                        opacity: 0.7
+                    }
+                });
             }
             return OK;
     }
@@ -165,7 +175,12 @@ Creep.prototype.collectLink = function(linkID) {
         default:
             if (link.store[RESOURCE_ENERGY] > 0) {
                 if (this.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    this.moveTo(link);
+                    this.moveTo(link, {
+                        visualizePathStyle: {
+                            stroke: '#ffff66',
+                            opacity: 0.7
+                        }
+                    });
                     return OK
                 }
             } else { return ERR_NOT_ENOUGH_ENERGY }
@@ -194,7 +209,12 @@ Creep.prototype.chargeSpawn = function() {
 
         default:
             if (this.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(spawn);
+                this.moveTo(spawn, {
+                    visualizePathStyle: {
+                        stroke: '#ffff66',
+                        opacity: 0.7
+                    }
+                });
             }
             return OK;
     }
@@ -344,7 +364,7 @@ Creep.prototype.rechargeTower = function(opts) {
             if (this.transfer(mostDepletedTower, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 this.moveTo(mostDepletedTower, {
                     visualizePathStyle: {
-                        stroke: '#00cc00',
+                        stroke: '#ffff66',
                         opacity: 0.7
                     }
                 });
@@ -363,7 +383,12 @@ Creep.prototype.chargeStorage = function(opts) {
 
     if (_.isObject(storage) && storage.store[RESOURCE_ENERGY] < storage.store.getCapacity() * opts.percent / 100) {
         if (this.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            this.moveTo(storage);
+            this.moveTo(storage, {
+                visualizePathStyle: {
+                    stroke: '#ffff66',
+                    opacity: 0.7
+                }
+            });
         }
         return OK;
     } else {
@@ -385,7 +410,12 @@ Creep.prototype.chargeLink = function(linkID) {
 
         default:
             if (this.transfer(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                this.moveTo(link);
+                this.moveTo(link, {
+                    visualizePathStyle: {
+                        stroke: '#ffff66',
+                        opacity: 0.7
+                    }
+                });
             }
             break;
     }
