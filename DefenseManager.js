@@ -13,7 +13,7 @@ module.exports = {
         const towers = _.filter(Game.structures, (t) => t.structureType == STRUCTURE_TOWER);
         for (tower of towers) {
             let operations = [];
-            if (tower.store[RESOURCE_ENERGY] > tower.store.getCapacity(RESOURCE_ENERGY) * 0.5) {
+            if (tower.store[RESOURCE_ENERGY] > tower.store.getCapacity(RESOURCE_ENERGY) * 0.525) {
                 operations = [
                     function() { return tower.defend() },
                     function() { return tower.healCreep() },
