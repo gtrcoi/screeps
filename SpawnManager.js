@@ -2,31 +2,31 @@
 StructureSpawn.prototype.spawnNextCreep = function() {
     // The current room the spawn resides in
     const room = this.room;
-    // The number of creeps who live in this room AND are considered upgraders
+
     const upgraderCount = _.filter(
         Game.creeps,
         creep =>
         creep.memory.homeRoom === room.name && creep.memory.role === "upgrader" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
-    // The number of creeps who live in this room AND are considered harvesters
+
     const harvesterCount = _.filter(
         Game.creeps,
         creep =>
         creep.memory.homeRoom === room.name && creep.memory.role === "harvester" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
-    // The number of creeps who live in this room AND are considered builders
+
     const builderCount = _.filter(
         Game.creeps,
         creep =>
         creep.memory.homeRoom === room.name && creep.memory.role === "builder" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
-    // The number of creeps who live in this room AND are considered cranes
+
     const craneCount = _.filter(
         Game.creeps,
         creep =>
         creep.memory.homeRoom === room.name && creep.memory.role === "crane" && (creep.ticksToLive > 51 || creep.spawning)
     ).length;
-    // The number of creeps who live in this room AND are considered cranes
+
     const diggerCount = _.filter(
         Game.creeps,
         creep =>
@@ -50,10 +50,10 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     // Spawn the appropriate creep, if any
     if (harvesterCount < harvesterLimits) {
         this.spawnDrone("harvester");
-    } else if (craneCount < craneLimits) {
-        this.spawnCrane();
     } else if (diggerCount < diggerLimits) {
         this.spawnDigger();
+    } else if (craneCount < craneLimits) {
+        this.spawnCrane();
     } else if (builderCount < builderLimits) {
         this.spawnDrone("builder");
     } else if (upgraderCount < upgraderLimits) {
@@ -204,6 +204,8 @@ StructureSpawn.prototype.spawnDigger = function() {
             break;
         }
     }
+
+
     creepMemory.linkID = linkAssign;
     creepMemory.sourceID = Game.getObjectById(linkAssign).pos.findClosestByPath(FIND_SOURCES).id;
 
@@ -211,13 +213,24 @@ StructureSpawn.prototype.spawnDigger = function() {
     if (containers.length > 0) {
         creepMemory.containerID = containers[0].id
     }
+
+    // The number of creeps who live in this room AND are considered harvesters
+    const energyCollectorCount = _.filter(
+        Game.creeps,
+        creep =>
+        creep.memory.homeRoom === this.room.name && (creep.memory.role === "harvester" || creep.memory.role === "digger")
+    ).length;
     // Generate the creep body
-    var energyAvailable = this.room.energyCapacityAvailable;
+    var energyAvailable = undefined;
+    if (energyCollectorCount >= 1) {
+        energyAvailable = this.room.energyCapacityAvailable;
+    } else {
+        energyAvailable = this.room.energyAvailable;
+    }
 
     // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
     var numberOfParts = Math.floor(energyAvailable / 300);
     if (numberOfParts > 5) { numberOfParts = 5 }
-
     // Create the main section'
     // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
     for (let i = 0; i < numberOfParts; ++i) {
