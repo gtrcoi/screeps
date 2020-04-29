@@ -20,7 +20,6 @@ module.exports.loop = function() {
         memoryManager.viewSatellites(room);
         memoryManager.findRepairs(room);
 
-
         // Manage base building
         if (room.memory.base && Game.time % 100 === 0) { structureManager.buildBunker(room); }
         if (!room.memory.layoutScan.complete) {
@@ -52,7 +51,10 @@ module.exports.loop = function() {
             if ((link.id != baseLink.id && link.id != controllerLink.id) && link.store[RESOURCE_ENERGY] > link.store.getCapacity()) {
                 link.transferEnergy(baseLink, baseLink.store.getCapacity(RESOURCE_ENERGY) - baseLink.store[RESOURCE_ENERGY]);
             } else if (link.id == baseLink.id && baseLink.store[RESOURCE_ENERGY] > 0 && controllerLink.store[RESOURCE_ENERGY] < 700) {
-                link.transferEnergy(controllerLink, controllerLink.store.getCapacity(RESOURCE_ENERGY) - controllerLink.store[RESOURCE_ENERGY]);
+                const controllerLinkNeed = controllerLink.store.getCapacity(RESOURCE_ENERGY) - controllerLink.store[RESOURCE_ENERGY]
+                const baseLinkAmount = baseLink.store[RESOURCE_ENERGY]
+                const transferAmount = (baseLinkAmount < controllerLinkNeed) ? baseLinkAmount : controllerLinkNeed
+                link.transferEnergy(controllerLink, transferAmount);
             }
         }
     }
