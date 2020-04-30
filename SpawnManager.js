@@ -188,15 +188,18 @@ StructureSpawn.prototype.spawnDigger = function() {
     };
 
     const sourceLinkIDs = this.room.memory.structures.links.sourceLinkIDs;
+    const sourceIDs = Object.keys(this.room.memory.resources.sources)
     const diggers = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "digger" && (c.ticksToLive > 100 || c.spawning));
 
-    // Populate list of used Links in digger memory
+    // Populate list of used Links and Sources in digger memory
     let diggerIDs = [];
+    let diggerSourceIDs = [];
     for (const key in diggers) {
         const digger = diggers[key];
         diggerIDs.push(digger.memory.linkID);
+        diggerSourceIDs.push(digger.memory.sourceID);
     }
-
+    // Assign link ID
     let linkAssign = undefined;
     for (linkID of sourceLinkIDs) {
         if (_.filter(diggerIDs, element => element === linkID).length == 0) {
@@ -204,17 +207,26 @@ StructureSpawn.prototype.spawnDigger = function() {
             break;
         }
     }
-
-
     creepMemory.linkID = linkAssign;
-    creepMemory.sourceID = Game.getObjectById(linkAssign).pos.findClosestByPath(FIND_SOURCES).id;
 
-    const containers = Game.getObjectById(linkAssign).pos.findInRange(FIND_STRUCTURES, 1, { filter: s => s.structureType === STRUCTURE_CONTAINER });
+    // Assign source ID
+    let sourceAssign = undefined;
+    for (sourceID of sourceIDs) {
+        if (_.filter(diggerSourceIDs, element => element === sourceID).length == 0) {
+            sourceAssign = sourceID;
+            break;
+        }
+    }
+    creepMemory.sourceID = sourceAssign;
+
+
+    const containers = Game.getObjectById(sourceAssign).pos.findInRange(FIND_STRUCTURES, 1, { filter: s => s.structureType === STRUCTURE_CONTAINER });
     if (containers.length > 0) {
         creepMemory.containerID = containers[0].id
     }
 
-    // The number of creeps who live in this room AND are considered harvesters
+
+    // Count energy collectors and spawn loaders
     const energyCollectorCount = _.filter(
         Game.creeps,
         creep =>
