@@ -309,7 +309,7 @@ module.exports = {
         // Check if new target is required
         if (_.isNull(mostDamagedRoadLT) || mostDamagedRoadLT.hits / mostDamagedRoadLT.hitsMax > mostDamagedRoadMemory.percent) {
             const damagedRoads = _.filter(damagedStructures, s => s.structureType === STRUCTURE_ROAD)
-            const mostDamagedRoad = repairIterator(damagedRoads, { percentage: 0.005 })
+            const mostDamagedRoad = repairIterator(damagedRoads, { percentage: 0.01 })
             if (!_.isObject(mostDamagedRoad)) {
                 mostDamagedRoadMemory.id = undefined;
                 mostDamagedRoadMemory.percent = undefined;
