@@ -34,7 +34,9 @@ module.exports = {
                                 function() { return creep.repairMostDamaged() }
 
                             ];
-
+                            if (creep.room.name !== creep.memory.homeRoom) {
+                                operations.unshift(function() { return creep.returnHome() })
+                            }
                             for (key = 0; key < operations.length; key++) {
                                 if (operations[key]() == OK) {
                                     break;
@@ -54,6 +56,9 @@ module.exports = {
                             if (creep.room.memory.creepCount.builder === 0 && creep.room.memory.creepCount.harvester === 0) {
                                 operations.unshift(function() { return creep.chargeSpawn() })
                             }
+                            if (creep.room.name !== creep.memory.homeRoom) {
+                                operations.unshift(function() { return creep.returnHome() })
+                            }
 
                             for (let key = 0; key < operations.length; key++) {
                                 if (operations[key]() == OK) {
@@ -72,6 +77,9 @@ module.exports = {
                                 function() { return creep.repairMostDamaged() },
                                 function() { return creep.chargeController() }
                             ];
+                            if (creep.room.name !== creep.memory.homeRoom) {
+                                operations.unshift(function() { return creep.returnHome() })
+                            }
                             for (key = 0; key < operations.length; key++) {
                                 if (operations[key]() == OK) {
                                     break;
@@ -170,7 +178,7 @@ module.exports = {
                             operations = [
                                 function() { return creep.harvestSource(creep.memory.sourceID) }
                             ]
-                            if (creep.memory.containerID !== undefined && !creep.pos.isEqualTo(Game.getObjectById(creep.memory.containerID).pos)) {
+                            if (Game.getObjectById(creep.memory.containerID) !== null && !creep.pos.isEqualTo(Game.getObjectById(creep.memory.containerID).pos)) {
                                 operations.unshift(
                                     function() { return creep.moveTo(Game.getObjectById(creep.memory.containerID)) }
                                 )

@@ -445,3 +445,17 @@ Creep.prototype.repairContainer = function(opts) {
         return ERR_NOT_FOUND
     }
 }
+
+// ===========================
+// Logistic methods
+// ===========================
+
+// Return to home
+Creep.prototype.returnHome = function(opts) {
+    opts = opts || {}
+
+    if (this.pos.roomName === this.memory.homeRoom) { return ERR_NO_PATH }
+
+    const target = Game.rooms[this.memory.homeRoom].controller.pos;
+    this.moveTo(target, { reusePath: 100 });
+}
