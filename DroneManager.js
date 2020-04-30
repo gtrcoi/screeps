@@ -68,9 +68,7 @@ module.exports = {
                                 function() { return creep.rechargeTower({ percent: 50 }) },
                                 function() { return creep.chargeSpawn() },
                                 function() { return creep.construct() },
-                                function() { return creep.repairRoad({ percent: 50 }) },
                                 function() { return creep.rechargeTower() },
-                                function() { return creep.repairMostDamaged() },
                                 function() { return creep.chargeController() }
                             ];
                             if (creep.room.name !== creep.memory.homeRoom) {
