@@ -46,11 +46,7 @@ module.exports = {
 
                         case "upgrader":
                             operations = [
-                                function() { return creep.chargeController() },
-                                function() { return creep.rechargeTower() },
-                                function() { return creep.repairRoad({ percent: 50 }) },
-                                function() { return creep.construct() },
-                                function() { return creep.repairMostDamaged() }
+                                function() { return creep.chargeController() }
                             ];
 
                             if (creep.room.memory.creepCount.builder === 0 && creep.room.memory.creepCount.harvester === 0) {
@@ -71,8 +67,8 @@ module.exports = {
                             operations = [
                                 function() { return creep.rechargeTower({ percent: 50 }) },
                                 function() { return creep.chargeSpawn() },
-                                function() { return creep.repairRoad({ percent: 50 }) },
                                 function() { return creep.construct() },
+                                function() { return creep.repairRoad({ percent: 50 }) },
                                 function() { return creep.rechargeTower() },
                                 function() { return creep.repairMostDamaged() },
                                 function() { return creep.chargeController() }
