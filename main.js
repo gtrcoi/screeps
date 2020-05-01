@@ -37,7 +37,7 @@ module.exports.loop = function() {
         defenseManager.safeMode(room);
 
         // Paint visuals
-        if (room.memory.layoutScan.pos.x < 99) { visuals.paintLayoutScan(room); }
+        if (room.memory.layoutScan.bunker) { visuals.paintLayoutScan(room); }
         visuals.paintMisc(room);
 
         // Push energy through links
