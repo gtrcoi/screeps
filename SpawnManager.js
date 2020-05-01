@@ -303,7 +303,7 @@ StructureSpawn.prototype.spawnLoader = function() {
     // Assign rest stop
     let restAssign = undefined;
     for (const pos of baseRests) {
-        if (_.filter(loaderRests, element => element === pos).length == 0) {
+        if (_.filter(loaderRests, element => element.x == pos.x && element.y == pos.y).length == 0) {
             restAssign = pos;
             break;
         }
