@@ -101,9 +101,11 @@ module.exports = {
                         case "loader":
                             operations = [
                                 function() { return creep.chargeSpawn() },
-                                function() { return creep.rechargeTower({ range: 1 }) },
-                                function() { return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y) }
+                                function() { return creep.rechargeTower({ range: 1 }) }
                             ]
+                            if (!creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)) {
+                                operations.push(function() { return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y) })
+                            }
                             for (key = 0; key < operations.length; key++) {
 
                                 if (operations[key]() == OK) {
@@ -203,9 +205,11 @@ module.exports = {
 
                         case "loader":
                             operations = [
-                                function() { return creep.collectStorage() },
-                                function() { return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y) }
+                                function() { return creep.collectStorage() }
                             ]
+                            if (!creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)) {
+                                operations.push(function() { return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y) })
+                            }
                             for (key = 0; key < operations.length; key++) {
 
                                 if (operations[key]() == OK) {
