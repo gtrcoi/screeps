@@ -3,43 +3,11 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     // The current room the spawn resides in
     const room = this.room;
 
-    const upgraderCount = _.filter(
-        Game.creeps,
-        creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "upgrader" && (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
-
-    const harvesterCount = _.filter(
-        Game.creeps,
-        creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "harvester" && (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
-
-    const builderCount = _.filter(
-        Game.creeps,
-        creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "builder" && (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
-
-    const craneCount = _.filter(
-        Game.creeps,
-        creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "crane" && (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
-
-    const diggerCount = _.filter(
-        Game.creeps,
-        creep =>
-        creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 100 || creep.spawning)
-    ).length;
-
-    // Save to memory
-    this.room.memory.creepCount.harvester = harvesterCount;
-    this.room.memory.creepCount.upgrader = upgraderCount;
-    this.room.memory.creepCount.builder = builderCount;
-    this.room.memory.creepCount.digger = diggerCount;
-    this.room.memory.creepCount.crane = craneCount;
-    this.room.memory.creepCount.energyCollectors = harvesterCount + diggerCount;
+    const harvesterCount = this.room.memory.creepCount.harvester
+    const upgraderCount = this.room.memory.creepCount.upgrader
+    const builderCount = this.room.memory.creepCount.builder
+    const diggerCount = this.room.memory.creepCount.digger
+    const craneCount = this.room.memory.creepCount.crane
 
     // The limits we are pulling from memory of harvester and upgrader
     const harvesterLimits = room.memory.spawnLimits["harvester"];

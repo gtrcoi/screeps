@@ -334,5 +334,53 @@ module.exports = {
                 mostDamagedContainerMemory.percent = mostDamagedContainer.percent
             }
         }
+    },
+
+    countCreeps: function(room) {
+        const upgraderCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "upgrader" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const harvesterCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "harvester" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const builderCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "builder" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const craneCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "crane" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const diggerCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 100 || creep.spawning)
+        ).length;
+
+        const loaderCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "loader" && (creep.ticksToLive > 100 || creep.spawning)
+        ).length;
+
+        // Save to memory
+        room.memory.creepCount.harvester = harvesterCount;
+        room.memory.creepCount.upgrader = upgraderCount;
+        room.memory.creepCount.builder = builderCount;
+        room.memory.creepCount.digger = diggerCount;
+        room.memory.creepCount.crane = craneCount;
+        room.memory.creepCount.loader = loaderCount;
+
+        room.memory.creepCount.energyCollectors = harvesterCount + diggerCount;
     }
 }
