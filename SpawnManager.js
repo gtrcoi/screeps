@@ -39,6 +39,7 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     this.room.memory.creepCount.builder = builderCount;
     this.room.memory.creepCount.digger = diggerCount;
     this.room.memory.creepCount.crane = craneCount;
+    this.room.memory.creepCount.energyCollectors = harvesterCount + diggerCount;
 
     // The limits we are pulling from memory of harvester and upgrader
     const harvesterLimits = room.memory.spawnLimits["harvester"];
@@ -293,3 +294,92 @@ StructureSpawn.prototype.spawnUpgrader = function() {
     }
 
 };
+
+// Add a function to spawn objects to spawn a loader
+StructureSpawn.prototype.spawnLoader = function() {
+    // Set all basic information about the creep to be spawned
+    const name = "loader" + Game.time;
+    // Empty body array we will manually fill
+    const body = [];
+    // The memory we are going to save inside the creep
+    const creepMemory = {
+        working: false,
+        role: "loader",
+        homeRoom: this.room.name,
+        rest: undefined
+    };
+
+    // calculate rest stops
+    let baseRests = []
+    if (this.room.memory.layoutScan.bunker) {
+        const x = this.room.memory.layoutScan.pos.x;
+        const y = this.room.memory.layoutScan.pos.y;
+        baseRests = [
+            { x: x + 5, y: y + 5 }, // TOP_LEFT
+            { x: x + 7, y: y + 5 }, // TOP_RIGHT
+            { x: x + 5, y: y + 7 }, // BOTTOM_LEFT
+            { x: x + 7, y: y + 7 } // BOTTOM_RIGHT
+        ]
+    }
+
+    const loaders = _.filter(this.room.find(FIND_MY_CREEPS), c => c.memory.role === "loader" && (c.ticksToLive > 100 || c.spawning));
+
+    // Populate list of used rest stops in loader memory
+    let loaderRests = [];
+    for (const key in loaders) {
+        const creep = loaders[key];
+        loaderRests.push(creep.memory.rest);
+    }
+    // Assign rest stop and spawn direction
+    let spawnDir = [];
+    let restAssign = undefined;
+    for (const pos of baseRests) {
+        if (_.filter(loaderRests, element => element === pos).length == 0) {
+            restAssign = pos;
+
+            switch (indexOf(pos)) {
+                case 0:
+                    spawnDir = [TOP_LEFT]
+                    break;
+                case 1:
+                    spawnDir = [TOP_RIGHT]
+                    break;
+                case 2:
+                    spawnDir = [BOTTOM_LEFT]
+                    break;
+                case 3:
+                    spawnDir = [BOTTOM_RIGHT]
+                    break;
+            }
+
+            break;
+        }
+    }
+    creepMemory.rest = restAssign;
+
+    // Count energy collectors and spawn loaders
+    const energyCollectorCount = this.room.memory.creepCount.energyCollectors;
+    // Generate the creep body
+    var energyAvailable = undefined;
+    if (energyCollectorCount >= 1) {
+        energyAvailable = this.room.energyCapacityAvailable;
+    } else {
+        energyAvailable = this.room.energyAvailable;
+    }
+
+    // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
+    var numberOfParts = Math.floor(energyAvailable / 150);
+    if (numberOfParts > 16) { numberOfParts = 16 }
+
+    // Build body
+    for (let i = 0; i < numberOfParts; ++i) {
+        body.push(CARRY);
+        body.push(CARRY);
+        body.push(MOVE);
+    }
+
+    if (numberOfParts >= 1) {
+        // Spawn the creep using all of this information
+        this.spawnCreep(body, name, { memory: creepMemory, directions: spawnDir });
+    }
+}
