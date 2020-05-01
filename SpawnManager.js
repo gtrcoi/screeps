@@ -1,11 +1,12 @@
 // Add a function to the spawn objects that will spawn the next creep if needed
 StructureSpawn.prototype.spawnNextCreep = function() {
     // Current creep count
-    const harvesterCount = this.room.memory.creepCount.harvester
-    const upgraderCount = this.room.memory.creepCount.upgrader
-    const builderCount = this.room.memory.creepCount.builder
-    const diggerCount = this.room.memory.creepCount.digger
-    const craneCount = this.room.memory.creepCount.crane
+    const harvesterCount = this.room.memory.creepCount.harvester;
+    const upgraderCount = this.room.memory.creepCount.upgrader;
+    const builderCount = this.room.memory.creepCount.builder;
+    const diggerCount = this.room.memory.creepCount.digger;
+    const craneCount = this.room.memory.creepCount.crane;
+    const loaderCount = this.room.memory.creepCount.loader;
 
     // Creep limits
     const harvesterLimits = this.room.memory.spawnLimits["harvester"];
@@ -13,6 +14,7 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     const builderLimits = this.room.memory.spawnLimits["builder"];
     const diggerLimits = this.room.memory.spawnLimits["digger"];
     const craneLimits = this.room.memory.spawnLimits["crane"];
+    const loaderLimits = this.room.memory.spawnLimits["loader"];
 
     // Spawn the appropriate creep, if any
     if (harvesterCount < harvesterLimits) {
@@ -21,6 +23,8 @@ StructureSpawn.prototype.spawnNextCreep = function() {
         this.spawnDigger();
     } else if (craneCount < craneLimits) {
         this.spawnCrane();
+    } else if (loaderCount < loaderLimits) {
+        this.spawnLoader();
     } else if (builderCount < builderLimits) {
         this.spawnDrone("builder");
     } else if (upgraderCount < upgraderLimits) {
@@ -296,28 +300,11 @@ StructureSpawn.prototype.spawnLoader = function() {
         const creep = loaders[key];
         loaderRests.push(creep.memory.rest);
     }
-    // Assign rest stop and spawn direction
-    let spawnDir = [];
+    // Assign rest stop
     let restAssign = undefined;
     for (const pos of baseRests) {
         if (_.filter(loaderRests, element => element === pos).length == 0) {
             restAssign = pos;
-
-            switch (indexOf(pos)) {
-                case 0:
-                    spawnDir = [TOP_LEFT]
-                    break;
-                case 1:
-                    spawnDir = [TOP_RIGHT]
-                    break;
-                case 2:
-                    spawnDir = [BOTTOM_LEFT]
-                    break;
-                case 3:
-                    spawnDir = [BOTTOM_RIGHT]
-                    break;
-            }
-
             break;
         }
     }
@@ -346,6 +333,6 @@ StructureSpawn.prototype.spawnLoader = function() {
 
     if (numberOfParts >= 1) {
         // Spawn the creep using all of this information
-        this.spawnCreep(body, name, { memory: creepMemory, directions: spawnDir });
+        this.spawnCreep(body, name, { memory: creepMemory });
     }
 }
