@@ -3,22 +3,14 @@ module.exports = {
         // Define creep limits for a room
         const diggerLimits = room.memory.structures.links.sourceLinkIDs.length;
         const harvesterLimits = room.find(FIND_SOURCES).length;
-        let loaderLimits = 1
 
-        let upgraderLimits = 2;
-        if (room.memory.structures.links.controllerLinkID) {
-            upgraderLimits = 1
-        }
+        const upgraderLimits = (room.memory.structures.links.controllerLinkID) ? 1 : 2
 
-        let builderLimits = 1;
-        if (room.find(FIND_MY_CONSTRUCTION_SITES).length >= 10) {
-            builderLimits = 2;
-        }
+        const builderLimits = (room.find(FIND_MY_CONSTRUCTION_SITES).length >= 10) ? 2 : 1
 
-        let craneLimits = 0
-        if (room.memory.structures.links.baseLinkID) {
-            craneLimits = 1;
-        }
+        const craneLimits = (room.memory.structures.links.baseLinkID) ? 1 : 0
+
+        const loaderLimits = (room.controller.level >= 4) ? Math.floor(room.controller.level / 2) : 0
 
         // Save to memory
         if (!room.memory.spawnLimits) {
