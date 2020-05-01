@@ -16,10 +16,9 @@ module.exports.loop = function() {
         // Set up memory objects for room
         memoryManager.setRoomMemory(room);
         memoryManager.setStructures(room);
-        memoryManager.setSpawnLimits(room);
+        memoryManager.creepCount(room);
         memoryManager.viewSatellites(room);
         memoryManager.findRepairs(room);
-        memoryManager.countCreeps(room);
 
         // Manage base building
         if (room.memory.base && Game.time % 100 === 0) { structureManager.buildBunker(room); }

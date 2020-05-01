@@ -143,6 +143,10 @@ module.exports = {
         let x = 0;
         let y = 0;
 
+        if (!room.memory.layoutScan) {
+            room.memory.layoutScan = { pos: {} };
+        }
+
         while (!room.memory.layoutScan.complete) {
             const structureLayout = layouts.bunkerLayout(x, y);
             let = structureLayoutArray = Object.values(structureLayout);
@@ -157,6 +161,7 @@ module.exports = {
                         // if loop is on last value and succeeds scan is complete
                         if (key == structureLayoutArray.length - 1) {
                             room.memory.layoutScan.complete = true;
+                            room.memory.layoutScan.bunker = true;
                             break;
                         }
                         continue;
@@ -171,7 +176,7 @@ module.exports = {
                     x = 99;
                     y = 99;
                     room.memory.layoutScan.complete = true;
-                    room.memory.layoutScan.fail = true;
+                    room.memory.layoutScan.bunker = false;
                 } else {
                     y++;
                     x = 0;

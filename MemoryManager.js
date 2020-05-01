@@ -1,6 +1,6 @@
 module.exports = {
-    setSpawnLimits: function(room) {
-        // Define the limits for a room
+    creepCount: function(room) {
+        // Define creep limits for a room
         const diggerLimits = room.memory.structures.links.sourceLinkIDs.length;
         const harvesterLimits = room.find(FIND_SOURCES).length;
 
@@ -19,12 +19,10 @@ module.exports = {
             craneLimits = 1;
         }
 
-        // Set the property in memory if it doesn't exist
+        // Save to memory
         if (!room.memory.spawnLimits) {
             room.memory.spawnLimits = {};
         }
-
-        // Set the limits in the room memory
         const spawnLimits = {
             upgrader: upgraderLimits,
             harvester: harvesterLimits - diggerLimits,
@@ -33,6 +31,58 @@ module.exports = {
             crane: craneLimits
         };
         room.memory.spawnLimits = spawnLimits;
+
+        // Count creeps 
+        const upgraderCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "upgrader" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const harvesterCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "harvester" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const builderCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "builder" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const craneCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "crane" && (creep.ticksToLive > 51 || creep.spawning)
+        ).length;
+
+        const diggerCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 100 || creep.spawning)
+        ).length;
+
+        const loaderCount = _.filter(
+            Game.creeps,
+            creep =>
+            creep.memory.homeRoom === room.name && creep.memory.role === "loader" && (creep.ticksToLive > 100 || creep.spawning)
+        ).length;
+
+        // Save to memory
+        if (!room.memory.creepCount) {
+            room.memory.creepCount = {};
+        }
+        const creepCount = {
+            upgrader: upgraderCount,
+            harvester: harvesterCount,
+            builder: builderCount,
+            digger: diggerCount,
+            crane: craneCount,
+            loader: loaderCount,
+            energyCollectors: harvesterCount + diggerCount
+        };
+        room.memory.creepCount = creepCount;
     },
 
     setStructures: function(room) {
@@ -111,12 +161,6 @@ module.exports = {
     },
 
     setRoomMemory: function(room) {
-        if (!room.memory.layoutScan) {
-            room.memory.layoutScan = { pos: {} };
-        }
-        if (!room.memory.creepCount) {
-            room.memory.creepCount = {};
-        }
         if (!room.memory.base) {
             room.memory.base = false;
         }
@@ -334,53 +378,5 @@ module.exports = {
                 mostDamagedContainerMemory.percent = mostDamagedContainer.percent
             }
         }
-    },
-
-    countCreeps: function(room) {
-        const upgraderCount = _.filter(
-            Game.creeps,
-            creep =>
-            creep.memory.homeRoom === room.name && creep.memory.role === "upgrader" && (creep.ticksToLive > 51 || creep.spawning)
-        ).length;
-
-        const harvesterCount = _.filter(
-            Game.creeps,
-            creep =>
-            creep.memory.homeRoom === room.name && creep.memory.role === "harvester" && (creep.ticksToLive > 51 || creep.spawning)
-        ).length;
-
-        const builderCount = _.filter(
-            Game.creeps,
-            creep =>
-            creep.memory.homeRoom === room.name && creep.memory.role === "builder" && (creep.ticksToLive > 51 || creep.spawning)
-        ).length;
-
-        const craneCount = _.filter(
-            Game.creeps,
-            creep =>
-            creep.memory.homeRoom === room.name && creep.memory.role === "crane" && (creep.ticksToLive > 51 || creep.spawning)
-        ).length;
-
-        const diggerCount = _.filter(
-            Game.creeps,
-            creep =>
-            creep.memory.homeRoom === room.name && creep.memory.role === "digger" && (creep.ticksToLive > 100 || creep.spawning)
-        ).length;
-
-        const loaderCount = _.filter(
-            Game.creeps,
-            creep =>
-            creep.memory.homeRoom === room.name && creep.memory.role === "loader" && (creep.ticksToLive > 100 || creep.spawning)
-        ).length;
-
-        // Save to memory
-        room.memory.creepCount.harvester = harvesterCount;
-        room.memory.creepCount.upgrader = upgraderCount;
-        room.memory.creepCount.builder = builderCount;
-        room.memory.creepCount.digger = diggerCount;
-        room.memory.creepCount.crane = craneCount;
-        room.memory.creepCount.loader = loaderCount;
-
-        room.memory.creepCount.energyCollectors = harvesterCount + diggerCount;
     }
 }
