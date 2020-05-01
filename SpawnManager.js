@@ -1,20 +1,18 @@
 // Add a function to the spawn objects that will spawn the next creep if needed
 StructureSpawn.prototype.spawnNextCreep = function() {
-    // The current room the spawn resides in
-    const room = this.room;
-
+    // Current creep count
     const harvesterCount = this.room.memory.creepCount.harvester
     const upgraderCount = this.room.memory.creepCount.upgrader
     const builderCount = this.room.memory.creepCount.builder
     const diggerCount = this.room.memory.creepCount.digger
     const craneCount = this.room.memory.creepCount.crane
 
-    // The limits we are pulling from memory of harvester and upgrader
-    const harvesterLimits = room.memory.spawnLimits["harvester"];
-    const upgraderLimits = room.memory.spawnLimits["upgrader"];
-    const builderLimits = room.memory.spawnLimits["builder"];
-    const diggerLimits = room.memory.spawnLimits["digger"];
-    const craneLimits = room.memory.spawnLimits["crane"];
+    // Creep limits
+    const harvesterLimits = this.room.memory.spawnLimits["harvester"];
+    const upgraderLimits = this.room.memory.spawnLimits["upgrader"];
+    const builderLimits = this.room.memory.spawnLimits["builder"];
+    const diggerLimits = this.room.memory.spawnLimits["digger"];
+    const craneLimits = this.room.memory.spawnLimits["crane"];
 
     // Spawn the appropriate creep, if any
     if (harvesterCount < harvesterLimits) {
@@ -26,7 +24,7 @@ StructureSpawn.prototype.spawnNextCreep = function() {
     } else if (builderCount < builderLimits) {
         this.spawnDrone("builder");
     } else if (upgraderCount < upgraderLimits) {
-        if (room.memory.structures.links.controllerLinkID) {
+        if (this.room.memory.structures.links.controllerLinkID) {
             this.spawnUpgrader();
         } else {
             this.spawnDrone("upgrader");
