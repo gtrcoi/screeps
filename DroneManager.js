@@ -97,7 +97,18 @@ module.exports = {
                             }
                             break;
 
-                        default:
+                        case "loader":
+                            operations = [
+                                function() { return creep.chargeSpawn() },
+                                function() { return creep.rechargeTower({ range: 1 }) },
+                                function() { return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y) }
+                            ]
+                            for (key = 0; key < operations.length; key++) {
+
+                                if (operations[key]() == OK) {
+                                    break;
+                                }
+                            }
                             break;
                     }
 
@@ -189,7 +200,16 @@ module.exports = {
                             }
                             break;
 
-                        default:
+                        case "loader":
+                            operations = [
+                                function() { return creep.collectStorage() }
+                            ]
+                            for (key = 0; key < operations.length; key++) {
+
+                                if (operations[key]() == OK) {
+                                    break;
+                                }
+                            }
                             break;
                     }
                 }
@@ -215,7 +235,7 @@ module.exports = {
                     ]
                 }
                 if (!creep.pos.isEqualTo(pos) && pos.lookFor(LOOK_CREEPS).length === 0) {
-                    operations.unshift(function() { return creep.moveTo(pos, pos) })
+                    operations.unshift(function() { return creep.moveTo(pos) })
                 }
                 for (key = 0; key < operations.length; key++) {
                     if (operations[key]() == OK) {
