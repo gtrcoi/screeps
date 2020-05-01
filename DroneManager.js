@@ -10,6 +10,7 @@ module.exports = {
             case "upgrader":
             case "harvester":
             case "digger":
+            case "loader":
 
                 const creepCarry = creep.store[RESOURCE_ENERGY];
                 const creepCarryCapacity = creep.store.getCapacity();
@@ -202,7 +203,8 @@ module.exports = {
 
                         case "loader":
                             operations = [
-                                function() { return creep.collectStorage() }
+                                function() { return creep.collectStorage() },
+                                function() { return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y) }
                             ]
                             for (key = 0; key < operations.length; key++) {
 
