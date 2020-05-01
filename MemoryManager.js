@@ -6,7 +6,7 @@ module.exports = {
 
         const upgraderLimits = (room.memory.structures.links.controllerLinkID) ? 1 : 2
 
-        const builderLimits = (room.find(FIND_MY_CONSTRUCTION_SITES).length >= 10) ? 2 : 1
+        const builderLimits = (room.find(FIND_MY_CONSTRUCTION_SITES).length > 0) ? 1 : 0
 
         const craneLimits = (room.memory.structures.links.baseLinkID) ? 1 : 0
 
