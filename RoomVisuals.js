@@ -40,8 +40,6 @@ module.exports = {
                     room.visual.circle(structure.pos, { fill: 'transparent', radius: 0.5, stroke: 'red' })
                 }
             });
-
-            // 
         }
     }
 }
