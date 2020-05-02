@@ -10,7 +10,8 @@ module.exports = {
 
         const craneLimits = (room.memory.structures.links.baseLinkID) ? 1 : 0
 
-        const loaderLimits = (room.controller.level >= 4) ? Math.floor(room.controller.level / 2) : 0
+        const loaderLimits = 1
+            // (room.controller.level >= 4 && room.storage !== undefined) ? Math.floor(room.controller.level / 2) : 0
 
         // Save to memory
         if (!room.memory.spawnLimits) {
