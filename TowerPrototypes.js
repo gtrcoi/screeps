@@ -91,7 +91,7 @@ StructureTower.prototype.repairMyMostDamaged = function(opts) {
     }
     const targetID = this.room.memory.structures.repairs.mostDamagedStructure.id;
     const target = Game.getObjectById(targetID);
-    const targetPercent = target.hits / target.hitsMax
+    const targetPercent = (!_.isNull(target)) ? target.hits / target.hitsMax : 1
 
     if (!_.isNull(target) && targetPercent < opts.percent / 100) {
         this.repair(target);
