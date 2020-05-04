@@ -192,6 +192,10 @@ module.exports = {
   },
 
   scanLayout: function (room) {
+    if (!room.memory.base) {
+      room.memory.base = false;
+    }
+
     const layouts = require("./layouts");
     const terrain = new Room.Terrain(room.name);
     let x = 0;

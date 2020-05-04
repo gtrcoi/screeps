@@ -13,16 +13,18 @@ module.exports.loop = function () {
   for (const key in Game.rooms) {
     const room = Game.rooms[key];
 
-    // Set up memory objects for room
-    memoryManager.setRoomMemory(room);
-    memoryManager.setStructures(room);
-    memoryManager.creepCount(room);
-    memoryManager.viewSatellites(room);
-    memoryManager.findRepairs(room);
-
     // Manage base building
-    if (room.memory.base && Game.time % 100 === 0) {
-      structureManager.buildBunker(room);
+    if (room.memory.base) {
+      // Set up memory objects for room
+      memoryManager.setRoomMemory(room);
+      memoryManager.setStructures(room);
+      memoryManager.creepCount(room);
+      memoryManager.viewSatellites(room);
+      memoryManager.findRepairs(room);
+
+      if (Game.time % 100 === 0) {
+        structureManager.buildBunker(room);
+      }
     }
     if (!room.memory.layoutScan.complete) {
       structureManager.scanLayout(room);
