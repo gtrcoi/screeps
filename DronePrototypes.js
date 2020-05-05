@@ -489,5 +489,5 @@ Creep.prototype.returnHome = function (opts) {
   }
 
   const target = Game.rooms[this.memory.homeRoom].controller.pos;
-  this.moveTo(target, { reusePath: 100 });
+  this.moveTo(target, { reusePath: 1000 });
 };
