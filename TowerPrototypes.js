@@ -69,7 +69,7 @@ StructureTower.prototype.healCreep = function (opts) {
         this.heal(target);
         return OK;
     }
-  }
+  } else return ERR_NOT_FOUND;
 };
 
 // Tower Repair Roads
@@ -81,9 +81,10 @@ StructureTower.prototype.repairRoad = function (opts) {
 
   const targetID = this.room.memory.structures.repairs.mostDamagedRoad.id;
   const target = Game.getObjectById(targetID);
+  if (_.isNull(target)) return ERR_NOT_FOUND;
   const targetPercent = target.hits / target.hitsMax;
 
-  if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+  if (targetPercent < opts.percent / 100) {
     this.repair(target);
     return OK;
   } else {
@@ -99,9 +100,10 @@ StructureTower.prototype.repairMyMostDamaged = function (opts) {
   }
   const targetID = this.room.memory.structures.repairs.mostDamagedStructure.id;
   const target = Game.getObjectById(targetID);
-  const targetPercent = !_.isNull(target) ? target.hits / target.hitsMax : 1;
+  if (_.isNull(target)) return ERR_NOT_FOUND;
+  const targetPercent = target.hits / target.hitsMax;
 
-  if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+  if (targetPercent < opts.percent / 100) {
     this.repair(target);
     return OK;
   } else {
@@ -117,9 +119,10 @@ StructureTower.prototype.repairWall = function (opts) {
   }
   const targetID = this.room.memory.structures.repairs.mostDamagedWall.id;
   const target = Game.getObjectById(targetID);
+  if (_.isNull(target)) return ERR_NOT_FOUND;
   const targetPercent = target.hits / target.hitsMax;
 
-  if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+  if (targetPercent < opts.percent / 100) {
     this.repair(target);
     return OK;
   } else {
@@ -135,9 +138,10 @@ StructureTower.prototype.repairContainer = function (opts) {
   }
   const targetID = this.room.memory.structures.repairs.mostDamagedContainer.id;
   const target = Game.getObjectById(targetID);
+  if (_.isNull(target)) return ERR_NOT_FOUND;
   const targetPercent = target.hits / target.hitsMax;
 
-  if (!_.isNull(target) && targetPercent < opts.percent / 100) {
+  if (targetPercent < opts.percent / 100) {
     this.repair(target);
     return OK;
   } else {
