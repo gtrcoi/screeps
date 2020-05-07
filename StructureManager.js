@@ -191,63 +191,6 @@ module.exports = {
     }
   },
 
-  scanLayout: function (room) {
-    if (!room.memory.base) {
-      room.memory.base = false;
-    }
-
-    const layouts = require("./layouts");
-    const terrain = new Room.Terrain(room.name);
-    let x = 0;
-    let y = 0;
-
-    if (!room.memory.layoutScan) {
-      room.memory.layoutScan = { pos: {} };
-    }
-
-    while (!room.memory.layoutScan.complete) {
-      const structureLayout = layouts.bunkerLayout(x, y);
-      let = structureLayoutArray = Object.values(structureLayout);
-
-      for (let key in structureLayoutArray) {
-        const pos = structureLayoutArray[key].pos;
-        switch (terrain.get(pos.x, pos.y)) {
-          case TERRAIN_MASK_WALL:
-            break;
-
-          default:
-            // if loop is on last value and succeeds scan is complete
-            if (key == structureLayoutArray.length - 1) {
-              room.memory.layoutScan.complete = true;
-              room.memory.layoutScan.bunker = true;
-              break;
-            }
-            continue;
-        }
-        if (x < 49 - 12) {
-          if (!room.memory.layoutScan.complete) {
-            x++;
-          }
-        }
-        // if scan fails to find space
-        else if (y > 49 - 12) {
-          x = 99;
-          y = 99;
-          room.memory.layoutScan.complete = true;
-          room.memory.layoutScan.bunker = false;
-        } else {
-          y++;
-          x = 0;
-          continue;
-        }
-
-        break;
-      }
-      room.memory.layoutScan.pos.x = x;
-      room.memory.layoutScan.pos.y = y;
-    }
-  },
-
   wallExits: function (room) {
     // build walls ever N tiles
     const modVar = 3;
@@ -278,6 +221,52 @@ module.exports = {
         } else {
           room.createConstructionSite(pos, STRUCTURE_WALL);
         }
+      }
+    }
+  },
+
+  links: function (room) {
+    // Push energy through links
+    let links = _.filter(
+      room.find(FIND_MY_STRUCTURES),
+      (s) => s.structureType === STRUCTURE_LINK
+    );
+    const baseLink = Game.getObjectById(
+      room.memory.structures.links.baseLinkID
+    );
+    const controllerLink = Game.getObjectById(
+      room.memory.structures.links.controllerLinkID
+    );
+
+    for (const key in links) {
+      const link = links[key];
+
+      if (
+        link.id != baseLink.id &&
+        link.id != controllerLink.id &&
+        link.store[RESOURCE_ENERGY] > 0
+      ) {
+        const baseLinkNeed =
+          baseLink.store.getCapacity(RESOURCE_ENERGY) -
+          baseLink.store[RESOURCE_ENERGY];
+        const sourceLinkAmmount = link.store[RESOURCE_ENERGY];
+        const transferAmount =
+          sourceLinkAmmount < baseLinkNeed ? sourceLinkAmmount : baseLinkNeed;
+        link.transferEnergy(baseLink, transferAmount);
+      } else if (
+        link.id == baseLink.id &&
+        baseLink.store[RESOURCE_ENERGY] > 0 &&
+        controllerLink.store[RESOURCE_ENERGY] < 700
+      ) {
+        const controllerLinkNeed =
+          controllerLink.store.getCapacity(RESOURCE_ENERGY) -
+          controllerLink.store[RESOURCE_ENERGY];
+        const baseLinkAmount = baseLink.store[RESOURCE_ENERGY];
+        const transferAmount =
+          baseLinkAmount < controllerLinkNeed
+            ? baseLinkAmount
+            : controllerLinkNeed;
+        link.transferEnergy(controllerLink, transferAmount);
       }
     }
   },

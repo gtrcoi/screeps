@@ -1,8 +1,50 @@
 module.exports = {
-  creepCount: function (room) {
-    // Define creep limits for a room
+  setRoomMemory: function (room) {
+    // Basic rooms
+    //================
+
+    // init room memory
+    if (!room.memory.base) {
+      room.memory.base = false;
+    }
+
+    // Scan for bunker
+    if (!room.memory.layoutScan) {
+      room.memory.layoutScan = this.scanLayout(room);
+    }
+
+    if (!room.memory.base) return;
+
+    // Base rooms
+    //================
+
+    // Set resources
+    if (!room.memory.resources) {
+      room.memory.resources = this.setResources(room);
+    }
+
+    // Set satellites
+    if (!room.memory.satellites) {
+      room.memory.satellites = this.listSatellites(room);
+    }
+
+    // Update room memory
+    if (!room.memory.costMatrix || room.memory.costMatrix.tick !== Game.time) {
+      room.memory.costMatrix = this.setCostMatrix(room);
+    }
+
+    room.memory.structures = this.setStructures(room);
+
+    this.creepLimits(room);
+    this.creepCount(room);
+    this.viewSatellites(room);
+    this.findRepairs(room);
+  },
+
+  // Define creep limits for a room
+  creepLimits: function (room) {
     const diggerLimits = room.memory.structures.links.sourceLinkIDs.length;
-    const harvesterLimits = room.find(FIND_SOURCES).length;
+    const harvesterLimits = Object.keys(room.memory.resources.sources).length;
 
     const upgraderLimits = room.memory.structures.links.controllerLinkID
       ? 1
@@ -29,8 +71,10 @@ module.exports = {
       loader: loaderLimits,
     };
     room.memory.spawnLimits = spawnLimits;
+  },
 
-    // Count creeps
+  // Count creeps
+  creepCount: function (room) {
     const upgraderCount = _.filter(
       Game.creeps,
       (creep) =>
@@ -79,6 +123,14 @@ module.exports = {
         (creep.ticksToLive > 100 || creep.spawning)
     ).length;
 
+    const testCount = _.filter(
+      Game.creeps,
+      (creep) =>
+        // creep.memory.homeRoom === room.name &&
+        creep.memory.role === "test" &&
+        (creep.ticksToLive > 100 || creep.spawning)
+    ).length;
+
     // Save to memory
     if (!room.memory.creepCount) {
       room.memory.creepCount = {};
@@ -90,112 +142,151 @@ module.exports = {
       digger: diggerCount,
       crane: craneCount,
       loader: loaderCount,
+      test: testCount,
       energyCollectors: harvesterCount + diggerCount,
+      energyLoaders: loaderCount + builderCount + harvesterCount,
     };
     room.memory.creepCount = creepCount;
   },
 
   setStructures: function (room) {
-    if (!room.memory.structures) {
-      room.memory.structures = {
-        spawns: [],
-        links: {},
-        observer: {},
-        powerSpawn: "",
-        factory: "",
-        nuker: { id: "", target: "" },
-      };
-    }
-    const structuresMemory = room.memory.structures;
-    const structures = room.find(FIND_MY_STRUCTURES);
+    const myStructures = room.find(FIND_MY_STRUCTURES);
 
     // Set up spawns
+    let spawnsMem = [];
     const spawns = _.filter(
-      structures,
+      myStructures,
       (s) => s.structureType === STRUCTURE_SPAWN
     );
     for (let spawn of spawns) {
-      if (room.memory.structures.spawns.indexOf(spawn.id) == -1) {
-        room.memory.structures.spawns.push(spawn.id);
+      if (spawnsMem.indexOf(spawn.id) == -1) {
+        spawnsMem.push(spawn.id);
       }
     }
 
     // Set up links
-    let linksMemoryObject = { sourceLinkIDs: [] };
     const myLinks = _.filter(
-      structures,
+      myStructures,
       (s) => s.structureType === STRUCTURE_LINK
     );
+    let baseLinkID = undefined;
+    let controllerLinkID = undefined;
+    let sourceLinkIDs = [];
 
     for (const key in myLinks) {
       const link = myLinks[key];
+      // Find baseLink
 
       if (link.pos.inRangeTo(room.storage.pos, 2)) {
-        linksMemoryObject.baseLinkID = link.id;
-      } else if (link.pos.inRangeTo(room.controller.pos, 2)) {
-        linksMemoryObject.controllerLinkID = link.id;
-      } else {
+        baseLinkID = link.id;
+      }
+      // Find controllerLink
+      else if (link.pos.inRangeTo(room.controller.pos, 2)) {
+        controllerLinkID = link.id;
+      }
+      // Find sourceLinks
+      else {
         const sources = room.find(FIND_SOURCES);
         for (const key in sources) {
           const source = sources[key];
           if (link.pos.inRangeTo(source.pos, 2)) {
-            linksMemoryObject.sourceLinkIDs.push(link.id);
+            sourceLinkIDs.push(link.id);
             break;
           }
         }
       }
     }
-    structuresMemory.links = linksMemoryObject;
+    const linksMem = {
+      sourceLinkIDs: sourceLinkIDs.length > 0 ? sourceLinkIDs : undefined,
+      baseLinkID: baseLinkID,
+      controllerLinkID: controllerLinkID,
+    };
+
+    // Set up labs
+    let labsMem = undefined;
 
     // Set up factory
-    const factory = _.filter(
-      structures,
+    let factoryMem = undefined;
+    const factorys = _.filter(
+      myStructures,
       (s) => s.structureType === STRUCTURE_FACTORY
     );
     let factoryID = undefined;
-    if (factory.length > 0) {
-      factoryID = factory[0].id;
-    }
-    structuresMemory.factory = factoryID;
+    if (factorys.length > 0) {
+      factoryID = factorys[0].id;
+      factoryLevel = factorys[0].level;
 
-    if (room.controller.level === 8) {
-      // Set up observer
-      const observer = _.filter(
-        structures,
-        (s) => s.structureType === STRUCTURE_OBSERVER
-      );
-      let observerID = undefined;
-      if (observer.length > 0) {
-        observerID = observer[0].id;
-      }
-      structuresMemory.observer = {
-        id: observerID,
-        view: false,
-        satellites: [],
+      factoryMem = {
+        ID: factoryID,
+        level: factoryLevel,
       };
-
-      // Set up powerSpawn
-      const powerSpawn = _.filter(
-        structures,
-        (s) => s.structureType === STRUCTURE_POWER_SPAWN
-      );
-      let powerSpawnID = undefined;
-      if (powerSpawn.length > 0) {
-        powerSpawnID = powerSpawn[0].id;
-      }
-      structuresMemory.powerSpawn = powerSpawnID;
-
-      // Set up nuker
-      const nuker = _.filter(
-        structures,
-        (s) => s.structureType === STRUCTURE_NUKER
-      );
-      let nukerID = undefined;
-      if (nuker.length > 0) {
-        nukerID = nuker[0].id;
-      }
-      structuresMemory.nuker.id = nukerID;
     }
+
+    // Set up observer
+    const observers = _.filter(
+      myStructures,
+      (s) => s.structureType === STRUCTURE_OBSERVER
+    );
+
+    let observerMem = undefined;
+    let observerID = undefined;
+
+    if (observers.length > 0) {
+      observerID = observers[0].id;
+    }
+    observerMem = observerID;
+
+    // Set up powerSpawn
+    const powerSpawns = _.filter(
+      myStructures,
+      (s) => s.structureType === STRUCTURE_POWER_SPAWN
+    );
+
+    let powerSpawnMem = undefined;
+    let powerSpawnID = undefined;
+
+    if (powerSpawns.length > 0) {
+      powerSpawnID = powerSpawns[0].id;
+    }
+
+    powerSpawnMem = powerSpawnID;
+
+    // Set up nuker
+    const nukers = _.filter(
+      myStructures,
+      (s) => s.structureType === STRUCTURE_NUKER
+    );
+
+    let nukerMem = undefined;
+    let nukerID = undefined;
+    let progress = undefined;
+
+    if (nukers.length > 0) {
+      nuker = nukers[0];
+      nukerID = nuker.id;
+
+      const totalLaunchCost = 305000;
+      progress =
+        ((nuker.store[RESOURCE_ENERGY] + nuker.store[RESOURCE_GHODIUM]) /
+          totalLaunchCost) *
+        100;
+
+      nukerMem = {
+        ID: nukerID,
+        progress: `${progress}%`,
+      };
+    }
+
+    const structures = {
+      spawns: spawnsMem,
+      links: linksMem,
+      labs: labsMem,
+      factory: factoryMem,
+      observer: observerMem,
+      powerSpawn: powerSpawnMem,
+      nuker: nukerMem,
+    };
+    return structures;
   },
 
   cleanMemory: function () {
@@ -207,48 +298,104 @@ module.exports = {
     }
   },
 
-  setRoomMemory: function (room) {
-    if (!room.memory.base) {
-      room.memory.base = false;
-    }
-    // Add resource IDs to memory
-    if (!room.memory.resources) {
-      room.memory.resources = {};
+  scanLayout: function (room) {
+    const layouts = require("./layouts");
+    const terrain = new Room.Terrain(room.name);
 
-      const terrain = new Room.Terrain(room.name);
+    let x = 0;
+    let y = 0;
+    let complete = false;
+    let bunker = false;
 
-      // Add sources
-      let sources = room.find(FIND_SOURCES);
-      if (sources.length > 0) {
-        room.memory.resources.sources = {};
-        for (let source of sources) {
-          room.memory.resources.sources[source.id] = {};
-          room.memory.resources.sources[source.id].space = 0;
-          let checkPos = [
-            [source.pos.x - 1, source.pos.y - 1],
-            [source.pos.x, source.pos.y - 1],
-            [source.pos.x + 1, source.pos.y - 1],
-            [source.pos.x - 1, source.pos.y],
-            [source.pos.x + 1, source.pos.y],
-            [source.pos.x - 1, source.pos.y + 1],
-            [source.pos.x, source.pos.y + 1],
-            [source.pos.x + 1, source.pos.y + 1],
-          ];
-          for (let pos of checkPos) {
-            if (terrain.get(pos[0], pos[1]) === 0) {
-              room.memory.resources.sources[source.id].space++;
+    while (!complete) {
+      const structureLayout = layouts.bunkerLayout(x, y);
+      let = structureLayoutArray = Object.values(structureLayout);
+
+      for (let key in structureLayoutArray) {
+        const pos = structureLayoutArray[key].pos;
+        switch (terrain.get(pos.x, pos.y)) {
+          case TERRAIN_MASK_WALL:
+            break;
+
+          default:
+            // if loop is on last value and succeeds scan is complete
+            if (key == structureLayoutArray.length - 1) {
+              complete = true;
+              bunker = true;
+              break;
             }
+            continue;
+        }
+        if (x < 49 - 12) {
+          if (!complete) {
+            x++;
+          }
+        }
+        // if scan passes Y edge of map it fails
+        else if (y > 49 - 12) {
+          x = 99;
+          y = 99;
+          complete = true;
+          bunker = false;
+        } else {
+          y++;
+          x = 0;
+          continue;
+        }
+
+        break;
+      }
+      x = x;
+      y = y;
+    }
+    const layoutScan = {
+      pos: !bunker
+        ? undefined
+        : {
+            x: x,
+            y: y,
+          },
+      complete: complete,
+      bunker: bunker,
+    };
+
+    return layoutScan;
+  },
+
+  setResources: function (room) {
+    // Add resource IDs to memory
+    const terrain = new Room.Terrain(room.name);
+    // Add sources
+    let sourceMem = {};
+    let sources = room.find(FIND_SOURCES);
+    if (sources.length > 0) {
+      for (let source of sources) {
+        sourceMem[source.id] = {};
+        sourceMem[source.id].space = 0;
+        let checkPos = [
+          [source.pos.x - 1, source.pos.y - 1],
+          [source.pos.x, source.pos.y - 1],
+          [source.pos.x + 1, source.pos.y - 1],
+          [source.pos.x - 1, source.pos.y],
+          [source.pos.x + 1, source.pos.y],
+          [source.pos.x - 1, source.pos.y + 1],
+          [source.pos.x, source.pos.y + 1],
+          [source.pos.x + 1, source.pos.y + 1],
+        ];
+        for (let pos of checkPos) {
+          if (terrain.get(pos[0], pos[1]) === 0) {
+            sourceMem[source.id].space++;
           }
         }
       }
-      // Add minerals
-      let minerals = room.find(FIND_MINERALS);
-      if (minerals.length > 0) {
-        room.memory.resources.minerals = {};
-      }
+    }
+    // Add minerals
+    let mineralMem = {};
+    let minerals = room.find(FIND_MINERALS);
+    if (minerals.length > 0) {
       for (let mineral of minerals) {
-        room.memory.resources.minerals[mineral.id] = {};
-        room.memory.resources.minerals[mineral.id].space = 0;
+        mineralMem[mineral.id] = {};
+        mineralMem[mineral.id].space = 0;
         let checkPos = [
           [mineral.pos.x - 1, mineral.pos.y - 1],
           [mineral.pos.x, mineral.pos.y - 1],
@@ -261,87 +408,213 @@ module.exports = {
         ];
         for (let pos of checkPos) {
           if (terrain.get(pos[0], pos[1]) === 0) {
-            room.memory.resources.minerals[mineral.id].space++;
+            mineralMem[mineral.id].space++;
           }
         }
       }
     }
-    // Add deposits
-    let deposits = room.find(FIND_DEPOSITS);
-    if (deposits.length > 0) {
-      room.memory.resources.deposits = {};
-    }
-    for (let deposit of deposits) {
-      room.memory.resources.deposits[deposit.id] = {};
-    }
+    const resources = {
+      sources: sourceMem,
+      minerals: mineralMem,
+    };
+    return resources;
+  },
 
-    if (room.memory.base) {
-      // Add remote resources
-      if (!room.memory.remoteResources) {
-        room.memory.remoteResources = {
-          sources: [],
-          minerals: [],
-          deposits: [],
-          power: [],
-        };
-      }
-    }
+  // update costMatrix
+  setCostMatrix: function (room) {
+    let costs = new PathFinder.CostMatrix();
 
-    if (room.memory.layoutScan.complete && room.memory.base) {
-      // Add costMatrix
-      if (!room.memory.costMatrix) {
-        const bunkerLayout = Object.values(
-          require("./layouts").bunkerLayout(
-            room.memory.layoutScan.pos.x,
-            room.memory.layoutScan.pos.y
-          )
-        );
-        const bunkerRoads = require("./layouts").bunkerRoadLayout(
+    // Add bunker positions to matrix
+    if (room.memory.layoutScan.bunker) {
+      const terrain = Game.map.getRoomTerrain(room.name);
+      const bunkerLayout = Object.values(
+        require("./layouts").bunkerLayout(
           room.memory.layoutScan.pos.x,
           room.memory.layoutScan.pos.y
-        );
-        const terrain = new Room.Terrain(room.name);
-
-        let costs = new PathFinder.CostMatrix();
-        for (let entry of bunkerLayout) {
-          costs.set(entry.pos.x, entry.pos.y, 255);
+        )
+      );
+      const bunkerRoads = require("./layouts").bunkerRoadLayout(
+        room.memory.layoutScan.pos.x,
+        room.memory.layoutScan.pos.y
+      );
+      for (let entry of bunkerLayout) {
+        costs.set(entry.pos.x, entry.pos.y, 255);
+      }
+      for (let road of bunkerRoads) {
+        if (terrain.get(road.x, road.y) !== TERRAIN_MASK_WALL) {
+          costs.set(road.x, road.y, 1);
         }
-        for (let road of bunkerRoads) {
-          if (terrain.get(road.x, road.y) !== TERRAIN_MASK_WALL) {
-            costs.set(road.x, road.y, 1);
-          }
-        }
-        const walls = room.find(FIND_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_WALL,
-        });
-        for (let wall of walls) {
-          costs.set(wall.pos.x, wall.pos.y, 8);
-        }
-        room.memory.costMatrix = costs.serialize();
       }
     }
+
+    const walls = room.find(FIND_STRUCTURES, {
+      filter: (s) => s.structureType === STRUCTURE_WALL,
+    });
+    for (const wall of walls) {
+      costs.set(wall.pos.x, wall.pos.y, 8);
+    }
+    const creeps = room.find(FIND_CREEPS);
+    for (const creep of creeps) {
+      costs.set(creep.pos.x, creep.pos.y, 8);
+    }
+    const costMatrix = {
+      costs: costs.serialize(),
+      tick: Game.time,
+    };
+    return costMatrix;
+  },
+
+  // generate array of satellite room names
+  listSatellites: function (room, opts) {
+    opts = opts || {};
+    opts.range = _.isUndefined(opts.range) ? 10 : opts.range;
+
+    let satellites = {};
+
+    const roomNameArray = room.name.match(/[A-Z][0-9]+/g);
+    const roomCords = {
+      cardinalX: roomNameArray[0][0],
+      cardinalXO: roomNameArray[0][0] == "W" ? "E" : "W",
+      x: roomNameArray[0].slice(1, roomNameArray[0].length),
+      cardinalY: roomNameArray[1][0],
+      cardinalYO: roomNameArray[1][0] == "N" ? "S" : "N",
+      y: roomNameArray[1].slice(1, roomNameArray[1].length),
+    };
+
+    for (i = -opts.range; i <= opts.range; i++) {
+      const y = parseInt(roomCords.y) + i;
+      for (j = -opts.range; j <= opts.range; j++) {
+        const x = parseInt(roomCords.x) + j;
+
+        const cardinalX = x < 0 ? roomCords.cardinalXO : roomCords.cardinalX;
+        const cardinalY = y < 0 ? roomCords.cardinalYO : roomCords.cardinalY;
+        const stringX = x < 0 ? Math.abs(x) - 1 : x;
+        const stringY = y < 0 ? Math.abs(y) - 1 : y;
+
+        const roomString = cardinalX + stringX + cardinalY + stringY;
+        if (roomString !== room.name) {
+          satellites[roomString] = {};
+        }
+      }
+    }
+    return satellites;
   },
 
   viewSatellites: function (room) {
-    let satellites = room.memory.structures.observer.satellites;
-    let observerArray = [];
+    const satellitesMem = room.memory.satellites;
+    for (const key of Object.keys(satellitesMem)) {
+      if (Game.map.getRoomStatus(key).status === "closed") continue;
+      const satelliteRoom = Game.rooms[key];
+      let satelliteMemory = satellitesMem[key];
 
-    // Add exits to checklist
-    const exits = Object.values(Game.map.describeExits(room.name));
-    for (exit of exits) {
-      observerArray.push(exit);
+      let visable = false;
+      let sourceMem = satelliteMemory.sources
+        ? satelliteMemory.sources
+        : undefined;
+      let mineralMem = satelliteMemory.minerals
+        ? satelliteMemory.minerals
+        : undefined;
+      let depositMem = undefined;
+      let powerMem = undefined;
+      let creepMem = {};
+      let enemyMem = undefined;
+      let constructionMem = undefined;
+      let distanceMem = satelliteMemory.distance
+        ? satelliteMemory.distance
+        : Game.map.findRoute(room.name, key).length;
+
+      if (satelliteRoom) {
+        visable = true;
+
+        // Add remote sources
+        const sources = satelliteRoom.find(FIND_SOURCES);
+        if (sources.length) {
+          let sourceBuffer = {};
+          for (const source of sources) {
+            sourceBuffer[source.id] = {};
+          }
+          sourceMem = sourceBuffer;
+        }
+        // Add remote minerals
+        const minerals = satelliteRoom.find(FIND_MINERALS);
+        if (minerals.length) {
+          let mineralBuffer = {};
+          for (const mineral of minerals) {
+            mineralBuffer[mineral.id] = {
+              type: mineral.mineralType,
+            };
+          }
+          mineralMem = mineralBuffer;
+        }
+        // Add remote deposits
+        const deposits = satelliteRoom.find(FIND_DEPOSITS);
+        if (deposits.length) {
+          let depositBuffer = {};
+          for (const deposit of deposits) {
+            depositBuffer[deposit.id] = {
+              type: deposit.depositType,
+              decay: deposit.ticksToDecay,
+            };
+          }
+          depositMem = depositBuffer;
+        }
+        // Add remote power
+        const powerBanks = satelliteRoom.find(FIND_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_POWER_BANK,
+        });
+        if (powerBanks.length) {
+          let powerBuffer = {};
+          for (const power of powerBanks) {
+            powerBuffer[power.id] = {
+              decay: power.ticksToDecay,
+            };
+          }
+          powerMem = powerBuffer;
+        }
+        // Add creep counts
+        // const myCreeps = satelliteRoom.find(FIND_MY_CREEPS);
+
+        // Add enemy counts
+        const enemyCreeps = satelliteRoom.find(FIND_HOSTILE_CREEPS).length;
+        const enemyPowerCreeps = satelliteRoom.find(FIND_HOSTILE_POWER_CREEPS)
+          .length;
+        const enemyStructures = satelliteRoom.find(FIND_HOSTILE_STRUCTURES)
+          .length;
+
+        enemyMem = {
+          creeps: enemyCreeps ? enemyCreeps : undefined,
+          powerCreeps: enemyPowerCreeps ? enemyPowerCreeps : undefined,
+          structures: enemyStructures ? enemyStructures : undefined,
+          total: this.creeps + this.powerCreeps + this.structures,
+        };
+
+        // Add construction sites
+        const constructionSites = satelliteRoom.find(FIND_CONSTRUCTION_SITES);
+        constructionMem = constructionSites.length
+          ? constructionSites.length
+          : undefined;
+      }
+      if (satelliteMemory.sources) {
+        satelliteMemory.sources.LDH = !_.isNull(
+          Game.getObjectById(satelliteMemory.sources.LDH)
+        )
+          ? satelliteMemory.sources.LDH
+          : undefined;
+      }
+      // Set memory
+      const satelliteMem = {
+        visable: visable,
+        sources: sourceMem,
+        minerals: mineralMem,
+        deposits: depositMem,
+        power: powerMem,
+        creeps: creepMem,
+        enemies: enemyMem,
+        construction: constructionMem,
+        distance: distanceMem,
+      };
+      satelliteMemory = satelliteMem;
     }
-
-    const roomCords = room.name.match(/[A-Z][0-9]+/g);
-
-    // add rooms further out until path is no longer feasible
-    //for (i = -10; i <= 10; i++){
-    // construct room co-ord
-    //const x
-    // const y;
-    //}
-
-    //room.memory.structures.observer.view = false;
   },
 
   findRepairs: function (room) {
@@ -389,6 +662,7 @@ module.exports = {
     }
 
     // Owned Structure repairs
+    // ========================================
     const mostDamagedStructureMemory =
       room.memory.structures.repairs.mostDamagedStructure;
     const mostDamagedStructureLT = Game.getObjectById(
@@ -418,6 +692,7 @@ module.exports = {
     }
 
     // Neutral structure repairs
+    // ========================================
     const damagedStructures = room.find(FIND_STRUCTURES, {
       filter: (s) => s.hits < s.hitsMax,
     });
@@ -448,6 +723,7 @@ module.exports = {
     }
 
     // Road Repairs
+    // ========================================
     const mostDamagedRoadMemory =
       room.memory.structures.repairs.mostDamagedRoad;
     const mostDamagedRoadLT = Game.getObjectById(mostDamagedRoadMemory.id);
@@ -474,6 +750,7 @@ module.exports = {
     }
 
     // Container Repairs
+    // ========================================
     const mostDamagedContainerMemory =
       room.memory.structures.repairs.mostDamagedContainer;
     const mostDamagedContainerLT = Game.getObjectById(

@@ -33,22 +33,24 @@ Creep.prototype.harvestSource = function (sourceID) {
 };
 
 // Collected dropped Source
-Creep.prototype.collectDroppedSource = function (range) {
+Creep.prototype.collectDroppedSource = function (opts) {
+  opts = opts || {};
   if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
     return ERR_FULL;
   }
   let droppedSource;
-  if (range === undefined) {
+  if (opts.range === undefined) {
     droppedSource = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
       filter: (r) => r.resourceType == RESOURCE_ENERGY,
     });
   } else {
-    droppedSource = this.pos.findInRange(FIND_DROPPED_RESOURCES, range, {
+    droppedSource = this.pos.findInRange(FIND_DROPPED_RESOURCES, opts.range, {
       filter: (r) => r.resourceType == RESOURCE_ENERGY,
     })[0];
   }
   switch (droppedSource) {
     case null:
+    case undefined:
       return ERR_NOT_FOUND;
 
     default:
@@ -488,6 +490,31 @@ Creep.prototype.returnHome = function (opts) {
     return ERR_NO_PATH;
   }
 
-  const target = Game.rooms[this.memory.homeRoom].controller.pos;
-  this.moveTo(target, { reusePath: 1000 });
+  const target = new RoomPosition(24, 24, this.memory.homeRoom);
+  const path = Game.map.findRoute(this.room.name, target.roomName);
+
+  const exit =
+    path.length > 0 ? this.pos.findClosestByRange(path[0].exit) : target;
+  this.moveTo(exit, {
+    visualizePathStyle: {},
+    maxOps: 10000,
+    swampCost: 1,
+    plainCost: 1,
+  });
+};
+
+Creep.prototype.bump = function (opts) {
+  opts = opts || {};
+
+  if (this.pos.x === 0) {
+    this.move(RIGHT);
+  } else if (this.pos.y === 0) {
+    this.move(BOTTOM);
+  } else if (this.pos.x === 49) {
+    this.move(LEFT);
+  } else if (this.pos.y === 49) {
+    this.move(TOP);
+  } else {
+    return ERR_INVALID_TARGET;
+  }
 };
