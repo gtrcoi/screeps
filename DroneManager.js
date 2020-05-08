@@ -289,7 +289,6 @@ module.exports = {
                   },
                 ];
                 if (!creep.pos.isEqualTo(upgraderHomePos)) {
-                  console.log("object");
                   operations.unshift(function () {
                     return creep.moveTo(upgraderHomePos);
                   });
