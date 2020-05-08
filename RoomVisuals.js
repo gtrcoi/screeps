@@ -65,14 +65,14 @@ module.exports = {
       });
     }
 
-    let resourcePaths = [];
+    let paths = [];
     Object.values(room.memory.resources).map(function callback(element) {
       for (const resource of Object.values(element)) {
-        resourcePaths.push(resource.path);
+        paths.push(resource.path);
       }
     });
-
-    for (const path of resourcePaths) {
+    paths.push(room.memory.controllerPath);
+    for (const path of paths) {
       room.visual.poly(Room.deserializePath(path));
     }
   },
