@@ -523,6 +523,7 @@ module.exports = {
         ? satelliteMemory.distance
         : Game.map.findRoute(room.name, key).length;
 
+      // update memory if room is visable
       if (satelliteRoom) {
         visable = true;
 
@@ -594,12 +595,16 @@ module.exports = {
           ? constructionSites.length
           : undefined;
       }
+
+      // check if LDH is still alive
       if (satelliteMemory.sources) {
-        satelliteMemory.sources.LDH = !_.isNull(
-          Game.getObjectById(satelliteMemory.sources.LDH)
-        )
-          ? satelliteMemory.sources.LDH
-          : undefined;
+        for (const source of Object.keys(satelliteMemory.sources)) {
+          const LDH = Game.getObjectById(satelliteMemory.sources[source].LDH);
+          satelliteMemory.sources[source].LDH =
+            _.isNull(LDH) || LDH.ticksToLive < 187
+              ? undefined
+              : satelliteMemory.sources[source].LDH;
+        }
       }
       // Set memory
       const satelliteMem = {
