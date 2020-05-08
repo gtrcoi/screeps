@@ -89,7 +89,7 @@ StructureSpawn.prototype.spawnLDH = function () {
     const satelliteMem = satellitesMem[key];
     if (satelliteMem.distance < 3 && satelliteMem.sources) {
       for (const source of Object.keys(satelliteMem.sources)) {
-        if (!source.LDH) {
+        if (!satelliteMem.sources[source].LDH) {
           // Build LDH
           const name = "LDH" + Game.time;
           const creepMemory = {
@@ -105,14 +105,15 @@ StructureSpawn.prototype.spawnLDH = function () {
           if (numberOfParts > 16) {
             numberOfParts = 16;
           }
-          let body = [];
 
-          for (let i = 0; i < numberOfParts; ++i) {
-            body.push(WORK);
-            body.push(CARRY);
-            body.push(MOVE);
+          if (numberOfParts > 0) {
+            const body = new Array(numberOfParts * 3);
+            body.fill(WORK, 0, numberOfParts);
+            body.fill(CARRY, numberOfParts, numberOfParts * 2);
+            body.fill(MOVE, numberOfParts * 2);
+
+            this.spawnCreep(body, name, { memory: creepMemory });
           }
-          this.spawnCreep(body, name, { memory: creepMemory });
         }
       }
     }
@@ -122,7 +123,6 @@ StructureSpawn.prototype.spawnLDH = function () {
 // Add a function to spawn objects to spawn a harvester
 StructureSpawn.prototype.spawnDrone = function (role) {
   const name = role + Game.time;
-  const body = [];
   const creepMemory = {
     working: false,
     role: role,
@@ -136,26 +136,26 @@ StructureSpawn.prototype.spawnDrone = function (role) {
   if (numberOfParts > 16) {
     numberOfParts = 16;
   }
-  // The amount of energy we have after we have built as many 3 part sections as we can
-  const leftOverEnergy = energyAvailable % 200;
-  // The number of 2 part sections we can build after we have built the 3 part sections
-  const numberOfExtraParts = Math.floor(leftOverEnergy / 100);
 
-  // Create the main section'
-  // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
-  for (let i = 0; i < numberOfParts; ++i) {
-    body.push(WORK);
-    body.push(CARRY);
-    body.push(MOVE);
-  }
-
-  // Create the extra section
-  // Iterates the same number of  times as the value in number of extra parts, and pushing CARRY and MOVE value into the array every time
-  for (let i = 0; i < numberOfExtraParts; ++i) {
-    body.push(CARRY);
-    body.push(MOVE);
-  }
   if (numberOfParts >= 1) {
+    // The amount of energy we have after we have built as many 3 part sections as we can
+    const leftOverEnergy = energyAvailable % 200;
+    // The number of 2 part sections we can build after we have built the 3 part sections
+    const numberOfExtraParts = Math.floor(leftOverEnergy / 100);
+
+    // Create the main section'
+    // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
+    const body = new Array(numberOfParts * 3);
+    body.fill(WORK, 0, numberOfParts);
+    body.fill(CARRY, numberOfParts, numberOfParts * 2);
+    body.fill(MOVE, numberOfParts * 2);
+
+    // Create the extra section
+    // Iterates the same number of  times as the value in number of extra parts, and pushing CARRY and MOVE value into the array every time
+    for (let i = 0; i < numberOfExtraParts; ++i) {
+      body.push(CARRY);
+      body.push(MOVE);
+    }
     // Spawn the creep using all of this information
     this.spawnCreep(body, name, { memory: creepMemory });
   }
@@ -167,7 +167,6 @@ StructureSpawn.prototype.spawnCrane = function () {
     role: "crane",
     homeRoom: this.room.name,
   };
-  const body = [];
 
   const energyAvailable = this.energyAvailable();
 
@@ -176,15 +175,11 @@ StructureSpawn.prototype.spawnCrane = function () {
   if (numberOfParts > 16) {
     numberOfParts = 16;
   }
-
-  // Create the main section'
-  body.push(MOVE);
-  // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
-  for (let i = 0; i < numberOfParts; ++i) {
-    body.push(CARRY);
-  }
-
   if (numberOfParts >= 1) {
+    const body = new Array(numberOfParts);
+    body[0] = MOVE;
+    body.fill(CARRY, 1);
+
     // Spawn the creep using all of this information
     this.spawnCreep(body, name, { memory: creepMemory });
   }
@@ -194,8 +189,6 @@ StructureSpawn.prototype.spawnCrane = function () {
 StructureSpawn.prototype.spawnDigger = function () {
   // Set all basic information about the creep to be spawned
   const name = "digger" + Game.time;
-  // Empty body array we will manually fill
-  const body = [];
   // The memory we are going to save inside the creep
   const creepMemory = {
     working: false,
@@ -261,16 +254,13 @@ StructureSpawn.prototype.spawnDigger = function () {
   if (numberOfParts > 5) {
     numberOfParts = 5;
   }
-  // Create the main section'
-  // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
-  for (let i = 0; i < numberOfParts; ++i) {
-    body.push(WORK);
-    body.push(WORK);
-    body.push(CARRY);
-    body.push(MOVE);
-  }
 
   if (numberOfParts >= 1) {
+    const body = new Array(numberOfParts * 4);
+    body.fill(WORK, 0, numberOfParts * 2);
+    body.fill(CARRY, numberOfParts * 2, numberOfParts * 3);
+    body.fill(MOVE, numberOfParts * 3);
+
     // Spawn the creep using all of this information
     this.spawnCreep(body, name, { memory: creepMemory });
   }
@@ -279,8 +269,6 @@ StructureSpawn.prototype.spawnDigger = function () {
 StructureSpawn.prototype.spawnUpgrader = function () {
   // Set all basic information about the creep to be spawned
   const name = "upgrader" + Game.time;
-  // Empty body array we will manually fill
-  const body = [];
   // The memory we are going to save inside the creep
   const creepMemory = {
     working: false,
@@ -296,17 +284,12 @@ StructureSpawn.prototype.spawnUpgrader = function () {
     numberOfParts = 7;
   }
 
-  // Create the main section'
-  // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
-  for (let i = 0; i < numberOfParts; ++i) {
-    body.push(WORK);
-    body.push(WORK);
-    body.push(CARRY);
-    body.push(MOVE);
-    body.push(MOVE);
-  }
-
   if (numberOfParts >= 1) {
+    const body = new Array(numberOfParts * 5);
+    body.fill(WORK, 0, numberOfParts * 2);
+    body.fill(CARRY, numberOfParts * 2, numberOfParts * 3);
+    body.fill(MOVE, numberOfParts * 3);
+
     // Spawn the creep using all of this information
     this.spawnCreep(body, name, { memory: creepMemory });
   }
@@ -316,8 +299,6 @@ StructureSpawn.prototype.spawnUpgrader = function () {
 StructureSpawn.prototype.spawnLoader = function () {
   // Set all basic information about the creep to be spawned
   const name = "loader" + Game.time;
-  // Empty body array we will manually fill
-  const body = [];
   // The memory we are going to save inside the creep
   const creepMemory = {
     working: false,
@@ -381,14 +362,11 @@ StructureSpawn.prototype.spawnLoader = function () {
     numberOfParts = 16;
   }
 
-  // Build body
-  for (let i = 0; i < numberOfParts; ++i) {
-    body.push(CARRY);
-    body.push(CARRY);
-    body.push(MOVE);
-  }
-
   if (numberOfParts >= 1) {
+    const body = new Array(numberOfParts * 3);
+    body.fill(CARRY, 0, numberOfParts * 2);
+    body.fill(MOVE, numberOfParts * 2);
+
     // Spawn the creep using all of this information
     this.spawnCreep(body, name, { memory: creepMemory });
   }
