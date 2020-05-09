@@ -19,32 +19,32 @@ StructureSpawn.prototype.spawnNextCreep = function () {
   const loaderLimits = this.room.memory.spawnLimits["loader"];
 
   if (this.room.memory.creepCount.test < 1) {
-    this.spawnCreep([MOVE], `test${Game.time}`, { memory: { role: "test" } });
+    // this.spawnDrone("test", { move: 1, maxSections: 1 });
   }
 
   // Spawn the appropriate creep, if any
   if (harvesterCount < harvesterLimits) {
-    this.spawnDrone("harvester");
+    this.spawnDrone("harvester", { work: 1, carry: 1, move: 1 });
   } else if (diggerCount < diggerLimits) {
-    this.spawnDigger();
+    this.spawnDrone("digger", { work: 2, carry: 1, move: 1, maxSections: 5 });
   } else if (craneCount < craneLimits) {
-    this.spawnCrane();
+    this.spawnDrone("crane", { move: 1, carry: 16, maxSections: 1 });
   } else if (loaderCount < loaderLimits) {
-    this.spawnLoader();
+    this.spawnDrone("loader", { carry: 2, move: 1 });
   } else if (builderCount < builderLimits) {
-    this.spawnDrone("builder");
+    this.spawnDrone("builder", { work: 1, carry: 1, move: 1 });
   } else if (upgraderCount < upgraderLimits) {
     if (this.room.memory.structures.links.controllerLinkID) {
-      this.spawnUpgrader();
+      this.spawnDrone("upgrader", { work: 2, carry: 1, move: 2 });
     } else {
-      this.spawnDrone("upgrader");
+      this.spawnDrone("upgrader", { work: 1, carry: 1, move: 1 });
     }
   } else {
     // if no observers in room
     // if (!this.room.memory.structures.observer) {
     //   this.sendScouts();
     // }
-    this.spawnLDH();
+    // this.spawnLDH();
   }
 };
 
@@ -82,6 +82,83 @@ StructureSpawn.prototype.energyAvailable = function () {
   return energyAvailable;
 };
 
+StructureSpawn.prototype.spawnDrone = function (role, opts) {
+  // Checking memory first in case of exception
+  let creepMemory;
+  switch (role) {
+    case "LDH":
+      creepMemory = this.spawnLDH();
+      if ((creepMemory = ERR_NOT_FOUND)) return ERR_NOT_FOUND;
+      break;
+    case "digger":
+      creepMemory = this.spawnDigger();
+      break;
+    case "loader":
+      creepMemory = this.spawnLoader();
+      break;
+    default:
+      creepMemory = {
+        working: false,
+        role: role,
+        homeRoom: this.room.name,
+      };
+      break;
+  }
+
+  opts = opts || {};
+
+  const parts = [TOUGH, WORK, CARRY, MOVE];
+  let sectionLength = 0;
+  for (const part of parts) {
+    if (_.isUndefined(opts[part])) {
+      opts[part] = 0;
+    } else sectionLength += opts[part];
+  }
+  const maxSections = !_.isUndefined(opts.maxSections)
+    ? opts.maxSections
+    : Math.floor(50 / sectionLength);
+
+  const name = role + Game.time;
+
+  function repeat(item, times) {
+    return new Array(times).fill(item);
+  }
+
+  const energyAvailable = this.energyAvailable();
+  const sectionCost = _.sum([
+    opts.tough * 10,
+    opts.work * 100,
+    opts.carry * 50,
+    opts.move * 50,
+  ]);
+
+  let numberOfParts = Math.floor(energyAvailable / sectionCost);
+  numberOfParts = numberOfParts > maxSections ? maxSections : numberOfParts;
+
+  if (numberOfParts >= 1) {
+    const body = new Array().concat(
+      repeat(TOUGH, opts.tough * numberOfParts),
+      repeat(WORK, opts.work * numberOfParts),
+      repeat(CARRY, opts.carry * numberOfParts),
+      repeat(MOVE, opts.move * numberOfParts)
+    );
+    // console.log(`
+    // Max sections: ${maxSections}
+    // parts: ${numberOfParts}
+    // section length: ${sectionLength}
+    // body: ${body.length}
+    // `);
+    // const leftOverEnergy = energyAvailable % sectionCost;
+    // const numberOfExtraParts = Math.floor(leftOverEnergy / 100);
+
+    // for (let i = 0; i < numberOfExtraParts; ++i) {
+    //   body.push(CARRY);
+    //   body.push(MOVE);
+    // }
+    this.spawnCreep(body, name, { memory: creepMemory });
+  }
+};
+
 StructureSpawn.prototype.spawnLDH = function () {
   const satellitesMem = this.room.memory.satellites;
 
@@ -91,7 +168,6 @@ StructureSpawn.prototype.spawnLDH = function () {
       for (const source of Object.keys(satelliteMem.sources)) {
         if (!satelliteMem.sources[source].LDH) {
           // Build LDH
-          const name = "LDH" + Game.time;
           const creepMemory = {
             working: false,
             role: "LDH",
@@ -100,95 +176,16 @@ StructureSpawn.prototype.spawnLDH = function () {
             targetRoom: key,
           };
 
-          const energyAvailable = this.energyAvailable();
-          var numberOfParts = Math.floor(energyAvailable / 200);
-          if (numberOfParts > 16) {
-            numberOfParts = 16;
-          }
-
-          if (numberOfParts > 0) {
-            const body = new Array(numberOfParts * 3);
-            body.fill(WORK, 0, numberOfParts);
-            body.fill(CARRY, numberOfParts, numberOfParts * 2);
-            body.fill(MOVE, numberOfParts * 2);
-
-            this.spawnCreep(body, name, { memory: creepMemory });
-          }
+          return creepMemory;
         }
       }
     }
   }
-};
-
-// Add a function to spawn objects to spawn a harvester
-StructureSpawn.prototype.spawnDrone = function (role) {
-  const name = role + Game.time;
-  const creepMemory = {
-    working: false,
-    role: role,
-    homeRoom: this.room.name,
-  };
-
-  const energyAvailable = this.energyAvailable();
-
-  // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
-  var numberOfParts = Math.floor(energyAvailable / 200);
-  if (numberOfParts > 16) {
-    numberOfParts = 16;
-  }
-
-  if (numberOfParts >= 1) {
-    // The amount of energy we have after we have built as many 3 part sections as we can
-    const leftOverEnergy = energyAvailable % 200;
-    // The number of 2 part sections we can build after we have built the 3 part sections
-    const numberOfExtraParts = Math.floor(leftOverEnergy / 100);
-
-    // Create the main section'
-    // Iterates the same number of  times as the value in number of parts, and pushing a WORK, CARRY, and MOVE value into the array every time
-    const body = new Array(numberOfParts * 3);
-    body.fill(WORK, 0, numberOfParts);
-    body.fill(CARRY, numberOfParts, numberOfParts * 2);
-    body.fill(MOVE, numberOfParts * 2);
-
-    // Create the extra section
-    // Iterates the same number of  times as the value in number of extra parts, and pushing CARRY and MOVE value into the array every time
-    for (let i = 0; i < numberOfExtraParts; ++i) {
-      body.push(CARRY);
-      body.push(MOVE);
-    }
-    // Spawn the creep using all of this information
-    this.spawnCreep(body, name, { memory: creepMemory });
-  }
-};
-
-StructureSpawn.prototype.spawnCrane = function () {
-  const name = "crane" + Game.time;
-  const creepMemory = {
-    role: "crane",
-    homeRoom: this.room.name,
-  };
-
-  const energyAvailable = this.energyAvailable();
-
-  // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
-  var numberOfParts = Math.floor(energyAvailable / 50) - 1;
-  if (numberOfParts > 16) {
-    numberOfParts = 16;
-  }
-  if (numberOfParts >= 1) {
-    const body = new Array(numberOfParts);
-    body[0] = MOVE;
-    body.fill(CARRY, 1);
-
-    // Spawn the creep using all of this information
-    this.spawnCreep(body, name, { memory: creepMemory });
-  }
+  return ERR_NOT_FOUND;
 };
 
 // Add a function to spawn objects to spawn a digger
 StructureSpawn.prototype.spawnDigger = function () {
-  // Set all basic information about the creep to be spawned
-  const name = "digger" + Game.time;
   // The memory we are going to save inside the creep
   const creepMemory = {
     working: false,
@@ -247,59 +244,11 @@ StructureSpawn.prototype.spawnDigger = function () {
     creepMemory.containerID = containers[0].id;
   }
 
-  const energyAvailable = this.energyAvailable();
-
-  // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
-  var numberOfParts = Math.floor(energyAvailable / 300);
-  if (numberOfParts > 5) {
-    numberOfParts = 5;
-  }
-
-  if (numberOfParts >= 1) {
-    const body = new Array(numberOfParts * 4);
-    body.fill(WORK, 0, numberOfParts * 2);
-    body.fill(CARRY, numberOfParts * 2, numberOfParts * 3);
-    body.fill(MOVE, numberOfParts * 3);
-
-    // Spawn the creep using all of this information
-    this.spawnCreep(body, name, { memory: creepMemory });
-  }
-};
-
-StructureSpawn.prototype.spawnUpgrader = function () {
-  // Set all basic information about the creep to be spawned
-  const name = "upgrader" + Game.time;
-  // The memory we are going to save inside the creep
-  const creepMemory = {
-    working: false,
-    role: "upgrader",
-    homeRoom: this.room.name,
-  };
-
-  const energyAvailable = this.energyAvailable();
-
-  // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
-  var numberOfParts = Math.floor(energyAvailable / 350);
-  if (numberOfParts > 7) {
-    numberOfParts = 7;
-  }
-
-  if (numberOfParts >= 1) {
-    const body = new Array(numberOfParts * 5);
-    body.fill(WORK, 0, numberOfParts * 2);
-    body.fill(CARRY, numberOfParts * 2, numberOfParts * 3);
-    body.fill(MOVE, numberOfParts * 3);
-
-    // Spawn the creep using all of this information
-    this.spawnCreep(body, name, { memory: creepMemory });
-  }
+  return creepMemory;
 };
 
 // Add a function to spawn objects to spawn a loader
 StructureSpawn.prototype.spawnLoader = function () {
-  // Set all basic information about the creep to be spawned
-  const name = "loader" + Game.time;
-  // The memory we are going to save inside the creep
   const creepMemory = {
     working: false,
     role: "loader",
@@ -346,28 +295,5 @@ StructureSpawn.prototype.spawnLoader = function () {
   }
   creepMemory.rest = restAssign;
 
-  // Count energy collectors and spawn loaders
-  const energyCollectorCount = this.room.memory.creepCount.energyCollectors;
-  // Generate the creep body
-  var energyAvailable = undefined;
-  if (energyCollectorCount >= 1) {
-    energyAvailable = this.room.energyCapacityAvailable;
-  } else {
-    energyAvailable = this.room.energyAvailable;
-  }
-
-  // Number of "3 part sections" we are able to make for the creep, since they cost 200 each section
-  var numberOfParts = Math.floor(energyAvailable / 150);
-  if (numberOfParts > 16) {
-    numberOfParts = 16;
-  }
-
-  if (numberOfParts >= 1) {
-    const body = new Array(numberOfParts * 3);
-    body.fill(CARRY, 0, numberOfParts * 2);
-    body.fill(MOVE, numberOfParts * 2);
-
-    // Spawn the creep using all of this information
-    this.spawnCreep(body, name, { memory: creepMemory });
-  }
+  return creepMemory;
 };
