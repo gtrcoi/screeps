@@ -200,9 +200,11 @@ module.exports = {
               } else {
                 // Move to source
                 if (!creep.pos.isNearTo(target)) {
-                  creep.say(creep.moveTo(target, { reusePath: 20 }));
+                  creep.say(`Move: ${creep.moveTo(target, { reusePath: 20 })}`);
                 } else {
-                  creep.harvestSource(creep.memory.target);
+                  creep.say(
+                    `Harvest: ${creep.harvestSource(creep.memory.target)}`
+                  );
                 }
               }
 
@@ -281,6 +283,9 @@ module.exports = {
                 operations = [
                   function () {
                     return creep.collectDroppedSource({ range: 1 });
+                  },
+                  function () {
+                    return creep.collectContainer(undefined, { range: 1 });
                   },
                   function () {
                     return creep.collectLink(
