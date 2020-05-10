@@ -29,7 +29,9 @@ module.exports = {
   },
 
   buildLocal: function (room) {
-    const costs = PathFinder.CostMatrix.deserialize(room.memory.costMatrix);
+    const costs = PathFinder.CostMatrix.deserialize(
+      room.memory.costMatrix.costs
+    );
 
     // find path from spawn1
     const startPos = Game.getObjectById(room.memory.structures.spawns[0]).pos;
@@ -113,6 +115,7 @@ module.exports = {
             break;
         }
         room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+        room.createConstructionSite(pos.x, pos.y, STRUCTURE_RAMPART);
       }
     }
 
@@ -158,7 +161,7 @@ module.exports = {
     let myBuildings = room.find(FIND_MY_STRUCTURES, {
       filter: (b) =>
         b.structureType === STRUCTURE_LINK ||
-        b.structureType === STRUCTURE_EXTENSION ||
+        // b.structureType === STRUCTURE_EXTENSION ||
         b.structureType === STRUCTURE_SPAWN ||
         b.structureType === STRUCTURE_STORAGE ||
         b.structureType === STRUCTURE_TOWER ||
