@@ -138,14 +138,23 @@ Creep.prototype.collectStorage = function () {
   }
 };
 
-Creep.prototype.collectContainer = function (containerID) {
+Creep.prototype.collectContainer = function (containerID, opts) {
+  opts = opts || {};
   if (this.store[RESOURCE_ENERGY] === this.store.getCapacity(RESOURCE_ENERGY)) {
     return ERR_FULL;
   }
-  const containers = this.room.find(FIND_STRUCTURES, {
-    filter: (s) =>
-      s.structureType == STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
-  });
+  let containers;
+  if (opts.range) {
+    containers = this.pos.findInRange(FIND_STRUCTURES, opts.range, {
+      filter: (s) =>
+        s.structureType == STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
+    });
+  } else {
+    containers = this.room.find(FIND_STRUCTURES, {
+      filter: (s) =>
+        s.structureType == STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
+    });
+  }
   let container = null;
   if (containerID === undefined) {
     container = this.pos.findClosestByPath(containers);
