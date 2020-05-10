@@ -13,15 +13,15 @@ module.exports = {
       room.memory.layoutScan = this.scanLayout(room);
     }
 
-    if (!room.memory.base) return;
-
-    // Base rooms
-    //================
-
     // Set resources
     if (!room.memory.resources) {
       room.memory.resources = this.setResources(room);
     }
+
+    if (!room.memory.base) return;
+
+    // Base rooms
+    //================
 
     // Set satellites
     if (!room.memory.satellites) {
@@ -30,6 +30,7 @@ module.exports = {
 
     // Update room memory
     if (!room.memory.costMatrix || room.memory.costMatrix.tick !== Game.time) {
+      //   console.log("object");
       room.memory.costMatrix = this.setCostMatrix(room);
     }
 
@@ -395,6 +396,7 @@ module.exports = {
     if (minerals.length > 0) {
       for (let mineral of minerals) {
         mineralMem[mineral.id] = {};
+        mineralMem[mineral.id].type = mineral.mineralType;
         mineralMem[mineral.id].space = 0;
         let checkPos = [
           [mineral.pos.x - 1, mineral.pos.y - 1],
@@ -425,7 +427,7 @@ module.exports = {
     let costs = new PathFinder.CostMatrix();
 
     // Add bunker positions to matrix
-    if (room.memory.layoutScan.bunker) {
+    if (room.memory.layoutScan.bunker && room.memory.base) {
       const terrain = Game.map.getRoomTerrain(room.name);
       const bunkerLayout = Object.values(
         require("./layouts").bunkerLayout(
