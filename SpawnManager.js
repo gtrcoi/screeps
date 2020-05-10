@@ -101,19 +101,39 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
         working: false,
         role: role,
         homeRoom: this.room.name,
+        targetRoom: opts.targetRoom,
       };
       break;
   }
 
   opts = opts || {};
 
-  const parts = [TOUGH, WORK, CARRY, MOVE];
+  const partsOrder = [
+    TOUGH,
+    WORK,
+    CARRY,
+    MOVE,
+    ATTACK,
+    RANGED_ATTACK,
+    HEAL,
+    CLAIM,
+  ];
   let sectionLength = 0;
-  for (const part of parts) {
+  for (const part of partsOrder) {
     if (_.isUndefined(opts[part])) {
       opts[part] = 0;
     } else sectionLength += opts[part];
   }
+  const sectionCost = _.sum([
+    opts.tough * 10,
+    opts.work * 100,
+    opts.carry * 50,
+    opts.move * 50,
+    opts.attack * 80,
+    opts.ranged_attack * 150,
+    opts.heal * 250,
+    opts.claim * 600,
+  ]);
   const maxSections = !_.isUndefined(opts.maxSections)
     ? opts.maxSections
     : Math.floor(50 / sectionLength);
@@ -125,37 +145,28 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
   }
 
   const energyAvailable = this.energyAvailable();
-  const sectionCost = _.sum([
-    opts.tough * 10,
-    opts.work * 100,
-    opts.carry * 50,
-    opts.move * 50,
-  ]);
 
   let numberOfParts = Math.floor(energyAvailable / sectionCost);
   numberOfParts = numberOfParts > maxSections ? maxSections : numberOfParts;
 
   if (numberOfParts >= 1) {
-    const body = new Array().concat(
-      repeat(TOUGH, opts.tough * numberOfParts),
-      repeat(WORK, opts.work * numberOfParts),
-      repeat(CARRY, opts.carry * numberOfParts),
-      repeat(MOVE, opts.move * numberOfParts)
-    );
-    // console.log(`
-    // Max sections: ${maxSections}
+    let body = new Array();
+    for (const part of partsOrder) {
+      body = body.concat(repeat(part, opts[part] * numberOfParts));
+    }
+
+    // console.log(`Max sections: ${maxSections}
     // parts: ${numberOfParts}
     // section length: ${sectionLength}
-    // body: ${body.length}
-    // `);
-    // const leftOverEnergy = energyAvailable % sectionCost;
-    // const numberOfExtraParts = Math.floor(leftOverEnergy / 100);
+    // body: ${body}
+    // role: ${role}`);
 
-    // for (let i = 0; i < numberOfExtraParts; ++i) {
-    //   body.push(CARRY);
-    //   body.push(MOVE);
-    // }
-    this.spawnCreep(body, name, { memory: creepMemory });
+    const spawnReturn = this.spawnCreep(body, name, {
+      memory: creepMemory,
+    });
+    if (!/0|-6/.test(spawnReturn)) {
+      console.log(`Spawning ${role} returns: ${spawnReturn}`);
+    }
   }
 };
 
