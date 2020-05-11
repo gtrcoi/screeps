@@ -28,14 +28,12 @@ module.exports = {
             case "LDH":
               operations = [
                 function () {
+                  return creep.moveToRoom(creep.memory.homeRoom);
+                },
+                function () {
                   return creep.chargeStorage();
                 },
               ];
-              if (creep.room.name !== creep.memory.homeRoom) {
-                operations.unshift(function () {
-                  creep.returnHome();
-                });
-              }
               for (key = 0; key < operations.length; key++) {
                 if (operations[key]() == OK) {
                   break;
@@ -44,6 +42,9 @@ module.exports = {
               break;
             case "harvester":
               operations = [
+                function () {
+                  return creep.moveToRoom(creep.memory.homeRoom);
+                },
                 function () {
                   return creep.chargeSpawn();
                 },
@@ -60,11 +61,6 @@ module.exports = {
                   return creep.chargeController();
                 },
               ];
-              if (creep.room.name !== creep.memory.homeRoom) {
-                operations.unshift(function () {
-                  return creep.returnHome();
-                });
-              }
               for (key = 0; key < operations.length; key++) {
                 if (operations[key]() == OK) {
                   break;
@@ -75,18 +71,18 @@ module.exports = {
             case "upgrader":
               operations = [
                 function () {
+                  return creep.moveToRoom(creep.memory.homeRoom);
+                },
+                function () {
                   return creep.chargeController();
                 },
               ];
 
-              if (creep.room.memory.creepCount.energyLoaders === 0) {
+              if (
+                !Memory.rooms[creep.memory.homeRoom].creepCount.energyLoaders
+              ) {
                 operations.unshift(function () {
                   return creep.chargeSpawn();
-                });
-              }
-              if (creep.room.name !== creep.memory.homeRoom) {
-                operations.unshift(function () {
-                  return creep.returnHome();
                 });
               }
 
@@ -99,6 +95,9 @@ module.exports = {
 
             case "builder":
               operations = [
+                function () {
+                  return creep.moveToRoom(creep.memory.homeRoom);
+                },
                 function () {
                   return creep.rechargeTower({ percent: 50 });
                 },
@@ -115,11 +114,6 @@ module.exports = {
                   return creep.chargeController();
                 },
               ];
-              if (creep.room.name !== creep.memory.homeRoom) {
-                operations.unshift(function () {
-                  return creep.returnHome();
-                });
-              }
               for (key = 0; key < operations.length; key++) {
                 if (operations[key]() == OK) {
                   break;
@@ -167,10 +161,7 @@ module.exports = {
                   ? Game.getObjectById(creep.memory.target)
                   : new RoomPosition(24, 24, creep.memory.targetRoom);
 
-              const satelliteMem =
-                Game.rooms[creep.memory.homeRoom].memory.satellites[
-                  creep.memory.targetRoom
-                ];
+              const satelliteMem = Memory.rooms[creep.memory.targetRoom];
               // Reserve source
               if (satelliteMem.sources[creep.memory.target].LDH !== creep.id) {
                 satelliteMem.sources[creep.memory.target].LDH = creep.id;

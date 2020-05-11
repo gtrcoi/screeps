@@ -491,24 +491,16 @@ Creep.prototype.repairContainer = function (opts) {
 // Logistic methods
 // ===========================
 
-// Return to home
-Creep.prototype.returnHome = function (opts) {
+// Move between rooms
+Creep.prototype.moveToRoom = function (targetRoom, opts) {
   opts = opts || {};
+  if (this.room.name === targetRoom) return ERR_INVALID_TARGET;
+  const path = Game.map.findRoute(this.room.name, targetRoom);
 
-  if (this.pos.roomName === this.memory.homeRoom) {
-    return ERR_NO_PATH;
-  }
-
-  const target = new RoomPosition(24, 24, this.memory.homeRoom);
-  const path = Game.map.findRoute(this.room.name, target.roomName);
-
-  const exit =
-    path.length > 0 ? this.pos.findClosestByRange(path[0].exit) : target;
+  const exit = this.pos.findClosestByPath(path[0].exit);
   this.moveTo(exit, {
     visualizePathStyle: {},
-    maxOps: 10000,
-    swampCost: 1,
-    plainCost: 1,
+    reusePath: 100,
   });
 };
 
