@@ -128,21 +128,7 @@ module.exports = {
               break;
 
             case "digger":
-              // check is crane is spawning
-              let craneSpawning;
-              let spawnArray = creep.room.find(FIND_MY_SPAWNS, {
-                filter: (s) => s.spawning != null,
-              });
-              for (i = 0; i < spawnArray.length; i++) {
-                let spawn = spawnArray[i];
-                if (/crane\w/.test(spawn.spawning.name)) {
-                  craneSpawning = true;
-                }
-              }
-              if (
-                (creep.room.memory.creepCount.crane === 0 && !craneSpawning) ||
-                creep.room.memory.creepCount.loader === 0
-              ) {
+              if (!creep.room.memory.creepCount.energyLoaders) {
                 creep.chargeSpawn();
               } else {
                 creep.chargeLink(creep.memory.linkID);
