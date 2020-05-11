@@ -18,12 +18,8 @@ module.exports.loop = function () {
     memoryManager.setRoomMemory(room);
 
     // Manage base building
-    if (room.memory.base) {
-      if (Game.time % 100 === 0) {
-        structureManager.buildBunker(room);
-      }
-    }
     if (room.memory.base && Game.time % 1000 === 0) {
+      structureManager.buildBunker(room);
       structureManager.buildLocal(room);
       structureManager.buildRamparts(room);
       structureManager.rebuild(room);
