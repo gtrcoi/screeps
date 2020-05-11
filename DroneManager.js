@@ -4,373 +4,325 @@ module.exports = {
   // Run the role for all drones
   runRole: function (creep) {
     let operations = [];
+    const creepCarry = creep.store[RESOURCE_ENERGY];
+    const creepCarryCapacity = creep.store.getCapacity();
+
+    // Cases for switching states
+    if (creep.memory.working && creepCarry === 0) {
+      creep.memory.working = false;
+    } else if (!creep.memory.working && creepCarry === creepCarryCapacity) {
+      creep.memory.working = true;
+    }
 
     switch (creep.memory.role) {
       case "builder":
-      case "upgrader":
-      case "harvester":
-      case "digger":
-      case "loader":
-      case "LDH":
-        const creepCarry = creep.store[RESOURCE_ENERGY];
-        const creepCarryCapacity = creep.store.getCapacity();
-
-        // Cases for switching states
-        if (creep.memory.working && creepCarry === 0) {
-          creep.memory.working = false;
-        } else if (!creep.memory.working && creepCarry === creepCarryCapacity) {
-          creep.memory.working = true;
-        }
-
-        // Run the creep
         if (creep.memory.working) {
-          switch (creep.memory.role) {
-            case "LDH":
-              operations = [
-                function () {
-                  return creep.moveToRoom(creep.memory.homeRoom);
-                },
-                function () {
-                  return creep.chargeStorage();
-                },
-              ];
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
+          operations = [
+            function () {
+              return creep.moveToRoom(creep.memory.homeRoom);
+            },
+            function () {
+              return creep.rechargeTower({ percent: 50 });
+            },
+            // function () {
+            //   return creep.chargeSpawn();
+            // },
+            function () {
+              return creep.construct();
+            },
+            function () {
+              return creep.rechargeTower();
+            },
+            function () {
+              return creep.chargeController();
+            },
+          ];
+        } else {
+          operations = [
+            function () {
+              return creep.collectDroppedSource();
+            },
+            function () {
+              return creep.withdrawTombstone();
+            },
+            function () {
+              return creep.collectRuin();
+            },
+            function () {
+              return creep.collectStorage();
+            },
+          ];
+          if (
+            Object.keys(creep.room.memory.resources.sources).length >
+            creep.room.memory.creepCount.digger
+          ) {
+            operations.unshift(
+              function () {
+                return creep.collectContainer();
+              },
+              function () {
+                return creep.harvestSource();
               }
-              break;
-            case "harvester":
-              operations = [
-                function () {
-                  return creep.moveToRoom(creep.memory.homeRoom);
-                },
-                function () {
-                  return creep.chargeSpawn();
-                },
-                function () {
-                  return creep.chargeStorage();
-                },
-                function () {
-                  return creep.construct();
-                },
-                function () {
-                  return creep.rechargeTower();
-                },
-                function () {
-                  return creep.chargeController();
-                },
-              ];
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
+            );
+          }
+        }
+        for (key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            break;
+          }
+        }
+        break;
+      case "upgrader":
+        if (creep.memory.working) {
+          operations = [
+            function () {
+              return creep.moveToRoom(creep.memory.homeRoom);
+            },
+            function () {
+              return creep.chargeController();
+            },
+          ];
 
-            case "upgrader":
-              operations = [
-                function () {
-                  return creep.moveToRoom(creep.memory.homeRoom);
-                },
-                function () {
-                  return creep.chargeController();
-                },
-              ];
-
-              if (
-                !Memory.rooms[creep.memory.homeRoom].creepCount.energyLoaders
-              ) {
-                operations.unshift(function () {
-                  return creep.chargeSpawn();
-                });
-              }
-
-              for (let key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
-
-            case "builder":
-              operations = [
-                function () {
-                  return creep.moveToRoom(creep.memory.homeRoom);
-                },
-                function () {
-                  return creep.rechargeTower({ percent: 50 });
-                },
-                // function () {
-                //   return creep.chargeSpawn();
-                // },
-                function () {
-                  return creep.construct();
-                },
-                function () {
-                  return creep.rechargeTower();
-                },
-                function () {
-                  return creep.chargeController();
-                },
-              ];
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
-
-            case "digger":
-              if (!creep.room.memory.creepCount.energyLoaders) {
-                creep.chargeSpawn();
-              } else {
-                creep.chargeLink(creep.memory.linkID);
-              }
-              break;
-
-            case "loader":
-              operations = [
-                function () {
-                  return creep.chargeSpawn();
-                },
-                function () {
-                  return creep.rechargeTower({ range: 1 });
-                },
-              ];
-              if (
-                !creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)
-              ) {
-                operations.push(function () {
-                  return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y);
-                });
-              }
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
+          if (!Memory.rooms[creep.memory.homeRoom].creepCount.energyLoaders) {
+            operations.unshift(function () {
+              return creep.chargeSpawn();
+            });
           }
         } else {
-          // Find Energy
-          switch (creep.memory.role) {
-            case "LDH":
-              const target =
-                Game.getObjectById(creep.memory.target) !== null
-                  ? Game.getObjectById(creep.memory.target)
-                  : new RoomPosition(24, 24, creep.memory.targetRoom);
+          operations = [
+            function () {
+              return creep.collectDroppedSource({ range: 10 });
+            },
+            function () {
+              return creep.withdrawTombstone();
+            },
+            function () {
+              return creep.collectRuin();
+            },
+            function () {
+              return creep.collectStorage();
+            },
+          ];
 
-              const satelliteMem = Memory.rooms[creep.memory.targetRoom];
-              // Reserve source
-              if (satelliteMem.sources[creep.memory.target].LDH !== creep.id) {
-                satelliteMem.sources[creep.memory.target].LDH = creep.id;
+          if (creep.room.memory.spawnLimits.digger === 0) {
+            operations.unshift(
+              function () {
+                return creep.collectContainer();
+              },
+              function () {
+                return creep.harvestSource();
               }
-              // Move to room
-              if (creep.room.name !== creep.memory.targetRoom) {
-                const path = Game.map.findRoute(
-                  creep.room.name,
-                  creep.memory.targetRoom
+            );
+          }
+
+          if (creep.room.memory.structures.links.controllerLinkID) {
+            const controllerPath = Room.deserializePath(
+              creep.room.memory.controllerPath
+            );
+            const upgraderHomePos = new RoomPosition(
+              controllerPath[controllerPath.length - 2].x,
+              controllerPath[controllerPath.length - 2].y,
+              creep.room.name
+            );
+            operations = [
+              function () {
+                return creep.collectDroppedSource({ range: 1 });
+              },
+              function () {
+                return creep.collectContainer(undefined, { range: 1 });
+              },
+              function () {
+                return creep.collectLink(
+                  creep.room.memory.structures.links.controllerLinkID
                 );
-                const exit = creep.pos.findClosestByPath(path[0].exit);
-                creep.moveTo(exit);
-              } else {
-                // Move to source
-                if (!creep.pos.isNearTo(target)) {
-                  creep.say(`Move: ${creep.moveTo(target, { reusePath: 20 })}`);
-                } else {
-                  creep.say(
-                    `Harvest: ${creep.harvestSource(creep.memory.target)}`
-                  );
-                }
-              }
+              },
+            ];
 
-              break;
-            case "builder":
-              operations = [
-                function () {
-                  return creep.collectDroppedSource();
-                },
-                function () {
-                  return creep.withdrawTombstone();
-                },
-                function () {
-                  return creep.collectRuin();
-                },
-                function () {
-                  return creep.collectStorage();
-                },
-              ];
-              if (
-                Object.keys(creep.room.memory.resources.sources).length >
-                creep.room.memory.creepCount.digger
-              ) {
-                operations.unshift(
-                  function () {
-                    return creep.collectContainer();
-                  },
-                  function () {
-                    return creep.harvestSource();
-                  }
-                );
-              }
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
-
-            case "upgrader":
-              operations = [
-                function () {
-                  return creep.collectDroppedSource({ range: 10 });
-                },
-                function () {
-                  return creep.withdrawTombstone();
-                },
-                function () {
-                  return creep.collectRuin();
-                },
-                function () {
-                  return creep.collectStorage();
-                },
-              ];
-
-              if (creep.room.memory.spawnLimits.digger === 0) {
-                operations.unshift(
-                  function () {
-                    return creep.collectContainer();
-                  },
-                  function () {
-                    return creep.harvestSource();
-                  }
-                );
-              }
-
-              if (creep.room.memory.structures.links.controllerLinkID) {
-                const controllerPath = Room.deserializePath(
-                  creep.room.memory.controllerPath
-                );
-                const upgraderHomePos = new RoomPosition(
-                  controllerPath[controllerPath.length - 2].x,
-                  controllerPath[controllerPath.length - 2].y,
-                  creep.room.name
-                );
-                operations = [
-                  function () {
-                    return creep.collectDroppedSource({ range: 1 });
-                  },
-                  function () {
-                    return creep.collectContainer(undefined, { range: 1 });
-                  },
-                  function () {
-                    return creep.collectLink(
-                      creep.room.memory.structures.links.controllerLinkID
-                    );
-                  },
-                ];
-                if (!creep.pos.isEqualTo(upgraderHomePos)) {
-                  operations.unshift(function () {
-                    return creep.moveTo(upgraderHomePos);
-                  });
-                }
-              }
-
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
-
-            case "harvester":
-              operations = [
-                function () {
-                  return creep.collectDroppedSource();
-                },
-                function () {
-                  return creep.withdrawTombstone();
-                },
-                function () {
-                  return creep.collectRuin();
-                },
-                function () {
-                  return creep.collectContainer();
-                },
-                function () {
-                  return creep.harvestSource();
-                },
-              ];
-
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
-
-            case "digger":
-              const sourcePath = Room.deserializePath(
-                creep.room.memory.resources.sources[creep.memory.sourceID].path
-              );
-              const sourcePos = new RoomPosition(
-                sourcePath[sourcePath.length - 1].x,
-                sourcePath[sourcePath.length - 1].y,
-                creep.room.name
-              );
-              operations = [
-                function () {
-                  return creep.harvestSource(creep.memory.sourceID);
-                },
-              ];
-              if (!creep.pos.isEqualTo(sourcePos)) {
-                operations.unshift(function () {
-                  return creep.moveTo(sourcePos);
-                });
-              }
-              if (
-                creep.memory.containerID !== undefined ||
-                !_.isNull(Game.getObjectById(creep.memory.containerID))
-              ) {
-                operations.push(function () {
-                  return creep.collectContainer(creep.memory.containerID);
-                });
-              } else {
-                operations.unshift(function () {
-                  return creep.collectDroppedSource({ range: 1 });
-                });
-              }
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
-
-            case "loader":
-              operations = [
-                function () {
-                  return creep.collectStorage();
-                },
-              ];
-              if (
-                !creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)
-              ) {
-                operations.push(function () {
-                  return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y);
-                });
-              }
-              for (key = 0; key < operations.length; key++) {
-                if (operations[key]() == OK) {
-                  break;
-                }
-              }
-              break;
+            if (!creep.pos.isEqualTo(upgraderHomePos)) {
+              operations.unshift(function () {
+                return creep.moveTo(upgraderHomePos);
+              });
+            }
           }
         }
-
+        for (let key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            break;
+          }
+        }
         break;
+      case "harvester":
+        if (creep.memory.working) {
+          operations = [
+            function () {
+              return creep.moveToRoom(creep.memory.homeRoom);
+            },
+            function () {
+              return creep.chargeSpawn();
+            },
+            function () {
+              return creep.chargeStorage();
+            },
+            function () {
+              return creep.construct();
+            },
+            function () {
+              return creep.rechargeTower();
+            },
+            function () {
+              return creep.chargeController();
+            },
+          ];
+        } else {
+          operations = [
+            function () {
+              return creep.collectDroppedSource();
+            },
+            function () {
+              return creep.withdrawTombstone();
+            },
+            function () {
+              return creep.collectRuin();
+            },
+            function () {
+              return creep.collectContainer();
+            },
+            function () {
+              return creep.harvestSource();
+            },
+          ];
+        }
+        for (key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            break;
+          }
+        }
+        break;
+      case "digger":
+        if (creep.memory.working) {
+          if (!creep.room.memory.creepCount.energyLoaders) {
+            creep.chargeSpawn();
+          } else {
+            creep.chargeLink(creep.memory.linkID);
+          }
+          break;
+        } else {
+          const sourcePath = Room.deserializePath(
+            creep.room.memory.resources.sources[creep.memory.sourceID].path
+          );
+          const sourcePos = new RoomPosition(
+            sourcePath[sourcePath.length - 1].x,
+            sourcePath[sourcePath.length - 1].y,
+            creep.room.name
+          );
+          operations = [
+            function () {
+              return creep.harvestSource(creep.memory.sourceID);
+            },
+          ];
+          if (!creep.pos.isEqualTo(sourcePos)) {
+            operations.unshift(function () {
+              return creep.moveTo(sourcePos);
+            });
+          }
+          if (
+            creep.memory.containerID !== undefined ||
+            !_.isNull(Game.getObjectById(creep.memory.containerID))
+          ) {
+            operations.push(function () {
+              return creep.collectContainer(creep.memory.containerID);
+            });
+          } else {
+            operations.unshift(function () {
+              return creep.collectDroppedSource({ range: 1 });
+            });
+          }
+          for (key = 0; key < operations.length; key++) {
+            if (operations[key]() == OK) {
+              break;
+            }
+          }
+          break;
+        }
+      case "loader":
+        if (creep.memory.working) {
+          operations = [
+            function () {
+              return creep.chargeSpawn();
+            },
+            function () {
+              return creep.rechargeTower({ range: 1 });
+            },
+          ];
+          if (!creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)) {
+            operations.push(function () {
+              return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y);
+            });
+          }
+        } else {
+          operations = [
+            function () {
+              return creep.collectStorage();
+            },
+          ];
+          if (!creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)) {
+            operations.push(function () {
+              return creep.moveTo(creep.memory.rest.x, creep.memory.rest.y);
+            });
+          }
+        }
+        for (key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            break;
+          }
+        }
+        break;
+
+      case "LDH":
+        if (creep.memory.working) {
+          operations = [
+            function () {
+              return creep.moveToRoom(creep.memory.homeRoom);
+            },
+            function () {
+              return creep.chargeStorage();
+            },
+          ];
+          for (key = 0; key < operations.length; key++) {
+            if (operations[key]() == OK) {
+              break;
+            }
+          }
+          break;
+        } else {
+          const target =
+            Game.getObjectById(creep.memory.target) !== null
+              ? Game.getObjectById(creep.memory.target)
+              : new RoomPosition(24, 24, creep.memory.targetRoom);
+
+          const satelliteMem = Memory.rooms[creep.memory.targetRoom];
+          // Reserve source
+          if (satelliteMem.sources[creep.memory.target].LDH !== creep.id) {
+            satelliteMem.sources[creep.memory.target].LDH = creep.id;
+          }
+          // Move to room
+          if (creep.room.name !== creep.memory.targetRoom) {
+            const path = Game.map.findRoute(
+              creep.room.name,
+              creep.memory.targetRoom
+            );
+            const exit = creep.pos.findClosestByPath(path[0].exit);
+            creep.moveTo(exit);
+          } else {
+            // Move to source
+            if (!creep.pos.isNearTo(target)) {
+              creep.say(`Move: ${creep.moveTo(target, { reusePath: 20 })}`);
+            } else {
+              creep.say(`Harvest: ${creep.harvestSource(creep.memory.target)}`);
+            }
+          }
+          break;
+        }
 
       case "crane":
         const baseLink = Game.getObjectById(
