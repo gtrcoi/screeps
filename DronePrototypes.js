@@ -519,3 +519,47 @@ Creep.prototype.bump = function (opts) {
     return ERR_INVALID_TARGET;
   }
 };
+
+// ===========================
+// Combat methods
+// ===========================
+
+Creep.prototype.killStuff = function () {
+  // Find targets
+  const creeps = this.room.find(FIND_HOSTILE_CREEPS);
+  const powerCreeps = this.room.find(FIND_HOSTILE_POWER_CREEPS);
+  const structures = this.room.find(FIND_HOSTILE_STRUCTURES);
+  let targetArray = [];
+  let target = null;
+  if (powerCreeps.length > 0) {
+    target = powerCreeps[0];
+  } else if (creeps.length > 0) {
+    // Sort targets by most heal parts
+    for (let creep of creeps) {
+      let healParts = 0;
+      for (let part of creep.body) {
+        if (part.type === HEAL) {
+          healParts++;
+        }
+      }
+      targetArray.push({ creep: creep, healParts: healParts });
+    }
+
+    targetArray.sort((a, b) => (a.healParts > b.healParts ? -1 : 1));
+    if (targetArray.length > 0) {
+      target = targetArray[0].creep;
+    }
+  } else if (structures.length > 0) {
+    target = structures[0];
+  }
+
+  switch (target) {
+    case null:
+      return ERR_NOT_FOUND;
+
+    default:
+      this.moveTo(target);
+      this.attack(target);
+      return OK;
+  }
+};
