@@ -381,13 +381,35 @@ module.exports = {
         break;
 
       case "scout":
-        const goal = new RoomPosition(24, 24, creep.memory.target);
-        const path = Game.map.findRoute(creep.room.name, goal.roomName);
-        // creep.bump();
-        const target =
-          path.length > 0 ? creep.pos.findClosestByPath(path[0].exit) : goal;
-
-        creep.moveTo(target);
+        const goal = new RoomPosition(24, 24, creep.memory.targetRoom);
+        operations = [
+          function () {
+            return creep.moveTo(goal);
+          },
+          function () {
+            return creep.moveToRoom(creep.memory.targetRoom);
+          },
+        ];
+        for (key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            break;
+          }
+        }
+        break;
+      case "soldier":
+        operations = [
+          function () {
+            return creep.moveToRoom(creep.memory.targetRoom);
+          },
+          function () {
+            return creep.killStuff();
+          },
+        ];
+        for (key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            break;
+          }
+        }
         break;
 
       case "test":
