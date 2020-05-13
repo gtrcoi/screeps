@@ -1,22 +1,25 @@
 // Add a function to the spawn objects that will spawn the next creep if needed
 StructureSpawn.prototype.spawnNextCreep = function () {
   if (!_.isNull(this.spawning)) return ERR_BUSY;
+  if (!this.room.memory.base) return ERR_INVALID_TARGET;
 
   // Current creep count
-  const harvesterCount = this.room.memory.creepCount.harvester;
-  const upgraderCount = this.room.memory.creepCount.upgrader;
-  const builderCount = this.room.memory.creepCount.builder;
-  const diggerCount = this.room.memory.creepCount.digger;
-  const craneCount = this.room.memory.creepCount.crane;
-  const loaderCount = this.room.memory.creepCount.loader;
+  const harvesterCount = this.room.memory.creepCount.harvester || 0;
+  const upgraderCount = this.room.memory.creepCount.upgrader || 0;
+  const builderCount = this.room.memory.creepCount.builder || 0;
+  const diggerCount = this.room.memory.creepCount.digger || 0;
+  const craneCount = this.room.memory.creepCount.crane || 0;
+  const loaderCount = this.room.memory.creepCount.loader || 0;
+  const LDHCount = this.room.memory.creepCount.LDH || 0;
 
   // Creep limits
-  const harvesterLimits = this.room.memory.spawnLimits["harvester"];
-  const upgraderLimits = this.room.memory.spawnLimits["upgrader"];
-  const builderLimits = this.room.memory.spawnLimits["builder"];
-  const diggerLimits = this.room.memory.spawnLimits["digger"];
-  const craneLimits = this.room.memory.spawnLimits["crane"];
-  const loaderLimits = this.room.memory.spawnLimits["loader"];
+  const harvesterLimits = this.room.memory.spawnLimits["harvester"] || 0;
+  const upgraderLimits = this.room.memory.spawnLimits["upgrader"] || 0;
+  const builderLimits = this.room.memory.spawnLimits["builder"] || 0;
+  const diggerLimits = this.room.memory.spawnLimits["digger"] || 0;
+  const craneLimits = this.room.memory.spawnLimits["crane"] || 0;
+  const loaderLimits = this.room.memory.spawnLimits["loader"] || 0;
+  const LDHLimits = this.room.memory.spawnLimits.LDHs.length || 0;
 
   if (this.room.memory.creepCount.test < 1) {
     // this.spawnDrone("test", { move: 1, maxSections: 1 });
@@ -25,48 +28,69 @@ StructureSpawn.prototype.spawnNextCreep = function () {
   // Spawn the appropriate creep, if any
   if (harvesterCount < harvesterLimits) {
     this.spawnDrone("harvester", { work: 1, carry: 1, move: 1 });
-  } else if (diggerCount < diggerLimits) {
+    return;
+  }
+  if (diggerCount < diggerLimits) {
     this.spawnDrone("digger", { work: 2, carry: 1, move: 1, maxSections: 5 });
-  } else if (craneCount < craneLimits) {
+    return;
+  }
+  if (craneCount < craneLimits) {
     this.spawnDrone("crane", { move: 1, carry: 16, maxSections: 1 });
-  } else if (loaderCount < loaderLimits) {
+    return;
+  }
+  if (loaderCount < loaderLimits) {
     this.spawnDrone("loader", { carry: 2, move: 1 });
-  } else if (builderCount < builderLimits) {
+    return;
+  }
+  if (builderCount < builderLimits) {
     this.spawnDrone("builder", { work: 1, carry: 1, move: 1 });
-  } else if (upgraderCount < upgraderLimits) {
+    return;
+  }
+  if (upgraderCount < upgraderLimits) {
     if (this.room.memory.structures.links.controllerLinkID) {
-      this.spawnDrone("upgrader", { work: 2, carry: 1, move: 2 });
+      this.spawnDrone("upgrader", {
+        work: 2,
+        carry: 1,
+        move: 2,
+        maxSections: 3,
+      });
     } else {
       this.spawnDrone("upgrader", { work: 1, carry: 1, move: 1 });
     }
-  } else {
-    // if no observers in room
-    // if (!this.room.memory.structures.observer) {
-    //   this.sendScouts();
-    // }
-    // this.spawnLDH();
+    return;
+  }
+  if (LDHCount < LDHLimits) {
+    // console.log(`${LDHCount}/${LDHLimits}`);
+    // this.spawnDrone("LDH", { work: 1, carry: 1, move: 1 });
+    // return;
+  }
+  for (const satellite of this.room.memory.satellites) {
+    const scoutCount = this.room.memory.creepCount.scouts[satellite] || 0;
+    if (
+      !Game.rooms[satellite] &&
+      !this.room.memory.structures.observer &&
+      scoutCount < 1
+    ) {
+      this.spawnDrone("scout", {
+        move: 1,
+        maxSections: 1,
+        targetRoom: satellite,
+      });
+    }
+    const soldierCount = this.room.memory.creepCount.soldiers[satellite] || 0;
+    const soldierLimit = this.room.memory.spawnLimits.soldiers[satellite] || 0;
+
+    if (soldierCount < soldierLimit) {
+      this.spawnDrone("soldier", {
+        attack: 1,
+        move: 2,
+        tough: 1,
+        targetRoom: satellite,
+      });
+      return;
+    }
   }
 };
-
-// StructureSpawn.prototype.sendScouts = function () {
-//   const room = this.room;
-//   const MemoryManager = require("./MemoryManager");
-
-//   for (const satellite of MemoryManager.listSatellites(room, { range: 1 })) {
-//     if (
-//       !room.memory.remoteResources.satellites[satellite].visable &&
-//       !room.memory.remoteResources.satellites[satellite].scout
-//     ) {
-//       this.spawnCreep([MOVE], "scout" + Game.time, {
-//         memory: {
-//           role: "scout",
-//           homeRoom: this.room.name,
-//           target: satellite,
-//         },
-//       });
-//     }
-//   }
-// };
 
 StructureSpawn.prototype.energyAvailable = function () {
   const room = this.room;
@@ -171,24 +195,23 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
 };
 
 StructureSpawn.prototype.spawnLDH = function () {
-  const satellitesMem = this.room.memory.satellites;
+  const satellites = this.room.memory.satellites;
 
-  for (const key of Object.keys(satellitesMem)) {
-    const satelliteMem = satellitesMem[key];
-    if (satelliteMem.distance < 3 && satelliteMem.sources) {
-      for (const source of Object.keys(satelliteMem.sources)) {
-        if (!satelliteMem.sources[source].LDH) {
-          // Build LDH
-          const creepMemory = {
-            working: false,
-            role: "LDH",
-            homeRoom: this.room.name,
-            target: source,
-            targetRoom: key,
-          };
+  for (const satellite of satellites) {
+    const satelliteMem = Memory.rooms[satellite];
+    if (!satelliteMem.resources) continue;
+    for (const source of Object.keys(satelliteMem.resources.sources)) {
+      if (!satelliteMem.resources.sources[source].LDH) {
+        // Build LDH
+        const creepMemory = {
+          working: false,
+          role: "LDH",
+          homeRoom: this.room.name,
+          target: source,
+          targetRoom: satellite,
+        };
 
-          return creepMemory;
-        }
+        return creepMemory;
       }
     }
   }
