@@ -48,16 +48,12 @@ module.exports = {
     const soldiers = {};
     const diggerLimits = room.memory.structures.links.sourceLinkIDs.length || 0;
     const harvesterLimits = Object.keys(room.memory.resources.sources).length;
-
     const upgraderLimits = room.memory.structures.links.controllerLinkID
       ? 1
       : 2;
-
     const builderLimits =
       room.find(FIND_MY_CONSTRUCTION_SITES).length > 0 ? 1 : 0;
-
     const craneLimits = room.memory.structures.links.baseLinkID ? 1 : 0;
-
     const loaderLimits = room.controller.level >= 4 ? 1 : undefined;
     // (room.controller.level >= 4 && room.storage !== undefined) ? Math.floor(room.controller.level / 2) : 0
 
@@ -80,9 +76,8 @@ module.exports = {
 
   // Count creeps
   creepCount: function () {
-    const soldiers = {};
-    const LDH = {};
     const memory = {};
+
     for (const key in Game.creeps) {
       const creep = Game.creeps[key];
       if (!memory[creep.memory.homeRoom]) {
@@ -496,7 +491,15 @@ module.exports = {
 
         const roomString = cardinalX + stringX + cardinalY + stringY;
         if (roomString !== room.name) {
-          satellites.push(roomString);
+          if (_.isNumber(opts.distance)) {
+            if (
+              Game.map.findRoute(room.name, roomString).length <= opts.distance
+            ) {
+              satellites.push(roomString);
+            }
+          } else {
+            satellites.push(roomString);
+          }
         }
       }
     }
