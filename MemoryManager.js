@@ -25,7 +25,7 @@ module.exports = {
 
     // Set satellites
     if (!room.memory.satellites) {
-      room.memory.satellites = this.listSatellites(room);
+      room.memory.satellites = this.listSatellites(room, { range: 0 });
     }
 
     // Update room memory
@@ -37,14 +37,16 @@ module.exports = {
     room.memory.structures = this.setStructures(room);
 
     this.creepLimits(room);
-    this.creepCount(room);
+    // this.creepCount();
     this.viewSatellites(room);
     this.findRepairs(room);
   },
 
   // Define creep limits for a room
   creepLimits: function (room) {
-    const diggerLimits = room.memory.structures.links.sourceLinkIDs.length;
+    const LDH = [];
+    const soldiers = {};
+    const diggerLimits = room.memory.structures.links.sourceLinkIDs.length || 0;
     const harvesterLimits = Object.keys(room.memory.resources.sources).length;
 
     const upgraderLimits = room.memory.structures.links.controllerLinkID
@@ -56,7 +58,7 @@ module.exports = {
 
     const craneLimits = room.memory.structures.links.baseLinkID ? 1 : 0;
 
-    const loaderLimits = 1;
+    const loaderLimits = room.controller.level >= 4 ? 1 : undefined;
     // (room.controller.level >= 4 && room.storage !== undefined) ? Math.floor(room.controller.level / 2) : 0
 
     // Save to memory
@@ -70,84 +72,83 @@ module.exports = {
       digger: diggerLimits,
       crane: craneLimits,
       loader: loaderLimits,
+      LDHs: LDH,
+      soldiers: soldiers,
     };
     room.memory.spawnLimits = spawnLimits;
   },
 
   // Count creeps
-  creepCount: function (room) {
-    const upgraderCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        creep.memory.homeRoom === room.name &&
-        creep.memory.role === "upgrader" &&
-        (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
+  creepCount: function () {
+    const soldiers = {};
+    const LDH = {};
+    const memory = {};
+    for (const key in Game.creeps) {
+      const creep = Game.creeps[key];
+      if (!memory[creep.memory.homeRoom]) {
+        memory[creep.memory.homeRoom] = {
+          creepCount: { soldiers: {}, LDH: {} },
+        };
+      }
+      let role;
+      switch (creep.memory.role) {
+        case "upgrader":
+        case "harvester":
+        case "builder":
+        case "digger":
+        case "loader":
+        case "test":
+        case "crane":
+          role = creep.memory.role;
+          if (!memory[creep.memory.homeRoom].creepCount[role]) {
+            memory[creep.memory.homeRoom].creepCount[role] = 0;
+          }
+          if (creep.ticksToLive > 51 || creep.spawning) {
+            memory[creep.memory.homeRoom].creepCount[role]++;
+          }
+          break;
 
-    const harvesterCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        creep.memory.homeRoom === room.name &&
-        creep.memory.role === "harvester" &&
-        (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
+        case "scout":
+        case "soldier":
+          role = creep.memory.role;
+          if (!memory[creep.memory.homeRoom].creepCount[role]) {
+            memory[creep.memory.homeRoom].creepCount[role][
+              creep.memory.targetRoom
+            ] = 0;
+          }
+          if (creep.ticksToLive > 51 || creep.spawning) {
+            memory[creep.memory.homeRoom].creepCount[role][
+              creep.memory.targetRoom
+            ]++;
+          }
+          break;
 
-    const builderCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        creep.memory.homeRoom === room.name &&
-        creep.memory.role === "builder" &&
-        (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
-
-    const craneCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        creep.memory.homeRoom === room.name &&
-        creep.memory.role === "crane" &&
-        (creep.ticksToLive > 51 || creep.spawning)
-    ).length;
-
-    const diggerCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        creep.memory.homeRoom === room.name &&
-        creep.memory.role === "digger" &&
-        (creep.ticksToLive > 100 || creep.spawning)
-    ).length;
-
-    const loaderCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        creep.memory.homeRoom === room.name &&
-        creep.memory.role === "loader" &&
-        (creep.ticksToLive > 100 || creep.spawning)
-    ).length;
-
-    const testCount = _.filter(
-      Game.creeps,
-      (creep) =>
-        // creep.memory.homeRoom === room.name &&
-        creep.memory.role === "test" &&
-        (creep.ticksToLive > 100 || creep.spawning)
-    ).length;
-
-    // Save to memory
-    if (!room.memory.creepCount) {
-      room.memory.creepCount = {};
+        case "LDH":
+          role = creep.memory.role;
+          if (!memory[creep.memory.homeRoom].creepCount[role]) {
+            memory[creep.memory.homeRoom].creepCount[role][
+              creep.memory.target
+            ] = 0;
+          }
+          if (creep.ticksToLive > 51 || creep.spawning) {
+            memory[creep.memory.homeRoom].creepCount[role][
+              creep.memory.target
+            ]++;
+          }
+          break;
+      }
     }
-    const creepCount = {
-      upgrader: upgraderCount,
-      harvester: harvesterCount,
-      builder: builderCount,
-      digger: diggerCount,
-      crane: craneCount,
-      loader: loaderCount,
-      test: testCount,
-      energyCollectors: harvesterCount + diggerCount,
-      energyLoaders: loaderCount + builderCount + harvesterCount,
-    };
-    room.memory.creepCount = creepCount;
+
+    for (const roomName of Object.keys(memory)) {
+      memory[roomName].creepCount.energyCollectors =
+        (memory[roomName].creepCount.harvester || 0) +
+        (memory[roomName].creepCount.digger || 0);
+      memory[roomName].creepCount.energyLoaders =
+        (memory[roomName].creepCount.loader || 0) +
+        (memory[roomName].creepCount.builder || 0) +
+        (memory[roomName].creepCount.harvester || 0);
+      Memory.rooms[roomName].creepCount = memory[roomName].creepCount;
+    }
   },
 
   setStructures: function (room) {
@@ -198,7 +199,7 @@ module.exports = {
       }
     }
     const linksMem = {
-      sourceLinkIDs: sourceLinkIDs.length > 0 ? sourceLinkIDs : undefined,
+      sourceLinkIDs: sourceLinkIDs,
       baseLinkID: baseLinkID,
       controllerLinkID: controllerLinkID,
     };
@@ -471,7 +472,7 @@ module.exports = {
     opts = opts || {};
     opts.range = _.isUndefined(opts.range) ? 10 : opts.range;
 
-    let satellites = {};
+    let satellites = [];
 
     const roomNameArray = room.name.match(/[A-Z][0-9]+/g);
     const roomCords = {
@@ -495,7 +496,7 @@ module.exports = {
 
         const roomString = cardinalX + stringX + cardinalY + stringY;
         if (roomString !== room.name) {
-          satellites[roomString] = {};
+          satellites.push(roomString);
         }
       }
     }

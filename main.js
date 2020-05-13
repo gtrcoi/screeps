@@ -8,6 +8,7 @@ require("./SpawnManager");
 module.exports.loop = function () {
   // Clean memory
   memoryManager.cleanMemory();
+  memoryManager.creepCount();
 
   // Room Loop
   //==================================
@@ -34,8 +35,8 @@ module.exports.loop = function () {
       visuals.paintLayoutScan(room);
     }
     if (room.memory.base) {
-      visuals.paintMisc(room);
       structureManager.links(room);
+      visuals.paintMisc(room);
     }
   }
 
