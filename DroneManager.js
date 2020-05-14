@@ -295,30 +295,17 @@ module.exports = {
           }
           break;
         } else {
-          const target =
-            Game.getObjectById(creep.memory.target) !== null
-              ? Game.getObjectById(creep.memory.target)
-              : new RoomPosition(24, 24, creep.memory.targetRoom);
-
-          const satelliteMem = Memory.rooms[creep.memory.targetRoom];
-          // Reserve source
-          if (satelliteMem.sources[creep.memory.target].LDH !== creep.id) {
-            satelliteMem.sources[creep.memory.target].LDH = creep.id;
-          }
-          // Move to room
-          if (creep.room.name !== creep.memory.targetRoom) {
-            const path = Game.map.findRoute(
-              creep.room.name,
-              creep.memory.targetRoom
-            );
-            const exit = creep.pos.findClosestByPath(path[0].exit);
-            creep.moveTo(exit);
-          } else {
-            // Move to source
-            if (!creep.pos.isNearTo(target)) {
-              creep.say(`Move: ${creep.moveTo(target, { reusePath: 20 })}`);
-            } else {
-              creep.say(`Harvest: ${creep.harvestSource(creep.memory.target)}`);
+          operations = [
+            function () {
+              return creep.moveToRoom(creep.memory.targetRoom);
+            },
+            function () {
+              return creep.harvestSource(creep.memory.target);
+            },
+          ];
+          for (key = 0; key < operations.length; key++) {
+            if (operations[key]() == OK) {
+              break;
             }
           }
           break;
