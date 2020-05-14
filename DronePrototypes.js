@@ -12,6 +12,7 @@ Creep.prototype.harvestSource = function (sourceID) {
     activeSource = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
   } else {
     const targetSource = Game.getObjectById(sourceID);
+    if (_.isNull(targetSource)) return ERR_INVALID_TARGET;
     if (targetSource.energy > 0) {
       activeSource = targetSource;
     }
