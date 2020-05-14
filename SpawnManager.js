@@ -83,7 +83,8 @@ StructureSpawn.prototype.spawnNextCreep = function () {
     }
     if (
       Memory.rooms[satellite].resources &&
-      Memory.rooms[satellite].resources.sources
+      Memory.rooms[satellite].resources.sources &&
+      !Memory.rooms[satellite].enemies.total
     ) {
       for (const source of Object.keys(
         Memory.rooms[satellite].resources.sources
