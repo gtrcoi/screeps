@@ -18,6 +18,8 @@ module.exports = {
       room.memory.resources = this.setResources(room);
     }
 
+    this.enemyCount(room);
+
     if (!room.memory.base) return;
 
     // Base rooms
@@ -25,7 +27,7 @@ module.exports = {
 
     // Set satellites
     if (!room.memory.satellites) {
-      room.memory.satellites = this.listSatellites(room, { range: 0 });
+      room.memory.satellites = this.listSatellites(room, { distance: 2 });
     }
 
     // Update room memory
@@ -38,7 +40,7 @@ module.exports = {
 
     this.creepLimits(room);
     // this.creepCount();
-    this.viewSatellites(room);
+    // this.viewSatellites(room);
     this.findRepairs(room);
   },
 
@@ -74,18 +76,33 @@ module.exports = {
     room.memory.spawnLimits = spawnLimits;
   },
 
+  enemyCount: function (room) {
+    const creeps = room.find(FIND_HOSTILE_CREEPS).length;
+    const powerCreeps = room.find(FIND_HOSTILE_POWER_CREEPS).length;
+    const structures = room.find(FIND_HOSTILE_STRUCTURES).length;
+
+    const enemies = {
+      creeps: creeps || undefined,
+      powerCreeps: powerCreeps || undefined,
+      structures: structures || undefined,
+      total: creeps + powerCreeps + structures,
+    };
+    room.memory.enemies = enemies;
+  },
+
   // Count creeps
   creepCount: function () {
     const memory = {};
 
     for (const key in Game.creeps) {
       const creep = Game.creeps[key];
+      const role = creep.memory.role;
+
       if (!memory[creep.memory.homeRoom]) {
         memory[creep.memory.homeRoom] = {
-          creepCount: { soldiers: {}, LDH: {} },
+          creepCount: { soldier: {}, scout: {}, LDH: {} },
         };
       }
-      let role;
       switch (creep.memory.role) {
         case "upgrader":
         case "harvester":
@@ -94,7 +111,6 @@ module.exports = {
         case "loader":
         case "test":
         case "crane":
-          role = creep.memory.role;
           if (!memory[creep.memory.homeRoom].creepCount[role]) {
             memory[creep.memory.homeRoom].creepCount[role] = 0;
           }
@@ -105,8 +121,11 @@ module.exports = {
 
         case "scout":
         case "soldier":
-          role = creep.memory.role;
-          if (!memory[creep.memory.homeRoom].creepCount[role]) {
+          if (
+            !memory[creep.memory.homeRoom].creepCount[role][
+              creep.memory.targetRoom
+            ]
+          ) {
             memory[creep.memory.homeRoom].creepCount[role][
               creep.memory.targetRoom
             ] = 0;
@@ -119,7 +138,6 @@ module.exports = {
           break;
 
         case "LDH":
-          role = creep.memory.role;
           if (!memory[creep.memory.homeRoom].creepCount[role]) {
             memory[creep.memory.homeRoom].creepCount[role][
               creep.memory.target
