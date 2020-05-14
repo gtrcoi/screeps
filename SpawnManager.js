@@ -93,7 +93,6 @@ StructureSpawn.prototype.spawnNextCreep = function () {
         // const LDHLimits = this.room.memory.spawnLimits.LDHs.length || 0;
 
         if (LDHCount < 1) {
-          console.log(`${LDHCount}`);
           this.spawnDrone("LDH", {
             work: 1,
             carry: 1,
