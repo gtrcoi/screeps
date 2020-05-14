@@ -70,8 +70,8 @@ module.exports = {
       digger: diggerLimits,
       crane: craneLimits,
       loader: loaderLimits,
-      LDHs: LDH,
-      soldiers: soldiers,
+      LDH: LDH,
+      soldier: soldiers,
     };
     room.memory.spawnLimits = spawnLimits;
   },
@@ -138,7 +138,9 @@ module.exports = {
           break;
 
         case "LDH":
-          if (!memory[creep.memory.homeRoom].creepCount[role]) {
+          if (
+            !memory[creep.memory.homeRoom].creepCount[role][creep.memory.target]
+          ) {
             memory[creep.memory.homeRoom].creepCount[role][
               creep.memory.target
             ] = 0;
