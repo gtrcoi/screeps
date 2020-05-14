@@ -27,7 +27,7 @@ module.exports = {
 
     // Set satellites
     if (!room.memory.satellites) {
-      room.memory.satellites = this.listSatellites(room, { distance: 2 });
+      room.memory.satellites = this.listSatellites(room, { distance: 1 });
     }
 
     // Update room memory
