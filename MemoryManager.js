@@ -46,8 +46,10 @@ module.exports = {
 
   // Define creep limits for a room
   creepLimits: function (room) {
-    const LDH = [];
     const soldiers = {};
+    for (const satellite of room.memory.satellites) {
+      soldiers[satellite] = Memory.rooms[satellite].enemies.total || undefined;
+    }
     const diggerLimits = room.memory.structures.links.sourceLinkIDs.length || 0;
     const harvesterLimits = Object.keys(room.memory.resources.sources).length;
     const upgraderLimits = room.memory.structures.links.controllerLinkID
@@ -70,7 +72,6 @@ module.exports = {
       digger: diggerLimits,
       crane: craneLimits,
       loader: loaderLimits,
-      LDH: LDH,
       soldier: soldiers,
     };
     room.memory.spawnLimits = spawnLimits;
