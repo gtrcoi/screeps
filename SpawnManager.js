@@ -10,7 +10,6 @@ StructureSpawn.prototype.spawnNextCreep = function () {
   const diggerCount = this.room.memory.creepCount.digger || 0;
   const craneCount = this.room.memory.creepCount.crane || 0;
   const loaderCount = this.room.memory.creepCount.loader || 0;
-  const LDHCount = this.room.memory.creepCount.LDH || 0;
 
   // Creep limits
   const harvesterLimits = this.room.memory.spawnLimits["harvester"] || 0;
@@ -19,8 +18,6 @@ StructureSpawn.prototype.spawnNextCreep = function () {
   const diggerLimits = this.room.memory.spawnLimits["digger"] || 0;
   const craneLimits = this.room.memory.spawnLimits["crane"] || 0;
   const loaderLimits = this.room.memory.spawnLimits["loader"] || 0;
-  const LDHLimits = this.room.memory.spawnLimits.LDHs.length || 0;
-
   if (this.room.memory.creepCount.test < 1) {
     // this.spawnDrone("test", { move: 1, maxSections: 1 });
   }
@@ -59,13 +56,8 @@ StructureSpawn.prototype.spawnNextCreep = function () {
     }
     return;
   }
-  if (LDHCount < LDHLimits) {
-    // console.log(`${LDHCount}/${LDHLimits}`);
-    // this.spawnDrone("LDH", { work: 1, carry: 1, move: 1 });
-    // return;
-  }
   for (const satellite of this.room.memory.satellites) {
-    const scoutCount = this.room.memory.creepCount.scouts[satellite] || 0;
+    const scoutCount = this.room.memory.creepCount.scout[satellite] || 0;
     if (
       !Game.rooms[satellite] &&
       !this.room.memory.structures.observer &&
@@ -77,8 +69,8 @@ StructureSpawn.prototype.spawnNextCreep = function () {
         targetRoom: satellite,
       });
     }
-    const soldierCount = this.room.memory.creepCount.soldiers[satellite] || 0;
-    const soldierLimit = this.room.memory.spawnLimits.soldiers[satellite] || 0;
+    const soldierCount = this.room.memory.creepCount.soldier[satellite] || 0;
+    const soldierLimit = this.room.memory.spawnLimits.soldier[satellite] || 0;
 
     if (soldierCount < soldierLimit) {
       this.spawnDrone("soldier", {
@@ -88,6 +80,29 @@ StructureSpawn.prototype.spawnNextCreep = function () {
         targetRoom: satellite,
       });
       return;
+    }
+    if (
+      Memory.rooms[satellite].resources &&
+      Memory.rooms[satellite].resources.sources
+    ) {
+      for (const source of Object.keys(
+        Memory.rooms[satellite].resources.sources
+      )) {
+        const LDHCount = this.room.memory.creepCount.LDH[source] || 0;
+        // const LDHLimits = this.room.memory.spawnLimits.LDHs.length || 0;
+
+        if (LDHCount < 1) {
+          console.log(`${LDHCount}`);
+          this.spawnDrone("LDH", {
+            work: 1,
+            carry: 1,
+            move: 1,
+            target: source,
+            targetRoom: satellite,
+          });
+          return;
+        }
+      }
     }
   }
 };
@@ -110,10 +125,6 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
   // Checking memory first in case of exception
   let creepMemory;
   switch (role) {
-    case "LDH":
-      creepMemory = this.spawnLDH();
-      if ((creepMemory = ERR_NOT_FOUND)) return ERR_NOT_FOUND;
-      break;
     case "digger":
       creepMemory = this.spawnDigger();
       break;
@@ -126,6 +137,7 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
         role: role,
         homeRoom: this.room.name,
         targetRoom: opts.targetRoom,
+        target: opts.target,
       };
       break;
   }
@@ -192,30 +204,6 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
       console.log(`Spawning ${role} returns: ${spawnReturn}`);
     }
   }
-};
-
-StructureSpawn.prototype.spawnLDH = function () {
-  const satellites = this.room.memory.satellites;
-
-  for (const satellite of satellites) {
-    const satelliteMem = Memory.rooms[satellite];
-    if (!satelliteMem.resources) continue;
-    for (const source of Object.keys(satelliteMem.resources.sources)) {
-      if (!satelliteMem.resources.sources[source].LDH) {
-        // Build LDH
-        const creepMemory = {
-          working: false,
-          role: "LDH",
-          homeRoom: this.room.name,
-          target: source,
-          targetRoom: satellite,
-        };
-
-        return creepMemory;
-      }
-    }
-  }
-  return ERR_NOT_FOUND;
 };
 
 // Add a function to spawn objects to spawn a digger
