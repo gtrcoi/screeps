@@ -37,7 +37,7 @@ module.exports = {
     }
 
     room.memory.structures = this.setStructures(room);
-
+    this.setPaths(room);
     this.creepLimits(room);
     // this.creepCount();
     // this.viewSatellites(room);
@@ -308,6 +308,77 @@ module.exports = {
       nuker: nukerMem,
     };
     return structures;
+  },
+
+  setPaths: function (room) {
+    const costs = PathFinder.CostMatrix.deserialize(
+      room.memory.costMatrix.costs
+    );
+
+    // find path from spawn1
+    const startPos = Game.getObjectById(room.memory.structures.spawns[0]).pos;
+
+    // build controller roads and link
+    if (!room.memory.controllerPath) {
+      room.memory.controllerPath = room.findPath(
+        startPos,
+        room.controller.pos,
+        {
+          serialize: true,
+          range: 1,
+          swampCost: 2,
+          plainCost: 1,
+          ignoreCreeps: true,
+          ignoreRoads: true,
+          costCallback: function () {
+            return costs;
+          },
+        }
+      );
+    }
+    // Paths to sources
+    for (const sourceID of Object.keys(room.memory.resources.sources)) {
+      if (!room.memory.resources.sources[sourceID].path) {
+        const source = Game.getObjectById(sourceID);
+        room.memory.resources.sources[sourceID].path = room.findPath(
+          startPos,
+          source.pos,
+          {
+            serialize: true,
+            range: 1,
+            swampCost: 2,
+            plainCost: 1,
+            ignoreCreeps: true,
+            ignoreRoads: true,
+            costCallback: function () {
+              return costs;
+            },
+          }
+        );
+      }
+    }
+    // Path to mineral
+    for (let mineralID of Object.keys(room.memory.resources.minerals)) {
+      if (!room.memory.resources.minerals[mineralID].path) {
+        const mineral = Game.getObjectById(mineralID);
+
+        room.memory.resources.minerals[mineralID].path = room.findPath(
+          startPos,
+          mineral.pos,
+          {
+            serialize: true,
+            range: 1,
+            swampCost: 2,
+            plainCost: 1,
+            ignoreCreeps: true,
+            ignoreRoads: true,
+            costCallback: function () {
+              return costs;
+            },
+          }
+        );
+      }
+    }
   },
 
   cleanMemory: function () {
