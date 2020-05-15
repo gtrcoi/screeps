@@ -503,6 +503,7 @@ Creep.prototype.moveToRoom = function (targetRoom, opts) {
     visualizePathStyle: {},
     reusePath: 100,
   });
+  return OK;
 };
 
 Creep.prototype.bump = function (opts) {
@@ -560,7 +561,7 @@ Creep.prototype.killStuff = function () {
 
     default:
       this.moveTo(target);
-      this.attack(target);
+      this.rangedAttack(target);
       return OK;
   }
 };
