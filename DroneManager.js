@@ -282,16 +282,16 @@ module.exports = {
         if (creep.memory.working) {
           operations = [
             function () {
-              return creep.construct();
-            },
-            function () {
-              return creep.moveToRoom(creep.memory.homeRoom);
-            },
-            function () {
               return creep.chargeStorage();
             },
             function () {
               return creep.chargeSpawn();
+            },
+            function () {
+              return creep.construct();
+            },
+            function () {
+              return creep.moveToRoom(creep.memory.homeRoom);
             },
           ];
         } else {
