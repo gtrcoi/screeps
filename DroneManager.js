@@ -251,7 +251,7 @@ module.exports = {
               return creep.chargeSpawn();
             },
             function () {
-              return creep.rechargeTower({ range: 1 });
+              return creep.rechargeTower({ range: 3 });
             },
           ];
           if (!creep.pos.isEqualTo(creep.memory.rest.x, creep.memory.rest.y)) {
@@ -282,18 +282,18 @@ module.exports = {
         if (creep.memory.working) {
           operations = [
             function () {
+              return creep.construct();
+            },
+            function () {
               return creep.moveToRoom(creep.memory.homeRoom);
             },
             function () {
               return creep.chargeStorage();
             },
+            function () {
+              return creep.chargeSpawn();
+            },
           ];
-          for (key = 0; key < operations.length; key++) {
-            if (operations[key]() == OK) {
-              break;
-            }
-          }
-          break;
         } else {
           operations = [
             function () {
@@ -303,13 +303,14 @@ module.exports = {
               return creep.harvestSource(creep.memory.target);
             },
           ];
-          for (key = 0; key < operations.length; key++) {
-            if (operations[key]() == OK) {
-              break;
-            }
-          }
-          break;
         }
+        for (key = 0; key < operations.length; key++) {
+          if (operations[key]() == OK) {
+            // console.log(`${creep.memory.working} ${key}`);
+            break;
+          }
+        }
+        break;
 
       case "crane":
         const baseLink = Game.getObjectById(
