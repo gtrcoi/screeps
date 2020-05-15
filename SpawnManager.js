@@ -99,9 +99,9 @@ StructureSpawn.prototype.spawnNextCreep = function () {
 
     if (soldierCount < soldierLimit) {
       this.spawnDrone("soldier", {
-        ranged_attack: 2,
-        move: 4,
-        tough: 2,
+        ranged_attack: 1,
+        move: 2,
+        tough: 1,
         targetRoom: satellite,
       });
     }
