@@ -28,13 +28,13 @@ module.exports.loop = function () {
     }
 
     // Run safe mode protection
-    defenseManager.safeMode(room);
 
     // Paint visuals
     if (room.memory.layoutScan.bunker) {
       visuals.paintLayoutScan(room);
     }
     if (room.memory.base) {
+      defenseManager.safeMode(room);
       structureManager.links(room);
       visuals.paintMisc(room);
     }
