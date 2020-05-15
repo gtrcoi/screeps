@@ -57,31 +57,8 @@ StructureSpawn.prototype.spawnNextCreep = function () {
     return;
   }
   for (const satellite of this.room.memory.satellites) {
-    const scoutCount = this.room.memory.creepCount.scout[satellite] || 0;
     if (
-      !Game.rooms[satellite] &&
-      !this.room.memory.structures.observer &&
-      scoutCount < 1
-    ) {
-      this.spawnDrone("scout", {
-        move: 1,
-        maxSections: 1,
-        targetRoom: satellite,
-      });
-    }
-    const soldierCount = this.room.memory.creepCount.soldier[satellite] || 0;
-    const soldierLimit = this.room.memory.spawnLimits.soldier[satellite] || 0;
-
-    if (soldierCount < soldierLimit) {
-      this.spawnDrone("soldier", {
-        attack: 1,
-        move: 2,
-        tough: 1,
-        targetRoom: satellite,
-      });
-      return;
-    }
-    if (
+      Memory.rooms[satellite] &&
       Memory.rooms[satellite].resources &&
       Memory.rooms[satellite].resources.sources &&
       Memory.rooms[satellite].enemies &&
@@ -104,6 +81,29 @@ StructureSpawn.prototype.spawnNextCreep = function () {
           return;
         }
       }
+    }
+    const scoutCount = this.room.memory.creepCount.scout[satellite] || 0;
+    if (
+      !Game.rooms[satellite] &&
+      !this.room.memory.structures.observer &&
+      scoutCount < 1
+    ) {
+      this.spawnDrone("scout", {
+        move: 1,
+        maxSections: 1,
+        targetRoom: satellite,
+      });
+    }
+    const soldierCount = this.room.memory.creepCount.soldier[satellite] || 0;
+    const soldierLimit = this.room.memory.spawnLimits.soldier[satellite] || 0;
+
+    if (soldierCount < soldierLimit) {
+      this.spawnDrone("soldier", {
+        ranged_attack: 2,
+        move: 4,
+        tough: 2,
+        targetRoom: satellite,
+      });
     }
   }
 };
