@@ -314,11 +314,21 @@ Creep.prototype.repairRoad = function (opts) {
     opts.percent = 100;
   }
 
-  const targetID = this.room.memory.structures.repairs.mostDamagedRoad.id;
-  const targetPercent = this.room.memory.structures.repairs.mostDamagedRoad
-    .percent;
-  const target = Game.getObjectById(targetID);
-
+  let targetID;
+  let targetPercent;
+  let target;
+  if (this.room.memory.structures && this.room.memory.structures.repairs) {
+    targetID = this.room.memory.structures.repairs.mostDamagedRoad.id;
+    targetPercent = this.room.memory.structures.repairs.mostDamagedRoad.percent;
+    target = Game.getObjectById(targetID);
+  } else {
+    target = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (s) => s.structureType === STRUCTURE_ROAD && s.hits < s.hitsMax,
+    });
+    targetPercent = !_.isNull(target)
+      ? target.hitsMax / target.hits
+      : undefined;
+  }
   if (!_.isNull(target) && targetPercent < opts.percent / 100) {
     if (this.repair(target) === ERR_NOT_IN_RANGE) {
       this.moveTo(target, {
