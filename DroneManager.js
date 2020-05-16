@@ -24,9 +24,9 @@ module.exports = {
             function () {
               return creep.rechargeTower({ percent: 50 });
             },
-            // function () {
-            //   return creep.chargeSpawn();
-            // },
+            function () {
+              return creep.repairRoad({ percent: 50 });
+            },
             function () {
               return creep.construct();
             },
@@ -50,6 +50,9 @@ module.exports = {
             },
             function () {
               return creep.collectStorage();
+            },
+            function () {
+              return creep.harvestSource();
             },
           ];
           if (
@@ -294,6 +297,11 @@ module.exports = {
               return creep.moveToRoom(creep.memory.homeRoom);
             },
           ];
+          if (creep.room.name !== creep.memory.homeRoom) {
+            operations.unshift(function () {
+              return creep.repairRoad();
+            });
+          }
         } else {
           operations = [
             function () {
