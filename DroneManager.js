@@ -107,7 +107,7 @@ module.exports = {
             },
           ];
 
-          if (creep.room.memory.spawnLimits.digger === 0) {
+          if (creep.room.memory.spawnLimits.energyCollectors === 0) {
             operations.unshift(
               function () {
                 return creep.collectContainer();
@@ -306,6 +306,12 @@ module.exports = {
           operations = [
             function () {
               return creep.moveToRoom(creep.memory.targetRoom);
+            },
+            function () {
+              return creep.collectDroppedSource();
+            },
+            function () {
+              return creep.withdrawTombstone();
             },
             function () {
               return creep.harvestSource(creep.memory.target);
