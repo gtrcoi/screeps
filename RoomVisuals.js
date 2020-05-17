@@ -23,6 +23,13 @@ module.exports = {
     }
   },
 
+  paintPaths: function (room) {
+    for (const path of Object.values(room.memory.paths)) {
+      console.log(path);
+      room.visual.poly(Room.deserializePath(path));
+    }
+  },
+
   paintMisc: function (room) {
     if (room.memory.structures.repairs) {
       let yPos = 1;
