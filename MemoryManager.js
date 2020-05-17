@@ -7,6 +7,9 @@ module.exports = {
     if (!room.memory.base) {
       room.memory.base = false;
     }
+    if (!room.memory.paths) {
+      room.memory.paths = {};
+    }
 
     // Scan for bunker
     if (!room.memory.layoutScan) {
