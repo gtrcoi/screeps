@@ -18,6 +18,12 @@ module.exports = {
       room.memory.resources = this.setResources(room);
     }
 
+    // Count construction sites
+    room.memory.construction = room.find(FIND_CONSTRUCTION_SITES).length;
+
+    if (room.memory.base && !room.memory.creepCount) {
+      room.memory.creepCount = {};
+    }
     this.enemyCount(room);
 
     if (!room.memory.base) return;
@@ -27,19 +33,21 @@ module.exports = {
 
     // Set satellites
     if (!room.memory.satellites) {
-      room.memory.satellites = this.listSatellites(room, { distance: 1 });
+      room.memory.satellites = this.listSatellites(room, { distance: 2 });
     }
 
     // Update room memory
     if (!room.memory.costMatrix || room.memory.costMatrix.tick !== Game.time) {
-      //   console.log("object");
-      room.memory.costMatrix = this.setCostMatrix(room);
+      // console.log("object")
+      this.setCostMatrix(room);
     }
 
     room.memory.structures = this.setStructures(room);
-    this.setPaths(room);
+    if (room.memory.costMatrix) {
+      this.setPaths(room);
+    }
+    this.setBunker(room);
     this.creepLimits(room);
-    // this.creepCount();
     // this.viewSatellites(room);
     this.findRepairs(room);
   },
@@ -61,7 +69,8 @@ module.exports = {
     const builderLimits =
       room.find(FIND_MY_CONSTRUCTION_SITES).length > 0 ? 1 : 0;
     const craneLimits = room.memory.structures.links.baseLinkID ? 1 : 0;
-    const loaderLimits = room.controller.level >= 4 ? 1 : undefined;
+    const loaderLimits =
+      room.controller.level >= 4 && room.storage !== undefined ? 1 : undefined;
     // (room.controller.level >= 4 && room.storage !== undefined) ? Math.floor(room.controller.level / 2) : 0
 
     // Save to memory
@@ -310,6 +319,67 @@ module.exports = {
     return structures;
   },
 
+  setBunker: function (room) {
+    // Set up bunker logistics
+    if (room.memory.base && room.memory.layoutScan.bunker) {
+      if (!room.memory.bunker) {
+        room.memory.bunker = { NE: {}, NW: {}, SE: {}, SW: {} };
+      }
+      const startX = room.memory.layoutScan.pos.x;
+      const startY = room.memory.layoutScan.pos.y;
+      for (const direction of Object.keys(room.memory.bunker)) {
+        let top;
+        let left;
+        let bottom;
+        let right;
+
+        // Define bunker quadrant
+        switch (direction) {
+          case "NE":
+            top = startY;
+            left = startX + 6;
+            bottom = startY + 6;
+            right = startX + 12;
+            break;
+          case "NW":
+            top = startY;
+            left = startX;
+            bottom = startY + 6;
+            right = startX + 6;
+            break;
+          case "SE":
+            top = startY + 6;
+            left = startX + 6;
+            bottom = startY + 12;
+            right = startX + 12;
+            break;
+          case "SW":
+            top = startY + 6;
+            left = startX;
+            bottom = startY + 12;
+            right = startX + 6;
+            break;
+        }
+        // Scan quadrant
+        const scan = room.lookForAtArea(
+          LOOK_STRUCTURES,
+          top,
+          left,
+          bottom,
+          right,
+          true
+        );
+        // Build list of extensions
+        const extensions = [];
+        for (const element of scan) {
+          if (element.structure.structureType === "extension")
+            extensions.push(element.structure.id);
+        }
+        room.memory.bunker[direction].extensions = extensions;
+      }
+    }
+  },
+
   setPaths: function (room) {
     const costs = PathFinder.CostMatrix.deserialize(
       room.memory.costMatrix.costs
@@ -349,7 +419,7 @@ module.exports = {
             swampCost: 2,
             plainCost: 1,
             ignoreCreeps: true,
-            ignoreRoads: true,
+            ignoreRoads: false,
             costCallback: function () {
               return costs;
             },
@@ -515,46 +585,78 @@ module.exports = {
 
   // update costMatrix
   setCostMatrix: function (room) {
-    let costs = new PathFinder.CostMatrix();
+    if (!room.memory.costMatrix) {
+      const costs = new PathFinder.CostMatrix();
+      // build walls ever N tiles
+      const modVar = 3;
+      // Generate list of room coordinates around edge
+      let edges = [];
+      for (i = 2; i <= 47; i++) {
+        // top
+        edges.push([i, 2]);
 
-    // Add bunker positions to matrix
-    if (room.memory.layoutScan.bunker && room.memory.base) {
-      const terrain = Game.map.getRoomTerrain(room.name);
-      const bunkerLayout = Object.values(
-        require("./layouts").bunkerLayout(
-          room.memory.layoutScan.pos.x,
-          room.memory.layoutScan.pos.y
-        )
-      );
-      const bunkerRoads = require("./layouts").bunkerRoadLayout(
-        room.memory.layoutScan.pos.x,
-        room.memory.layoutScan.pos.y
-      );
-      for (let entry of bunkerLayout) {
-        costs.set(entry.pos.x, entry.pos.y, 255);
+        // bottom
+        edges.push([i, 47]);
+
+        // left
+        edges.push([2, i]);
+
+        // right
+        edges.push([47, i]);
       }
-      for (let road of bunkerRoads) {
-        if (terrain.get(road.x, road.y) !== TERRAIN_MASK_WALL) {
-          costs.set(road.x, road.y, 1);
+
+      for (let i of edges) {
+        let pos = new RoomPosition(i[0], i[1], room.name);
+        if (pos.findInRange(FIND_EXIT, 2).length != 0) {
+          if (
+            ((pos.x === 2 || pos.x === 47) && pos.y % modVar !== 0) ||
+            ((pos.y === 2 || pos.y === 47) && pos.x % modVar !== 0)
+          ) {
+            costs.set(pos.x, pos.y, 8);
+            room.visual.circle(pos);
+          }
         }
       }
-    }
+      room.memory.costMatrix = { costs: costs.serialize(), tick: Game.time };
+    } else {
+      const costs = PathFinder.CostMatrix.deserialize(
+        room.memory.costMatrix.costs
+      );
+      // Add bunker positions to matrix
+      if (room.memory.layoutScan.bunker && room.memory.base) {
+        const terrain = Game.map.getRoomTerrain(room.name);
+        const bunkerLayout = Object.values(
+          require("./layouts").bunkerLayout(
+            room.memory.layoutScan.pos.x,
+            room.memory.layoutScan.pos.y
+          )
+        );
+        const bunkerRoads = require("./layouts").bunkerRoadLayout(
+          room.memory.layoutScan.pos.x,
+          room.memory.layoutScan.pos.y
+        );
+        for (let entry of bunkerLayout) {
+          costs.set(entry.pos.x, entry.pos.y, 255);
+        }
+        for (let road of bunkerRoads) {
+          if (terrain.get(road.x, road.y) !== TERRAIN_MASK_WALL) {
+            costs.set(road.x, road.y, 1);
+          }
+        }
+      }
 
-    const walls = room.find(FIND_STRUCTURES, {
-      filter: (s) => s.structureType === STRUCTURE_WALL,
-    });
-    for (const wall of walls) {
-      costs.set(wall.pos.x, wall.pos.y, 8);
+      // const walls = room.find(FIND_STRUCTURES, {
+      //   filter: (s) => s.structureType === STRUCTURE_WALL,
+      // });
+      // for (const wall of walls) {
+      //   costs.set(wall.pos.x, wall.pos.y, 8);
+      // }
+      // const creeps = room.find(FIND_CREEPS);
+      // for (const creep of creeps) {
+      //   costs.set(creep.pos.x, creep.pos.y, 8);
+      // }
+      room.memory.costMatrix = { costs: costs.serialize(), tick: Game.time };
     }
-    const creeps = room.find(FIND_CREEPS);
-    for (const creep of creeps) {
-      costs.set(creep.pos.x, creep.pos.y, 8);
-    }
-    const costMatrix = {
-      costs: costs.serialize(),
-      tick: Game.time,
-    };
-    return costMatrix;
   },
 
   // generate array of satellite room names
