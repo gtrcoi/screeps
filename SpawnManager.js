@@ -94,16 +94,18 @@ StructureSpawn.prototype.spawnNextCreep = function () {
         targetRoom: satellite,
       });
     }
-    const soldierCount = this.room.memory.creepCount.soldier[satellite] || 0;
-    const soldierLimit = this.room.memory.spawnLimits.soldier[satellite] || 0;
+    if (this.room.controller.level > 5) {
+      const soldierCount = this.room.memory.creepCount.soldier[satellite] || 0;
+      const soldierLimit = this.room.memory.spawnLimits.soldier[satellite] || 0;
 
-    if (soldierCount < soldierLimit) {
-      this.spawnDrone("soldier", {
-        ranged_attack: 1,
-        move: 2,
-        tough: 1,
-        targetRoom: satellite,
-      });
+      if (soldierCount < soldierLimit) {
+        this.spawnDrone("soldier", {
+          ranged_attack: 1,
+          move: 2,
+          tough: 1,
+          targetRoom: satellite,
+        });
+      }
     }
   }
 };
@@ -135,6 +137,7 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
     default:
       creepMemory = {
         working: false,
+        state: 0,
         role: role,
         homeRoom: this.room.name,
         targetRoom: opts.targetRoom,
