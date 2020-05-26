@@ -7,9 +7,6 @@ module.exports = {
     if (!room.memory.base) {
       room.memory.base = false;
     }
-    if (!room.memory.paths) {
-      room.memory.paths = {};
-    }
 
     // Scan for bunker
     if (!room.memory.layoutScan) {
@@ -28,6 +25,7 @@ module.exports = {
       room.memory.creepCount = {};
     }
     this.enemyCount(room);
+    this.setCostMatrix(room);
 
     if (!room.memory.base) return;
 
@@ -38,12 +36,11 @@ module.exports = {
     if (!room.memory.satellites) {
       room.memory.satellites = this.listSatellites(room, { distance: 2 });
     }
+    if (!room.memory.paths || Game.time % 2000 === 0) {
+      this.serializeHighways(room);
+    }
 
     // Update room memory
-    if (!room.memory.costMatrix || room.memory.costMatrix.tick !== Game.time) {
-      // console.log("object")
-      this.setCostMatrix(room);
-    }
 
     room.memory.structures = this.setStructures(room);
     if (room.memory.costMatrix) {
@@ -586,37 +583,149 @@ module.exports = {
     return resources;
   },
 
+  // Pathfinder.search to resources in satellite rooms
+  serializeHighways: function (room) {
+    /**
+     * Serialize a Pathfinder object
+     * @return {object} Return a collection of serialized paths with room names as keys.
+     * @param {object} path - Pathfinder.search object
+     */
+    function serializePathfinder(path) {
+      // Check parameter is valid
+      if (
+        !_.isArray(path.path) ||
+        !_.isNumber(path.ops) ||
+        !_.isNumber(path.cost) ||
+        !_.isBoolean(path.incomplete)
+      )
+        return ERR_INVALID_ARGS;
+      /**
+       * Extensive comparison of two arrays
+       * @param {array} a
+       * @param {array} b
+       */
+      function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length != b.length) return false;
+
+        for (var i = 0; i < a.length; ++i) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
+      }
+
+      offsetsByDirection = {
+        [TOP]: [0, -1],
+        [TOP_RIGHT]: [1, -1],
+        [RIGHT]: [1, 0],
+        [BOTTOM_RIGHT]: [1, 1],
+        [BOTTOM]: [0, 1],
+        [BOTTOM_LEFT]: [-1, 1],
+        [LEFT]: [-1, 0],
+        [TOP_LEFT]: [-1, -1],
+      };
+      const paths = {};
+      // Sort positions together by room
+      for (const position of Object.values(path.path)) {
+        if (!paths[position.roomName]) {
+          paths[position.roomName] = [];
+        }
+        paths[position.roomName].push(position);
+      }
+      // Build serialized string from sorted position arrays
+      for (const roomName of Object.keys(paths)) {
+        const path = paths[roomName];
+        if (!path.length) continue;
+
+        let result = "";
+        result += path[0].x > 9 ? path[0].x : "0" + path[0].x;
+        result += path[0].y > 9 ? path[0].y : "0" + path[0].y;
+        result += 1;
+        for (let i = 1; i < path.length; i++) {
+          const offset = [path[i].x - path[i - 1].x, path[i].y - path[i - 1].y];
+          for (const key of Object.keys(offsetsByDirection)) {
+            if (arraysEqual(offset, offsetsByDirection[key])) {
+              result += key;
+            }
+          }
+        }
+
+        paths[roomName] = result;
+        // console.log(paths[roomName]);
+      }
+      return paths;
+    }
+
+    for (const satellite of room.memory.satellites) {
+      const path = PathFinder.search(
+        room.storage.pos,
+        {
+          pos: new RoomPosition(24, 24, satellite),
+          range: 25,
+        },
+        {
+          maxOps: 8000,
+          swampCost: 3,
+          plainCost: 2,
+          roomCallback: function (roomName) {
+            if (Memory.rooms[roomName] && Memory.rooms[roomName].costMatrix) {
+              return PathFinder.CostMatrix.deserialize(
+                Memory.rooms[roomName].costMatrix.costs
+              );
+            }
+          },
+        }
+      );
+      for (const position of path.path) {
+        const testRoom = Game.rooms[position.roomName];
+        if (_.isUndefined(testRoom)) continue;
+        // testRoom.visual.circle(position);
+      }
+      //
+      const serializedPath = serializePathfinder(path);
+      for (const roomName of Object.keys(serializedPath)) {
+        // Skips path sections in destination room
+        if (roomName === satellite) continue;
+
+        const localPath = serializedPath[roomName];
+        Memory.rooms[roomName].paths[`${room.name}_${satellite}`] = localPath;
+      }
+    }
+  },
+
   // update costMatrix
   setCostMatrix: function (room) {
     if (!room.memory.costMatrix) {
       const costs = new PathFinder.CostMatrix();
-      // build walls ever N tiles
-      const modVar = 3;
-      // Generate list of room coordinates around edge
-      let edges = [];
-      for (i = 2; i <= 47; i++) {
-        // top
-        edges.push([i, 2]);
+      if (room.memory.base) {
+        // build walls ever N tiles
+        const modVar = 3;
+        // Generate list of room coordinates around edge
+        let edges = [];
+        for (i = 2; i <= 47; i++) {
+          // top
+          edges.push([i, 2]);
 
-        // bottom
-        edges.push([i, 47]);
+          // bottom
+          edges.push([i, 47]);
 
-        // left
-        edges.push([2, i]);
+          // left
+          edges.push([2, i]);
 
-        // right
-        edges.push([47, i]);
-      }
+          // right
+          edges.push([47, i]);
+        }
 
-      for (let i of edges) {
-        let pos = new RoomPosition(i[0], i[1], room.name);
-        if (pos.findInRange(FIND_EXIT, 2).length != 0) {
-          if (
-            ((pos.x === 2 || pos.x === 47) && pos.y % modVar !== 0) ||
-            ((pos.y === 2 || pos.y === 47) && pos.x % modVar !== 0)
-          ) {
-            costs.set(pos.x, pos.y, 8);
-            room.visual.circle(pos);
+        for (let i of edges) {
+          let pos = new RoomPosition(i[0], i[1], room.name);
+          if (pos.findInRange(FIND_EXIT, 2).length != 0) {
+            if (
+              ((pos.x === 2 || pos.x === 47) && pos.y % modVar !== 0) ||
+              ((pos.y === 2 || pos.y === 47) && pos.x % modVar !== 0)
+            ) {
+              costs.set(pos.x, pos.y, 8);
+            }
           }
         }
       }
@@ -625,6 +734,13 @@ module.exports = {
       const costs = PathFinder.CostMatrix.deserialize(
         room.memory.costMatrix.costs
       );
+      // Roads
+      const roads = room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_ROAD,
+      });
+      for (const road of roads) {
+        costs.set(road.pos.x, road.pos.y, 1);
+      }
       // Add bunker positions to matrix
       if (room.memory.layoutScan.bunker && room.memory.base) {
         const terrain = Game.map.getRoomTerrain(room.name);
