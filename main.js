@@ -30,6 +30,7 @@ module.exports.loop = function () {
     // Run safe mode protection
 
     // Paint visuals
+    visuals.paintPaths(room);
     if (room.memory.layoutScan.bunker) {
       visuals.paintLayoutScan(room);
     }
