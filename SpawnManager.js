@@ -98,7 +98,7 @@ StructureSpawn.prototype.spawnNextCreep = function () {
       const soldierCount = this.room.memory.creepCount.soldier[satellite] || 0;
       const soldierLimit = this.room.memory.spawnLimits.soldier[satellite] || 0;
 
-      if (soldierCount < soldierLimit) {
+      if (soldierCount < soldierLimit && soldierLimit < 3) {
         this.spawnDrone("soldier", {
           ranged_attack: 1,
           move: 2,
