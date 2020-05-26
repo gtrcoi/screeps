@@ -303,15 +303,6 @@ module.exports = {
             });
           }
         } else {
-          if (creep.memory._move && creep.memory._move.path.length) {
-            const path = creep.memory._move.path;
-            if (
-              !creep.room.memory.paths[creep.memory.target] ||
-              creep.room.memory.paths[creep.memory.target].length < path.length
-            ) {
-              creep.room.memory.paths[creep.memory.target] = path;
-            }
-          }
           operations = [
             function () {
               return creep.moveToRoom(creep.memory.targetRoom);
