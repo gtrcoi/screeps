@@ -145,6 +145,8 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
       };
       break;
   }
+  if (!_.isObject(creepMemory))
+    console.log(`Idiot check failed: Creep memory is ${creepMemory}`);
 
   opts = opts || {};
 
@@ -189,28 +191,35 @@ StructureSpawn.prototype.spawnDrone = function (role, opts) {
   let numberOfParts = Math.floor(energyAvailable / sectionCost);
   numberOfParts = numberOfParts > maxSections ? maxSections : numberOfParts;
 
-  if (numberOfParts >= 1) {
-    let body = new Array();
-    for (const part of partsOrder) {
-      body = body.concat(repeat(part, opts[part] * numberOfParts));
-    }
+  if (numberOfParts < 1) return ERR_NOT_ENOUGH_ENERGY;
 
-    // console.log(`Max sections: ${maxSections}
-    // parts: ${numberOfParts}
-    // section length: ${sectionLength}
-    // body: ${body}
-    // role: ${role}`);
+  let body = new Array();
+  for (const part of partsOrder) {
+    body = body.concat(repeat(part, opts[part] * numberOfParts));
+  }
 
-    const spawnReturn = this.spawnCreep(body, name, {
+  const spawn = this;
+  const spawnReturn = (function () {
+    return spawn.spawnCreep(body, name, {
       memory: creepMemory,
     });
-    if (!/0|-6/.test(spawnReturn)) {
-      console.log(`Spawning ${role} returns: ${spawnReturn}`);
-    }
+  })();
+
+  if (!/0|-6/.test(spawnReturn)) {
+    console.log(
+      `Spawning ${role} returns: ${spawnReturn}
+      Max sections: ${maxSections}
+      Parts: ${numberOfParts}
+      section length: ${sectionLength}
+      body: ${body}`
+    );
   }
 };
 
-// Add a function to spawn objects to spawn a digger
+/**
+ * Builds digger memory
+ * @returns {object} digger memory
+ */
 StructureSpawn.prototype.spawnDigger = function () {
   // The memory we are going to save inside the creep
   const creepMemory = {
@@ -223,7 +232,6 @@ StructureSpawn.prototype.spawnDigger = function () {
   };
 
   const sourceLinkIDs = this.room.memory.structures.links.sourceLinkIDs;
-  const sourceIDs = Object.keys(this.room.memory.resources.sources);
   const diggers = _.filter(
     this.room.find(FIND_MY_CREEPS),
     (c) => c.memory.role === "digger" && (c.ticksToLive > 100 || c.spawning)
@@ -248,8 +256,13 @@ StructureSpawn.prototype.spawnDigger = function () {
   creepMemory.linkID = linkAssign;
 
   // Assign source ID
+  const sources = Game.getObjectById(linkAssign).pos.findInRange(
+    FIND_SOURCES,
+    2
+  );
   let sourceAssign = undefined;
-  for (sourceID of sourceIDs) {
+  for (source of sources) {
+    const sourceID = source.id;
     if (
       _.filter(diggerSourceIDs, (element) => element === sourceID).length == 0
     ) {
@@ -273,7 +286,10 @@ StructureSpawn.prototype.spawnDigger = function () {
   return creepMemory;
 };
 
-// Add a function to spawn objects to spawn a loader
+/**
+ * Builds loader memory
+ * @returns {object} loader memory
+ */
 StructureSpawn.prototype.spawnLoader = function () {
   const creepMemory = {
     working: false,
