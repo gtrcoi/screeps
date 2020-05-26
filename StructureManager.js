@@ -1,4 +1,27 @@
 module.exports = {
+  build: function (room) {
+    this.buildHighways(room);
+    if (room.memory.base) {
+      this.links(room);
+      if (Game.time % 1000 === 0) {
+        this.buildBunker(room);
+        this.buildLocal(room);
+        this.buildRamparts(room);
+        this.rebuild(room);
+        this.wallExits(room);
+      }
+    }
+  },
+
+  buildHighways: function (room) {
+    if (!room.memory.paths) return;
+    for (serializedPath of Object.values(room.memory.paths)) {
+      const path = Room.deserializePath(serializedPath);
+      for (pos of path) {
+        room.createConstructionSite(pos, STRUCTURE_ROAD);
+      }
+    }
+  },
   buildBunker: function (room) {
     const startX = room.memory.layoutScan.pos.x;
     const startY = room.memory.layoutScan.pos.y;
@@ -19,7 +42,7 @@ module.exports = {
 
       if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
         room.createConstructionSite(x, y, STRUCTURE_ROAD);
-        room.createConstructionSite(x, y, STRUCTURE_RAMPART);
+        // room.createConstructionSite(x, y, STRUCTURE_RAMPART);
       }
     }
 
@@ -67,7 +90,7 @@ module.exports = {
             break;
         }
         room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
-        room.createConstructionSite(pos.x, pos.y, STRUCTURE_RAMPART);
+        // room.createConstructionSite(pos.x, pos.y, STRUCTURE_RAMPART);
       }
     }
 

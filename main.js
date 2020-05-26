@@ -19,13 +19,7 @@ module.exports.loop = function () {
     memoryManager.setRoomMemory(room);
 
     // Manage base building
-    if (room.memory.base && Game.time % 1000 === 0) {
-      structureManager.buildBunker(room);
-      structureManager.buildLocal(room);
-      structureManager.buildRamparts(room);
-      structureManager.rebuild(room);
-      structureManager.wallExits(room);
-    }
+    structureManager.build(room);
 
     // Run safe mode protection
 
@@ -36,7 +30,6 @@ module.exports.loop = function () {
     }
     if (room.memory.base) {
       defenseManager.safeMode(room);
-      structureManager.links(room);
       visuals.paintMisc(room);
     }
   }
