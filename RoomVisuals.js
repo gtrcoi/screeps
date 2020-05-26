@@ -24,6 +24,7 @@ module.exports = {
   },
 
   paintPaths: function (room) {
+    if (!room.memory.paths) return;
     for (const path of Object.values(room.memory.paths)) {
       room.visual.poly(Room.deserializePath(path));
     }
