@@ -37,6 +37,7 @@ module.exports = {
       room.memory.satellites = this.listSatellites(room, { distance: 2 });
     }
     if (!room.memory.paths || Game.time % 2000 === 0) {
+      room.memory.paths = {};
       this.serializeHighways(room);
     }
 
